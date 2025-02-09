@@ -1,0 +1,193 @@
+Items: {
+	ThePlanck: {
+		DisplayName: The Planck
+		Tooltip: Applys shadowflame to enemies
+	}
+
+	AccretionDisk: {
+		Tooltip: Shoots stars at a rapid rate.
+		DisplayName: Accretion Disk
+	}
+
+	StarBirther: {
+		Tooltip: This books seems to birth stars at the users will.
+		DisplayName: Star Birther
+	}
+
+	SchwarzchildGreaves: {
+		Tooltip: Increases movement speed, max life, max mana, and Stellar damage by 2%.
+		DisplayName: Schwarzchild Greaves
+	}
+
+	SchwarzchildHelmet: {
+		Tooltip: Increases max life, mana, and Stellar damage by 2%.
+		DisplayName: Schwarzchild Helmet
+		SetBonus: All damage increased by 10%
+	}
+
+	SchwarzchildChestplate: {
+		Tooltip: " Increases max mana 50 and Stellar damage by 5%."
+		DisplayName: Schwarzchild Chestplate
+	}
+
+	GravityShield: {
+		Tooltip: This sheild uses gravity altering metals to allow the user the dash.
+		DisplayName: Gravity Shield
+	}
+
+	GammaRayBurst: {
+		Tooltip: The brightest thing you've ever seen.
+		DisplayName: Gamma Ray Burst
+	}
+
+	LogisticalStaff: {
+		DisplayName: Logistical Staff
+		Tooltip: Shoots homing logistical carriers.
+	}
+
+	ParticleCollider: {
+		DisplayName: Particle Collider
+		Tooltip: Makeshift handheld particle collider.
+	}
+
+	CurrentCaller: {
+		DisplayName: Current Caller
+		Tooltip: Calls water from really high up...well it's supposed to.
+	}
+
+	NeutronPickaxe: {
+		DisplayName: Neutron Pickaxe
+		Tooltip: Weighs about 1 solar mass.
+	}
+
+	NeutroniumOre: {
+		DisplayName: Neutronium Ore
+		Tooltip: It's really heavy.
+	}
+
+	CondensedNeutronium: {
+		DisplayName: Condensed Neutronium
+		Tooltip: How are you even holding this??
+	}
+
+	DarkFogStaff: {
+		Tooltip: Summons a Dark Fog unit to fight for you.
+		DisplayName: Dark Fog Staff
+	}
+
+	Pulsar: {
+		DisplayName: Pulsar
+		Tooltip: It has a very strong magnetic field.
+	}
+
+	UniverseCutterScythe: {
+		DisplayName: Universe Cutter
+		Tooltip: Slices through enemies with celestial power.
+	}
+
+	StrandOfLaniakea: {
+		DisplayName: Strand Of Laniakea
+		Tooltip: Straight from the supercluster!
+	}
+
+	PewPew: {
+		Tooltip: Many pewpews.
+		DisplayName: Pew Pew
+	}
+
+	Blazar: {
+		DisplayName: Blazar
+		Tooltip: ""
+	}
+
+	SBG: {
+		DisplayName: S.B.G
+		Tooltip: The Takanaka special.
+	}
+
+	PygylyggStaff: {
+		DisplayName: Pygylygg Staff
+		Tooltip: "One of the Trickster's treasures.  "
+	}
+
+	BibbleGlogBlaster: {
+		Tooltip: ""
+		DisplayName: Bibble Glog Blaster
+	}
+
+	BHL: {
+		DisplayName: B.H.L
+		Tooltip: Shoots black holes that pull enemies toward it.
+	}
+
+	MoonlitStiletto: {
+		DisplayName: Moonlit Stiletto
+		Tooltip: ""
+	}
+}
+
+Projectiles: {
+	GammaRayBurstHoldout.DisplayName: Gamma Ray Burst Holdout
+	GammaRayBurstBeam.DisplayName: Gamma Ray Burst Beam
+	LogisticalStaffProjectile.DisplayName: Logistical Staff Projectile
+	DarkFogUnit.DisplayName: Dark Fog Unit
+	PulsarProjectile.DisplayName: Pulsar Projectile
+	PulsarBeam.DisplayName: Pulsar Beam
+	Pulsar.DisplayName: Pulsar
+
+	Melee: {
+		PulsarBeam.DisplayName: Pulsar Beam
+		UniverseCutter.DisplayName: Universe Cutter na
+		Fireball.DisplayName: Fireball
+	}
+
+	UniverseCutterExplosion.DisplayName: Universe Cutter Explosion
+	UniverseCutter.DisplayName: Universe Cutter Explosion
+
+	Tooltip: {
+	}
+
+	StrandOfLaneakiaProjectile.DisplayName: Strand Of Laneakia Projectile
+	StrandOfLaniakeaProjectile.DisplayName: Strand Of Laniakea Projectile
+	BlazarBurst.DisplayName: Blazar Burst
+	BlazarProjectile.DisplayName: Blazar Projectile
+	SBGprojectile.DisplayName: S B Gprojectile
+	PygylyggJellyfish.DisplayName: Pygylygg Jellyfish
+	BibbleGlogBlasterProjectile.DisplayName: Bibble Glog Blaster Projectile
+	BlackHole.DisplayName: Black Hole
+	BHLProjectile.DisplayName: B H L Projectile
+	MoonlitStilettoProjectile.DisplayName: Moonlit Stiletto Projectile
+}
+
+DarkFogUnitBuff: {
+	Description: A dark for unit is fighting for you!
+	DisplayName: Dark Fog Unit Buff
+}
+
+DamageClasses.StellarDamageClass.DisplayName: Stellar Damage Class
+Emotes.NeutronPickaxeEmote.Command: neutronpickaxeemote
+Tiles.NeutroniumOre.MapEntry: Neutronium Ore
+
+WorldGen: {
+	NeutronsDetected: Mods.Neutronium.WorldGen.NeutronsDetected
+	BlessedWithNeutroniumOre: Mods.Neutronium.WorldGen.BlessedWithNeutroniumOre
+}
+
+NPCs.StellarPawn.DisplayName: Stellar Pawn
+
+Buffs: {
+	DarkFogUnitBuff: {
+		DisplayName: Dark Fog Unit
+		Description: A Dark Fog unit is fighting for you.
+	}
+
+	StrandOfLaniakeaDebuff: {
+		DisplayName: Strand Of Laniakea Debuff
+		Description: Mods.Neutronium.Buffs.StrandOfLaniakeaDebuff.Description
+	}
+
+	StrandOfLaniakeaDebuffAdvanced: {
+		DisplayName: Strand Of Laniakea Debuff Advanced
+		Description: Mods.Neutronium.Buffs.StrandOfLaniakeaDebuffAdvanced.Description
+	}
+}
