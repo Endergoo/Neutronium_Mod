@@ -74,7 +74,7 @@ namespace Neutronium.NPCs.N0_TR0N
 
         public override void SetDefaults()
         {
-            NPC.width = 82;
+            NPC.width = 53;
             NPC.height = 88;
             NPC.lifeMax = 100000; // Adjust balance as needed
             NPC.defense = 150;
