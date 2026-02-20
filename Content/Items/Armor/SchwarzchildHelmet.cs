@@ -55,7 +55,7 @@ namespace Neutronium.Content.Items.Armor
         {
             player.buffImmune[BuffID.OnFire] = true; // Make the player immune to Fire
             player.statLifeMax2 += 25;
-            player.statManaMax2 += MaxManaIncrease; // Increase how many mana points the player can have by 20
+            player.statManaMax2 += MaxManaIncrease;
             player.GetModPlayer<GlobalPlayer>().StellarDamage += 0.02f;
 
         }
