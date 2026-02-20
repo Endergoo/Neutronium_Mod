@@ -139,9 +139,6 @@ namespace Neutronium.Content.Items.Weapons
                 doneAttack = true;
                 storedTime = time;
                 
-                // Screen shake
-                if (Main.LocalPlayer.Distance(targetPos) < 1000)
-                    Main.LocalPlayer.GetModPlayer<ModPlayer>().ScreenshakePower = 3;
             }
             
             float endTime = storedTime + 12;
