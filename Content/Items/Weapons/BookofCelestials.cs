@@ -8,7 +8,7 @@ using Terraria.Audio;
 using System;
 
 
-namespace Neutronium.Items.Weapons
+namespace Neutronium.Content.Items.Weapons
 {
     public class BookofCelestials : ModItem
     {
