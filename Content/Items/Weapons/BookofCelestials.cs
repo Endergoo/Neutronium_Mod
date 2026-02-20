@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using System;
 
-namespace YourModName.Items.Weapons
+namespace Neutronium.Items.Weapons
 {
     public class BookofCelestials : ModItem
     {
