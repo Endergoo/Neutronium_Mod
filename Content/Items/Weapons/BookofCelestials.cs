@@ -68,7 +68,7 @@ namespace Neutronium.Content.Items.Weapons
         private Vector2 BeamEnd;
         private Vector2 Direction;
 
-        private Color drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)Math.Sin(time));
+        private Color drawColor = Color.Yellow;
 
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float rotation => ref Projectile.ai[1];
@@ -97,6 +97,9 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void AI()
         {
+
+            drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)Math.Sin(time));
+            
             if (beamFX > 0f)
                 beamFX = MathHelper.Lerp(beamFX, 0f, time > attackTime + 5 ? 0.07f : 0.01f);
 
