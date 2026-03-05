@@ -9,7 +9,7 @@ using Terraria.Graphics.CameraModifiers;
 
 namespace Neutronium.Content.Items.Weapons
 {
-    public class BookOfCelestials : ModItem
+    public class BookofCelestials : ModItem
     {
         public override void SetDefaults()
         {
