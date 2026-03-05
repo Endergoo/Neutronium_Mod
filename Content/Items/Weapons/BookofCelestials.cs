@@ -51,7 +51,7 @@ namespace Neutronium.Content.Items.Weapons
                 knockback,
                 player.whoAmI,
                 ai0: 0.3f,       // attack speed
-                ai1: beamRotation // rotation (float)
+                ai1: beamRotation // rotation in radians
             );
 
             return false;
@@ -72,23 +72,24 @@ namespace Neutronium.Content.Items.Weapons
     {
         public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
 
-        public float time = 0;
-        public ref float attackSpeed => ref Projectile.ai[0];
-        public ref float beamRotation => ref Projectile.ai[1];
+        private float time = 0f;
+        private bool doneAttack = false;
+        private int attackTime = 12;
+        private float beamLength = 900f;
+        private float beamFX = 0f;
+        private float storedTime = 0f;
 
-        public bool doneAttack = false;
-        public int attackTime = 12;
+        private Color drawColor = Color.Yellow;
+        private Color explosionColor = Color.Orange;
 
-        public float beamLength = 900;
-        public float beamFX = 0;
-        public float storedTime = 0;
-
-        public Color drawColor = Color.Yellow;
-        public Color explosionColor = Color.Orange;
-
+        // Local Vector2 variables (not ai!)
         private Vector2 BeamStart;
         private Vector2 BeamEnd;
         private Vector2 Direction;
+
+        // attackSpeed stored in ai[0], beamRotation stored in ai[1]
+        public ref float attackSpeed => ref Projectile.ai[0];
+        public ref float beamRotation => ref Projectile.ai[1];
 
         public override void SetStaticDefaults()
         {
@@ -115,16 +116,17 @@ namespace Neutronium.Content.Items.Weapons
             if (beamFX > 0)
                 beamFX = MathHelper.Lerp(beamFX, 0, time > attackTime + 5 ? 0.07f : 0.01f);
 
-            if (time == 0)
+            // Initialize beam
+            if (time == 0f)
             {
                 drawColor = Color.Yellow;
                 explosionColor = Color.Orange;
 
-                if (attackSpeed == 0) attackSpeed = 0.3f;
+                if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                BeamStart = Projectile.Center;
-                Direction = Vector2.UnitY.RotatedBy(beamRotation);
-                BeamEnd = BeamStart + Direction * beamLength;
+                BeamStart = Projectile.Center;                       // local Vector2
+                Direction = Vector2.UnitY.RotatedBy(beamRotation);  // local Vector2
+                BeamEnd = BeamStart + Direction * beamLength;       // local Vector2
 
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
@@ -150,7 +152,7 @@ namespace Neutronium.Content.Items.Weapons
 
             time += attackSpeed;
 
-            // Apply damage along the full beam line
+            // Full-length damage
             if (doneAttack)
             {
                 foreach (NPC npc in Main.npc)
@@ -162,15 +164,14 @@ namespace Neutronium.Content.Items.Weapons
 
                         if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, BeamEnd, beamWidth, ref collisionPoint))
                         {
-                            int damage = Projectile.damage;
                             NPC.HitInfo hitInfo = new NPC.HitInfo()
                             {
-                                Damage = damage,
+                                Damage = Projectile.damage,
                                 Knockback = Projectile.knockBack,
                                 HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X)
                             };
                             npc.StrikeNPC(hitInfo);
-                            OnHitNPC(npc, hitInfo, damage);
+                            OnHitNPC(npc, hitInfo, Projectile.damage);
                         }
                     }
                 }
@@ -193,12 +194,12 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool PreDraw(ref Color lightColor)
         {
-            if (beamFX == 0) return false;
+            if (beamFX == 0f) return false;
 
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
             Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
 
-            float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
+            float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };
 
             Main.EntitySpriteDraw(
