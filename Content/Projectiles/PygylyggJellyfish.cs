@@ -25,33 +25,24 @@ public class PygylyggJellyfish : ModProjectile
         Projectile.aiStyle = ProjAIStyleID.Bounce; // Keep the bounce AI
     }
 
-    public override bool PreAI()
-    {
-        // Store the current dust count
-        int previousDustCount = Main.dust.Count;
-        
-        // Let the bounce AI run
-        return true;
-    }
-
-    public override void AI()
-    {
-        // After the bounce AI runs, remove any fire dust it created
-        for (int i = 0; i < Main.dust.Count; i++)
+    public override void PostAI()
         {
-            Dust dust = Main.dust[i];
-            // Check if this dust was just spawned by the bounce AI (Torch/fire dust)
-            if (dust.active && dust.type == DustID.Torch && 
-                dust.position.Between(Projectile.position, Projectile.position + Projectile.Size))
+            // Only check the most recently added dust (more efficient)
+            for (int i = Main.dust.Length - 1; i >= Math.Max(0, Main.dust.Length - 10); i--)
             {
-                dust.active = false; // Remove the fire dust
+                Dust dust = Main.dust[i];
+                if (dust != null && dust.active && dust.type == DustID.Torch && 
+                    dust.position.Between(Projectile.position, Projectile.position + Projectile.Size))
+                {
+                    dust.active = false;
+                    break; // Found and removed the fire dust, can stop searching
+                }
             }
+            
+            // Your blue effects
+            Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 
+                        DustID.BlueFairy, Projectile.velocity.X * 0.5f, 
+                        Projectile.velocity.Y * 0.5f);
+            Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f));
         }
-        
-        // Add your blue effects
-        Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 
-                    DustID.BlueFairy, Projectile.velocity.X * 0.5f, 
-                    Projectile.velocity.Y * 0.5f);
-        Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f));
-    }
 }
