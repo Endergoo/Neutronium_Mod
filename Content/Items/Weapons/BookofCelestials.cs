@@ -35,23 +35,23 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // Spawn beam above cursor, clamped to top of world
             float beamOffset = 800f;
             float spawnY = Main.MouseWorld.Y - beamOffset;
-            if (spawnY < 0) spawnY = 0;
+            if (spawnY < 0) spawnY = 0f;
 
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
             Projectile.NewProjectile(
-                source,
-                Main.MouseWorld.X,
-                spawnY,
-                Vector2.Zero,
-                type,
-                damage,
-                knockback,
-                player.whoAmI,
-                ai0: 0.3f,       // attack speed
-                ai1: beamRotation // rotation in radians
+                source: source,
+                position: new Vector2(Main.MouseWorld.X, spawnY), // <- combine X & Y into Vector2
+                velocity: Vector2.Zero,
+                Type: type,
+                Damage: damage,
+                KnockBack: knockback,
+                Owner: player.whoAmI,
+                ai0: 0.3f,          // attack speed
+                ai1: beamRotation    // rotation in radians
             );
 
             return false;
@@ -114,7 +114,7 @@ namespace Neutronium.Content.Items.Weapons
         public override void AI()
         {
             if (beamFX > 0)
-                beamFX = MathHelper.Lerp(beamFX, 0, time > attackTime + 5 ? 0.07f : 0.01f);
+                beamFX = MathHelper.Lerp(beamFX, 0f, time > attackTime + 5 ? 0.07f : 0.01f);
 
             // Initialize beam
             if (time == 0f)
@@ -124,9 +124,9 @@ namespace Neutronium.Content.Items.Weapons
 
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                BeamStart = Projectile.Center;                       // local Vector2
-                Direction = Vector2.UnitY.RotatedBy(beamRotation);  // local Vector2
-                BeamEnd = BeamStart + Direction * beamLength;       // local Vector2
+                BeamStart = Projectile.Center;                        // local Vector2
+                Direction = Vector2.UnitY.RotatedBy(beamRotation);   // local Vector2
+                BeamEnd = BeamStart + Direction * beamLength;        // local Vector2
 
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
