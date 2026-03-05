@@ -167,14 +167,15 @@ namespace Neutronium.Content.Items.Weapons
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                     Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
+                // Dust effect
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, Main.dayTime ? Color.Orange : Color.Cyan, 2f);
+                    Color dustColor = Main.dayTime ? Color.Orange : Color.CornflowerBlue; // <- switch based on day/night
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, dustColor, 2f);
                     dust.noGravity = true;
                 }
             }
-
             // Full-length collision along beam
             if (canDamage)
             {
