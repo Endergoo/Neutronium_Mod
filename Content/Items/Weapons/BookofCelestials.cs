@@ -222,6 +222,16 @@ namespace Neutronium.Content.Items.Weapons
                 Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Orange, 2f);
                 dust.noGravity = true;
             }
+
+            var modPlayer = Main.player[Projectile.owner].GetModPlayer<NeutroniumPlayer>();
+            modPlayer.celestialRegenStack += 0.02f;
+            if (modPlayer.celestialRegenStack > 0.2f)
+                modPlayer.celestialRegenStack = 0.2f;
+
+            // Print effective regen on hit
+            float effectiveRegen = modPlayer.celestialRegenStack * Projectile.owner.statLifeMax2;
+            Main.NewText($"Celestial Beam Regen: {effectiveRegen:F1} HP/sec", 50, 255, 50);
+            
         }
 
         public override bool PreDraw(ref Color lightColor)
