@@ -35,14 +35,17 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Always spawn 800px above the cursor in world space
-            float beamOffset = 800f;
-            Vector2 spawnPos = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - beamOffset);
+            Vector2 targetPos = Main.MouseWorld;
 
-            // Clamp so it never spawns above the world top
-            if (spawnPos.Y < 0f)
-                spawnPos.Y = 0f;
+            // Max beam length
+            float maxBeamLength = 900f;
 
+            // Spawn position above target, clamped to not be ridiculously offscreen
+            Vector2 spawnPos = targetPos - Vector2.UnitY * maxBeamLength;
+            if (spawnPos.Y < Main.screenPosition.Y - 50) // clamp slightly above screen top
+                spawnPos.Y = Main.screenPosition.Y - 50;
+
+            // Slight random rotation
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
             Projectile.NewProjectile(
@@ -53,8 +56,8 @@ namespace Neutronium.Content.Items.Weapons
                 damage,
                 knockback,
                 player.whoAmI,
-                0.3f,        // ai0 = attack speed
-                beamRotation // ai1 = rotation
+                0.3f,        // attack speed
+                beamRotation  // rotation
             );
 
             return false;
@@ -91,7 +94,7 @@ namespace Neutronium.Content.Items.Weapons
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float beamRotation => ref Projectile.ai[1];
 
-        private bool canDamage => doneAttack && beamFX >= 0.1f;
+        private bool canDamage => doneAttack && beamFX >= 1f;
 
         public override void SetStaticDefaults()
         {
@@ -118,14 +121,15 @@ namespace Neutronium.Content.Items.Weapons
             if (beamFX > 0)
                 beamFX = MathHelper.Lerp(beamFX, 0f, time > attackTime + 5 ? 0.07f : 0.01f);
 
-            // Initialize beam on first tick
+            // Initialize beam
             if (time == 0f)
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
+                // Beam starts at spawn position, direction toward targetPos
+                Vector2 targetPos = Main.MouseWorld;
                 BeamStart = Projectile.Center;
-                // Fire straight down with slight random rotation
-                Direction = Vector2.UnitY.RotatedBy(beamRotation);
+                Direction = Vector2.UnitY.RotatedBy(beamRotation); // slight rotation
                 BeamEnd = BeamStart + Direction * beamLength;
 
                 Projectile.velocity = Vector2.Zero;
@@ -142,6 +146,7 @@ namespace Neutronium.Content.Items.Weapons
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                     Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
+                // Dust FX
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
@@ -152,7 +157,7 @@ namespace Neutronium.Content.Items.Weapons
 
             time += attackSpeed;
 
-            // Damage enemies along the full beam
+            // Full-length damage
             if (canDamage)
             {
                 foreach (NPC npc in Main.npc)
@@ -161,8 +166,9 @@ namespace Neutronium.Content.Items.Weapons
                     {
                         float collisionPoint = 0f;
                         float beamWidth = 140f * Projectile.scale;
+                        Vector2 end = BeamStart + Direction * beamLength * 2;
 
-                        if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, BeamEnd, beamWidth, ref collisionPoint))
+                        if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, end, beamWidth, ref collisionPoint))
                         {
                             NPC.HitInfo hitInfo = new NPC.HitInfo()
                             {
@@ -202,10 +208,10 @@ namespace Neutronium.Content.Items.Weapons
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };
 
-            // Bloom circle at spawn point
+            // Draw bloom
             Main.EntitySpriteDraw(
                 bloom,
-                BeamStart - Main.screenPosition,
+                Projectile.Center - Main.screenPosition,
                 null,
                 beamColor * opacity,
                 0f,
@@ -214,15 +220,14 @@ namespace Neutronium.Content.Items.Weapons
                 SpriteEffects.None,
                 0);
 
-            // Beam line — origin at bottom of texture so it draws upward from BeamStart
-            // This matches the original working draw call
+            // Draw beam line
             Main.EntitySpriteDraw(
                 beam,
                 BeamStart - Main.screenPosition,
                 null,
                 beamColor * opacity,
                 Direction.ToRotation() + MathHelper.PiOver2,
-                new Vector2(beam.Width / 2f, beam.Height),
+                new Vector2(beam.Width / 2, beam.Height),
                 new Vector2(0.07f, beamLength / 1000f) * Projectile.scale,
                 SpriteEffects.None,
                 0);
