@@ -214,7 +214,7 @@ namespace Neutronium.Content.Items.Weapons
 
             // Get the buff type and set duration
             int buffType = ModContent.BuffType<CelestialRegen>();
-            int buffDuration = 300; // 4 seconds
+            int buffDuration = 600;
 
             // Apply or refresh the buff
             if (!player.HasBuff(buffType))
