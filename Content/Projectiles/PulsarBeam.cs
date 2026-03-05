@@ -46,7 +46,7 @@ namespace Neutronium.Content.Projectiles
             Projectile.velocity *= 1.05f; // Make the beam travel outward
         }
 
-        public override void Kill(int timeLeft)
+        public override void OnKill(int timeLeft)
         {
             // Optionally add particle effects or other visuals on beam destruction
         }

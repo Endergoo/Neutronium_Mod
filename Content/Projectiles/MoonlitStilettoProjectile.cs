@@ -73,7 +73,7 @@ namespace Neutronium.Content.Projectiles
             return false; // Prevent the projectile from dying on tile collision
         }
 
-        public override void Kill(int timeLeft)
+        public override void OnKill(int timeLeft)
         {
             // Example: Spawn dust when the projectile dies
             for (int i = 0; i < 10; i++)

@@ -21,12 +21,6 @@ namespace Neutronium.Content.Items.Armor
 
         public override void SetStaticDefaults()
         {
-            // If your head equipment should draw hair while drawn, use one of the following:
-            // ArmorIDs.Head.Sets.DrawHead[Item.headSlot] = false; // Don't draw the head at all. Used by Space Creature Mask
-            // ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true; // Draw hair as if a hat was covering the top. Used by Wizards Hat
-            // ArmorIDs.Head.Sets.DrawFullHair[Item.headSlot] = true; // Draw all hair as normal. Used by Mime Mask, Sunglasses
-            // ArmorIDs.Head.Sets.DrawsBackHairWithoutHeadgear[Item.headSlot] = true;
-
             SetBonusText = this.GetLocalization("SetBonus").WithFormatArgs(AdditiveGenericDamageBonus);
         }
 
@@ -55,12 +49,11 @@ namespace Neutronium.Content.Items.Armor
         {
             player.buffImmune[BuffID.OnFire] = true; // Make the player immune to Fire
             player.statLifeMax2 += 25;
-            player.statManaMax2 += MaxManaIncrease; // Increase how many mana points the player can have by 20
+            player.statManaMax2 += MaxManaIncrease;
             player.GetModPlayer<GlobalPlayer>().StellarDamage += 0.02f;
 
         }
 
-        // Please see Content/ExampleRecipes.cs for a detailed explanation of recipe creation.
         public override void AddRecipes()
         {
             Recipe SchwarschildHelmet = CreateRecipe();
