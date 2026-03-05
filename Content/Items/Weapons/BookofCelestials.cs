@@ -37,15 +37,13 @@ namespace Neutronium.Content.Items.Weapons
         {
             Vector2 targetPos = Main.MouseWorld;
 
-            // Max beam length
-            float maxBeamLength = 900f;
+            // Beam spawn: above the screen, not fixed 800px
+            float beamLength = 900f;
+            float minY = Main.screenPosition.Y - 50; // 50px above screen
+            Vector2 spawnPos = targetPos - Vector2.UnitY * beamLength;
+            if (spawnPos.Y < minY) spawnPos.Y = minY;
 
-            // Spawn position above target, clamped to not be ridiculously offscreen
-            Vector2 spawnPos = targetPos - Vector2.UnitY * maxBeamLength;
-            if (spawnPos.Y < Main.screenPosition.Y - 50) // clamp slightly above screen top
-                spawnPos.Y = Main.screenPosition.Y - 50;
-
-            // Slight random rotation
+            // Slight rotation
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
             Projectile.NewProjectile(
@@ -90,6 +88,7 @@ namespace Neutronium.Content.Items.Weapons
         private Vector2 BeamStart;
         private Vector2 BeamEnd;
         private Vector2 Direction;
+        private Vector2 targetPos;
 
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float beamRotation => ref Projectile.ai[1];
@@ -109,7 +108,7 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 60;
+            Projectile.timeLeft = 600;
             Projectile.scale = 2.5f;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
@@ -126,16 +125,26 @@ namespace Neutronium.Content.Items.Weapons
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                // Beam starts at spawn position, direction toward targetPos
-                Vector2 targetPos = Main.MouseWorld;
+                targetPos = Main.MouseWorld;
+
+                // Start above screen
+                float minY = Main.screenPosition.Y - 50f;
                 BeamStart = Projectile.Center;
-                Direction = Vector2.UnitY.RotatedBy(beamRotation); // slight rotation
+                if (BeamStart.Y < minY) BeamStart.Y = minY;
+
+                // Slight rotation
+                Direction = Vector2.UnitY.RotatedBy(beamRotation);
+
                 BeamEnd = BeamStart + Direction * beamLength;
 
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
             }
 
+            // Move beam center smoothly toward target
+            Projectile.Center = Vector2.Lerp(Projectile.Center, targetPos, 0.15f);
+
+            // Trigger attack
             if (time >= attackTime && !doneAttack)
             {
                 SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
@@ -166,9 +175,9 @@ namespace Neutronium.Content.Items.Weapons
                     {
                         float collisionPoint = 0f;
                         float beamWidth = 140f * Projectile.scale;
-                        Vector2 end = BeamStart + Direction * beamLength * 2;
+                        Vector2 end = Projectile.Center + Direction * beamLength * 2;
 
-                        if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, end, beamWidth, ref collisionPoint))
+                        if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), Projectile.Center, end, beamWidth, ref collisionPoint))
                         {
                             NPC.HitInfo hitInfo = new NPC.HitInfo()
                             {
@@ -223,7 +232,7 @@ namespace Neutronium.Content.Items.Weapons
             // Draw beam line
             Main.EntitySpriteDraw(
                 beam,
-                BeamStart - Main.screenPosition,
+                Projectile.Center - Main.screenPosition,
                 null,
                 beamColor * opacity,
                 Direction.ToRotation() + MathHelper.PiOver2,
