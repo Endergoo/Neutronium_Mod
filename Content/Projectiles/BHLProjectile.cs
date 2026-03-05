@@ -21,47 +21,43 @@ namespace Neutronium.Content.Projectiles
             Projectile.light = 1f;
             Projectile.ignoreWater = true;
             Projectile.tileCollide = true;
-            Projectile.aiStyle = -1; // Custom AI
+            Projectile.aiStyle = -1;
         }
 
 
-        private float rotationAngle = 0f; // Track the rotation over time
+        private float rotationAngle = 0f;
         public override void AI()
         {
-            // Increment the rotation angle over time
-            rotationAngle += 0.05f; // Adjust the speed of rotation
+            rotationAngle += 0.05f; // speed
 
-            // Create swirling dust effect
+            // swirl
             for (int i = 0; i < 10; i++)
             {
                 // Calculate the angle for swirling effect, including the rotation over time
-                float angle = MathHelper.TwoPi * i / 10 + rotationAngle; // Divide the circle into 10 parts and add rotation
-                Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 20f; // Adjust the radius as needed
+                float angle = MathHelper.TwoPi * i / 10 + rotationAngle; 
+                Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 20f; // radius
 
-                // Set the dust position relative to the projectile
                 Vector2 dustPosition = Projectile.Center + offset;
-
-                // Create or update the dust particle
+              
                 Dust dust = Dust.NewDustPerfect(dustPosition, DustID.OrangeTorch, Vector2.Zero, 100, default, 2f);
                 dust.noGravity = true;
 
-                // Set the velocity to create a circular motion
-                dust.velocity = offset.RotatedBy(MathHelper.PiOver2).SafeNormalize(Vector2.Zero) * 5f; // Rotate by 90 degrees for perpendicular motion
+                dust.velocity = offset.RotatedBy(MathHelper.PiOver2).SafeNormalize(Vector2.Zero) * 5f;
             }
 
             // Slow down the projectile
             Projectile.velocity *= 0.99f;
 
             // Create the black hole on impact
-            if (Projectile.timeLeft <= 280) // Delay before black hole forms
+            if (Projectile.timeLeft <= 280) 
             {
-                Projectile.Kill(); // Destroy the projectile
+                Projectile.Kill();
             }
         }
         public override void OnKill(int timeLeft)
         {
-            // Optionally, you can still spawn a black hole if the projectile dies naturally (e.g., after time runs out)
-            if (Projectile.owner == Main.myPlayer && timeLeft > 120) // Only spawn if the projectile didn't already hit an enemy
+           
+            if (Projectile.owner == Main.myPlayer && timeLeft > 120) 
             {
                 Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, ModContent.ProjectileType<BlackHole>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
             }
@@ -74,7 +70,7 @@ namespace Neutronium.Content.Projectiles
                 Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, ModContent.ProjectileType<BlackHole>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
             }
 
-            // Kill the projectile after hitting an enemy
+        
             Projectile.Kill();
         }
 
