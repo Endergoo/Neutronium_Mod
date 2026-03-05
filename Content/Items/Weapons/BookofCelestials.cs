@@ -108,7 +108,7 @@ namespace Neutronium.Content.Items.Weapons
         public override void AI()
         {
 
-            float pulseSpeed = 0.2f; // smaller = slower, bigger = faster
+            float pulseSpeed = 0.3f; // smaller = slower, bigger = faster
             drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
 
             if (beamFX > 0f)
@@ -206,6 +206,17 @@ namespace Neutronium.Content.Items.Weapons
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.OnFire, 300);
+
+            Player player = Main.player[Projectile.owner];
+
+            int buffType = ModContent.BuffType<CelestialRegen>();
+            if (!player.HasBuff(buffType))
+                player.AddBuff(buffType, 60); // 1-second duration, will refresh each hit
+            else
+                player.buffTime[player.FindBuffIndex(buffType)] = 60; // refresh duration
+
+            OnHitEffects(target);
+
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
