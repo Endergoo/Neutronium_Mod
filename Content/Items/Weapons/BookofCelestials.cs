@@ -35,9 +35,16 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Beam originates from player’s hand
-            Vector2 handOffset = new Vector2(0, -10); // adjust so it looks like from book
-            Vector2 spawnPos = player.Center + handOffset;
+            // Spawn the beam above the mouse
+            float beamOffset = 800f;
+            Vector2 spawnPos = Main.MouseWorld - new Vector2(0, beamOffset);
+
+            // Optional: clamp spawn to not go above world top
+            if (spawnPos.Y < 0)
+                spawnPos.Y = 0;
+
+            // Subtle random rotation (-7° to 7°)
+            float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
             Projectile.NewProjectile(
                 source,
@@ -47,10 +54,11 @@ namespace Neutronium.Content.Items.Weapons
                 damage,
                 knockback,
                 player.whoAmI,
-                ai0: 0.3f // attack speed
+                ai0: 0.3f,   // attack speed
+                ai1: beamRotation // store rotation in ai1
             );
 
-            return false; // prevent default projectile spawn
+            return false; // Prevent default projectile spawn
         }
 
         public override void AddRecipes()
@@ -70,6 +78,7 @@ namespace Neutronium.Content.Items.Weapons
 
         public float time = 0;
         public ref float attackSpeed => ref Projectile.ai[0];
+        public ref float beamRotation => ref Projectile.ai[1]; // stored rotation
 
         public bool doneAttack = false;
         public int attackTime = 12;
@@ -81,13 +90,8 @@ namespace Neutronium.Content.Items.Weapons
         public Color drawColor = Color.Yellow;
         public Color explosionColor = Color.Orange;
 
-        public float beamRotation;
-
         Vector2 beamStart => Projectile.Center;
-
-        // Compute direction towards mouse plus a subtle rotation
-        Vector2 directionToTarget => (Main.MouseWorld - beamStart).SafeNormalize(Vector2.UnitY).RotatedBy(beamRotation);
-
+        Vector2 directionToTarget => Vector2.UnitY.RotatedBy(beamRotation); // downward with slight rotation
         Vector2 beamEnd => beamStart + directionToTarget * beamLength;
 
         public override void SetStaticDefaults()
@@ -120,9 +124,6 @@ namespace Neutronium.Content.Items.Weapons
             {
                 drawColor = Color.Yellow;
                 explosionColor = Color.Orange;
-
-                // subtle random rotation (-7° to 7°)
-                beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
                 if (attackSpeed == 0)
                     attackSpeed = 0.3f;
@@ -199,7 +200,6 @@ namespace Neutronium.Content.Items.Weapons
             float collisionPoint = 0f;
             float beamWidth = 140f * Projectile.scale;
 
-            // Use the full beam line for collision
             return Collision.CheckAABBvLineCollision(
                 targetHitbox.TopLeft(),
                 targetHitbox.Size(),
@@ -219,7 +219,6 @@ namespace Neutronium.Content.Items.Weapons
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
             Color beamColor = drawColor with { A = 0 };
 
-            // Draw bloom at projectile center
             Main.EntitySpriteDraw(
                 bloom,
                 Projectile.Center - Main.screenPosition,
@@ -231,7 +230,6 @@ namespace Neutronium.Content.Items.Weapons
                 SpriteEffects.None,
                 0);
 
-            // Draw beam along full length
             Main.EntitySpriteDraw(
                 beam,
                 beamStart - Main.screenPosition,
