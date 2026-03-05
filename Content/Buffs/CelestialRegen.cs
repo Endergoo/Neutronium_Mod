@@ -1,5 +1,6 @@
 using Terraria;
 using Terraria.ModLoader;
+using Microsoft.Xna.Framework;
 
 namespace Neutronium.Content.Buffs
 {
@@ -7,20 +8,20 @@ namespace Neutronium.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
-            Main.buffNoSave[Type] = true;
-            Main.debuff[Type] = false;
+            DisplayName.SetDefault("Celestial Regen");
+            Description.SetDefault("Regenerating life from celestial energy");
+            Main.buffNoSave[Type] = true; // doesn’t save on exit
+            Main.debuff[Type] = false; // it’s a positive buff
         }
 
         public override void Update(Player player, ref int buffIndex)
         {
-            // +2% regen per stack, capped at 20%
-            float maxRegen = 0.20f;
-            float increment = 0.02f;
-            float stacks = player.CountBuffs(ModContent.BuffType<CelestialRegen>());
+            // Add a small heal over time effect
+            // Optional: Use ModPlayer to track stacking
+            var modPlayer = player.GetModPlayer<NeutroniumPlayer>();
             
-            float regenPercent = Math.Min(stacks * increment, maxRegen);
-
-            player.lifeRegen += (int)(regenPercent * player.statLifeMax2 / 60f); // life per tick
+            // Apply regeneration directly
+            player.lifeRegen += (int)(modPlayer.celestialRegenStack * player.statLifeMax2 / 60f);
         }
     }
 }
