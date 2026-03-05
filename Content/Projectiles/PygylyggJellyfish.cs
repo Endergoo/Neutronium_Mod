@@ -20,7 +20,6 @@ public class PygylyggJellyfish : ModProjectile
         Projectile.DamageType = DamageClass.Magic;
         Projectile.penetrate = 3; // Hits multiple enemies
         Projectile.timeLeft = 300;
-        Projectile.light = 0.75f;
         Projectile.ignoreWater = true;
         Projectile.tileCollide = true;
         Projectile.aiStyle = ProjAIStyleID.Bounce;
@@ -30,8 +29,7 @@ public class PygylyggJellyfish : ModProjectile
     {
         // Glowing jellyfish effect
         Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.Electric, Projectile.velocity.X * 0.5f, Projectile.velocity.Y * 0.5f);
-        
-
+        Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f)); // Blue glow
     }
 
     public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
