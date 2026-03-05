@@ -4,7 +4,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 
-namespace Neutronium.Content.Items
+namespace Neutronium.Content.Items.Weapons
 {
     public class BookOfCelestials : ModItem
     {
