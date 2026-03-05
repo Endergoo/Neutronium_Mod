@@ -109,7 +109,7 @@ namespace Neutronium.Content.Items.Weapons
                 Vector2 cursor = Main.MouseWorld + new Vector2(horizontalOffset, 0f);
 
                 // Beam is centered on cursor
-                float verticalSpan = 2000f; // adjust height as needed
+                float verticalSpan = 3000f; // adjust height as needed
                 Vector2 halfBeam = new Vector2(0f, verticalSpan).RotatedBy(rotation);
 
                 BeamStart = cursor - halfBeam;
@@ -148,7 +148,7 @@ namespace Neutronium.Content.Items.Weapons
                     if (npc.active && !npc.friendly && npc.CanBeChasedBy())
                     {
                         float collisionPoint = 0f;
-                        float beamWidth = 140f * Projectile.scale;
+                        float beamWidth = 100f * Projectile.scale;
 
                         if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, BeamEnd, beamWidth, ref collisionPoint))
                         {
