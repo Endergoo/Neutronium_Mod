@@ -45,6 +45,7 @@ namespace Neutronium.Content.Items.Weapons
 
             // Spawn projectile
             Projectile.NewProjectile(
+                source,
                 spawnPos,         // position
                 Vector2.Zero,     // velocity
                 type,             // projectile type
