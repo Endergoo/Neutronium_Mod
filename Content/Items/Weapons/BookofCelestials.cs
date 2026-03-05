@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.DataStructures;
 using Terraria.Graphics.CameraModifiers;
 
 namespace Neutronium.Content.Items.Weapons
@@ -32,26 +33,23 @@ namespace Neutronium.Content.Items.Weapons
             Item.scale = 0.25f;
         }
 
-        public override bool CanUseItem(Player player)
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            return player.ownedProjectileCounts[Item.shoot] == 0;
-        }
-
-        public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
-        {
-            // Start the beam above the cursor
-            position = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y -  2000);
+            // Spawn exactly above cursor
+            Vector2 spawnPos = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - 800);
 
             Projectile.NewProjectile(
-                player.GetSource_ItemUse(Item),
-                position,
+                source,
+                spawnPos,
                 Vector2.Zero,
                 type,
                 damage,
                 knockback,
                 player.whoAmI,
-                ai0: 0.5f // attack speed
+                ai0: 0.3f // attack speed
             );
+
+            return false; // Prevent default projectile spawn
         }
 
         public override void AddRecipes()
@@ -119,11 +117,11 @@ namespace Neutronium.Content.Items.Weapons
                 drawColor = Color.Yellow;
                 explosionColor = Color.Orange;
 
-                // Random small rotation on spawn (-15° to 15°)
-                beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-5f,5f));
+                // Subtle rotation on spawn (-7° to 7°)
+                beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
                 if (attackSpeed == 0)
-                    attackSpeed = 0.5f;
+                    attackSpeed = 0.3f;
 
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
