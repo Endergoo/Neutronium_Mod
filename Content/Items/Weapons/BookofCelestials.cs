@@ -170,7 +170,7 @@ namespace Neutronium.Content.Items.Weapons
                 if (Main.rand.NextBool(3))
                 {
                     Vector2 dustPos = targetPos + Main.rand.NextVector2Circular(150, 150);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, and.NextVector2Unit() * Main.rand.NextFloat(2, 8), 0, Color.Orange, 1.5f);
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, rand.NextVector2Unit() * Main.rand.NextFloat(2, 8), 0, Color.Orange, 1.5f);
                     dust.noGravity = true;
                 }
             }
