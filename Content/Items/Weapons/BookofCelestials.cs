@@ -32,7 +32,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.scale = 0.25f;
         }
 
-        public override bool Shoot(Player player, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             // Spawn beam above cursor
             float beamOffset = 800f;
