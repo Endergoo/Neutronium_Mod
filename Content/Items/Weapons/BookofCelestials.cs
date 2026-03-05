@@ -35,24 +35,24 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Spawn the beam at a fixed height above the cursor
+            // Spawn the beam at a fixed height above cursor, clamped to world top
             float beamOffset = 800f;
             float spawnY = Main.MouseWorld.Y - beamOffset;
-            if (spawnY < 0) spawnY = 0; // clamp to world top
-            Vector2 spawnPos = new Vector2(Main.MouseWorld.X, spawnY);
+            if (spawnY < 0) spawnY = 0;
 
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
             Projectile.NewProjectile(
                 source,
-                spawnPos,
+                Main.MouseWorld.X,      // X aligned to mouse
+                spawnY,                 // Y is top of beam
                 Vector2.Zero,
                 type,
                 damage,
                 knockback,
                 player.whoAmI,
-                ai0: 0.3f,       // attack speed
-                ai1: beamRotation // store rotation
+                ai0: 0.3f,             // attack speed
+                ai1: beamRotation       // rotation
             );
 
             return false;
@@ -87,10 +87,10 @@ namespace Neutronium.Content.Items.Weapons
         public Color drawColor = Color.Yellow;
         public Color explosionColor = Color.Orange;
 
-        // Beam start = projectile center (spawns above cursor)
-        Vector2 beamStart => Projectile.Center;
-        Vector2 directionToTarget => Vector2.UnitY.RotatedBy(beamRotation);
-        Vector2 beamEnd => beamStart + directionToTarget * beamLength;
+        // Beam positions in world space
+        private Vector2 BeamStart;
+        private Vector2 BeamEnd;
+        private Vector2 Direction;
 
         public override void SetStaticDefaults()
         {
@@ -105,7 +105,7 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 60; // keep beam alive for full attack
+            Projectile.timeLeft = 60; // duration of attack
             Projectile.scale = 2.5f;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
@@ -121,16 +121,21 @@ namespace Neutronium.Content.Items.Weapons
             {
                 drawColor = Color.Yellow;
                 explosionColor = Color.Orange;
+
                 if (attackSpeed == 0) attackSpeed = 0.3f;
+
+                // Set beam start and end in world coordinates
+                BeamStart = Projectile.Center;
+                Direction = Vector2.UnitY.RotatedBy(beamRotation);
+                BeamEnd = BeamStart + Direction * beamLength;
+
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
             }
 
             if (time >= attackTime && !doneAttack)
             {
-                SoundStyle attack = new SoundStyle("Terraria/Sounds/Item_72") { Volume = 0.8f, Pitch = -0.2f };
-                SoundEngine.PlaySound(attack, Projectile.Center);
-
+                SoundEngine.PlaySound(new SoundStyle("Terraria/Sounds/Item_72") { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
                 beamFX = 3f;
                 doneAttack = true;
                 storedTime = time;
@@ -148,7 +153,7 @@ namespace Neutronium.Content.Items.Weapons
 
             time += attackSpeed;
 
-            // Continuously apply damage along the entire beam length
+            // DAMAGE: check all NPCs every tick along full beam
             if (doneAttack)
             {
                 foreach (NPC npc in Main.npc)
@@ -158,8 +163,7 @@ namespace Neutronium.Content.Items.Weapons
                         float collisionPoint = 0f;
                         float beamWidth = 140f * Projectile.scale;
 
-                        // Check full line from top of beam to bottom
-                        if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), beamStart, beamEnd, beamWidth, ref collisionPoint))
+                        if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, BeamEnd, beamWidth, ref collisionPoint))
                         {
                             int damage = Projectile.damage;
                             NPC.HitInfo hitInfo = new NPC.HitInfo()
@@ -182,7 +186,6 @@ namespace Neutronium.Content.Items.Weapons
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.OnFire, 300);
-
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
@@ -214,10 +217,10 @@ namespace Neutronium.Content.Items.Weapons
 
             Main.EntitySpriteDraw(
                 beam,
-                beamStart - Main.screenPosition,
+                BeamStart - Main.screenPosition,
                 null,
                 beamColor * opacity,
-                directionToTarget.ToRotation() + MathHelper.PiOver2,
+                Direction.ToRotation() + MathHelper.PiOver2,
                 new Vector2(beam.Width / 2, beam.Height),
                 new Vector2(0.07f, beamLength / 1000f) * Projectile.scale,
                 SpriteEffects.None,
