@@ -45,7 +45,6 @@ namespace Neutronium.Content.Items.Weapons
                 ai0: 0.4f,
                 ai1: (float)(Main.time % 4)
             );
-}
         }
 
         public override void AddRecipes()
