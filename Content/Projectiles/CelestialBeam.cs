@@ -10,7 +10,7 @@ namespace Neutronium.Content.Projectiles
 {
     public class CelestialBeam : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_0"; // Invisible
+        public override string Texture => "Terraria/Images/Projectile_0";
         public float time = 0;
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float beamType => ref Projectile.ai[1];
@@ -56,7 +56,7 @@ namespace Neutronium.Content.Projectiles
 
             if (time == 0)
             {
-                // Choose beam color based on type (you can set this when spawning)
+                // Choose beam color based on type
                 drawColor = beamType switch
                 {
                     0 => Color.Cyan,      // Star
@@ -77,7 +77,6 @@ namespace Neutronium.Content.Projectiles
                 
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
-                Projectile.ForceNetUpdate();
             }
 
             if (time >= attackTime && !doneAttack)
@@ -85,10 +84,10 @@ namespace Neutronium.Content.Projectiles
                 // Different sounds for different beam types
                 SoundStyle attack = beamType switch
                 {
-                    0 => new SoundStyle("Terraria/Sounds/Item_28") with { Volume = 0.5f }, // Magic missile sound
-                    1 => new SoundStyle("Terraria/Sounds/Item_29") with { Volume = 0.6f }, // Fireball sound
-                    2 => new SoundStyle("Terraria/Sounds/Item_30") with { Volume = 0.5f }, // Frost sound
-                    3 => new SoundStyle("Terraria/Sounds/Item_72") with { Volume = 0.7f }, // Rainbow sound
+                    0 => new SoundStyle("Terraria/Sounds/Item_28") with { Volume = 0.5f },
+                    1 => new SoundStyle("Terraria/Sounds/Item_29") with { Volume = 0.6f },
+                    2 => new SoundStyle("Terraria/Sounds/Item_30") with { Volume = 0.5f },
+                    3 => new SoundStyle("Terraria/Sounds/Item_72") with { Volume = 0.7f },
                     _ => new SoundStyle("Terraria/Sounds/Item_28") with { Volume = 0.5f }
                 };
                 
@@ -96,14 +95,12 @@ namespace Neutronium.Content.Projectiles
                 beamFX = 2.5f;
                 doneAttack = true;
                 storedTime = time;
-                Projectile.ForceNetUpdate();
 
-                // Screen shake for player if close
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 1600)
                     Main.LocalPlayer.SetScreenshake(3f);
             }
 
-            float endTime = storedTime + 12; // Duration of beam after firing
+            float endTime = storedTime + 12;
             if (time >= endTime && doneAttack)
             {
                 Projectile.Kill();
@@ -111,7 +108,6 @@ namespace Neutronium.Content.Projectiles
             }
             else if (doneAttack)
             {
-                // Color transition during beam
                 drawColor = Color.Lerp(drawColor, Color.White, (float)Math.Pow(Utils.GetLerpValue(endTime, storedTime, time, true), 2));
             }
 
@@ -127,24 +123,23 @@ namespace Neutronium.Content.Projectiles
 
         public override bool CanHitPlayer(Player target)
         {
-            return false; // Don't hit players
+            return false;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Apply different debuffs based on beam type
             switch (beamType)
             {
-                case 0: // Star
+                case 0:
                     target.AddBuff(BuffID.Frostburn, 180);
                     break;
-                case 1: // Sun
+                case 1:
                     target.AddBuff(BuffID.OnFire, 180);
                     break;
-                case 2: // Moon
+                case 2:
                     target.AddBuff(BuffID.ShadowFlame, 180);
                     break;
-                case 3: // Cosmic
+                case 3:
                     target.AddBuff(BuffID.CursedInferno, 180);
                     break;
                 default:
@@ -171,7 +166,6 @@ namespace Neutronium.Content.Projectiles
             if (beamFX == 0)
                 return false;
 
-            // Load textures
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
             Texture2D bBeam = ModContent.Request<Texture2D>("CalamityMod/Particles/LineThick").Value;
             Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
@@ -179,12 +173,10 @@ namespace Neutronium.Content.Projectiles
             float opacity = (doneAttack ? 0.7f : 0.4f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
             Color beamColor = drawColor with { A = 0 };
 
-            // Draw bloom at beam start
             float bloomScale = 0.5f * Projectile.scale * (doneAttack ? 2f : 1f);
             Color bloomColor = drawColor * opacity * 0.5f;
             Main.EntitySpriteDraw(bloom, beamStart - Main.screenPosition, null, bloomColor, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0);
 
-            // Draw main beam layers
             for (int t = 0; t < (doneAttack ? 3 : 1); t++)
             {
                 bool isOutline = (t > 0);
@@ -210,7 +202,6 @@ namespace Neutronium.Content.Projectiles
                 );
             }
 
-            // Draw additional glow for cosmic type
             if (beamType == 3 && doneAttack)
             {
                 for (int i = 0; i < 3; i++)
