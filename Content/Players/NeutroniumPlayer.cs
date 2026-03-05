@@ -5,18 +5,18 @@ namespace Neutronium.Content.Players
 {
     public class NeutroniumPlayer : ModPlayer
     {
-        // Tracks how much regen the beam has given this tick
+        // Tracks regen from celestial beam hits
         public float celestialRegenStack = 0f;
 
         public override void ResetEffects()
         {
-            // Reset each tick so only active hits count
+            // Reset every tick
             celestialRegenStack = 0f;
         }
 
         public override void UpdateLifeRegen()
         {
-            // Convert the stack to actual lifeRegen
+            // Apply the regen to player's lifeRegen
             Player.lifeRegen += (int)(celestialRegenStack * Player.statLifeMax2 / 60f);
         }
     }
