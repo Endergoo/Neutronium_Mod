@@ -35,9 +35,11 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // Spawn the beam at a fixed height above the cursor
             float beamOffset = 800f;
-            Vector2 spawnPos = Main.MouseWorld - new Vector2(0, beamOffset);
-            if (spawnPos.Y < 0) spawnPos.Y = 0;
+            float spawnY = Main.MouseWorld.Y - beamOffset;
+            if (spawnY < 0) spawnY = 0; // clamp to world top
+            Vector2 spawnPos = new Vector2(Main.MouseWorld.X, spawnY);
 
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
@@ -85,6 +87,7 @@ namespace Neutronium.Content.Items.Weapons
         public Color drawColor = Color.Yellow;
         public Color explosionColor = Color.Orange;
 
+        // Beam start = projectile center (spawns above cursor)
         Vector2 beamStart => Projectile.Center;
         Vector2 directionToTarget => Vector2.UnitY.RotatedBy(beamRotation);
         Vector2 beamEnd => beamStart + directionToTarget * beamLength;
@@ -102,7 +105,7 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 60; // full attack duration
+            Projectile.timeLeft = 60; // keep beam alive for full attack
             Projectile.scale = 2.5f;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
@@ -145,7 +148,7 @@ namespace Neutronium.Content.Items.Weapons
 
             time += attackSpeed;
 
-            // Continuously deal damage along the entire beam
+            // Continuously apply damage along the entire beam length
             if (doneAttack)
             {
                 foreach (NPC npc in Main.npc)
@@ -154,6 +157,8 @@ namespace Neutronium.Content.Items.Weapons
                     {
                         float collisionPoint = 0f;
                         float beamWidth = 140f * Projectile.scale;
+
+                        // Check full line from top of beam to bottom
                         if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), beamStart, beamEnd, beamWidth, ref collisionPoint))
                         {
                             int damage = Projectile.damage;
@@ -172,7 +177,6 @@ namespace Neutronium.Content.Items.Weapons
         }
 
         public override bool? CanHitNPC(NPC target) => false;
-
         public override bool CanHitPlayer(Player target) => false;
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
