@@ -13,7 +13,7 @@ namespace Neutronium.Content.Items.Weapons
     {
         public override void SetDefaults()
         {
-            Item.damage = 40;
+            Item.damage = 90;
             Item.DamageType = DamageClass.Magic;
             Item.width = 40;
             Item.height = 40;
