@@ -70,7 +70,7 @@ namespace Neutronium.Content.Items.Weapons
         public bool doneAttack = false;
         public int attackTime = 12;
         public float beamLength => 900;
-        public float beamFX = 0;
+        public float beamFX = 1f; // start at 1 immediately
         public float storedTime = 0;
         public Color drawColor = Color.Yellow;
         public Color explosionColor = Color.Orange;
@@ -78,7 +78,7 @@ namespace Neutronium.Content.Items.Weapons
         public bool initialized = false;
         Vector2 beamStart = Vector2.Zero;
         Vector2 fixedTargetPos = Vector2.Zero;
-        Vector2 directionToTarget = Vector2.UnitY; // default so beam always has direction
+        Vector2 directionToTarget = Vector2.UnitY;
 
         public override void SetStaticDefaults()
         {
@@ -102,7 +102,6 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void AI()
         {
-            // Initialize on the very first AI tick using real world position
             if (!initialized)
             {
                 initialized = true;
@@ -111,9 +110,17 @@ namespace Neutronium.Content.Items.Weapons
                 fixedTargetPos = new Vector2(Projectile.Center.X, Projectile.Center.Y + 800);
                 beamStart = fixedTargetPos - new Vector2(0, beamLength);
                 directionToTarget = Vector2.UnitY;
-                attackSpeed = (attackSpeed == 0) ? 0.3f : attackSpeed;
+                if (attackSpeed == 0)
+                    attackSpeed = 0.3f;
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
+
+                // DEBUG: spawn dust at beamStart (green) and fixedTargetPos (red)
+                for (int i = 0; i < 10; i++)
+                {
+                    Dust.NewDustPerfect(beamStart, DustID.GreenTorch, Vector2.Zero, 0, Color.Green, 3f);
+                    Dust.NewDustPerfect(fixedTargetPos, DustID.Torch, Vector2.Zero, 0, Color.Red, 3f);
+                }
             }
 
             if (beamFX > 0)
@@ -141,7 +148,6 @@ namespace Neutronium.Content.Items.Weapons
                     Vector2 dustPos = fixedTargetPos + Main.rand.NextVector2Circular(100, 100);
                     Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, Color.Orange, 2f);
                     dust.noGravity = true;
-
                     Dust dust2 = Dust.NewDustPerfect(dustPos, DustID.YellowTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Yellow, 1.5f);
                     dust2.noGravity = true;
                 }
@@ -176,15 +182,11 @@ namespace Neutronium.Content.Items.Weapons
             return false;
         }
 
-        public override bool CanHitPlayer(Player target)
-        {
-            return false;
-        }
+        public override bool CanHitPlayer(Player target) => false;
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.OnFire, 300);
-
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
@@ -197,28 +199,24 @@ namespace Neutronium.Content.Items.Weapons
         {
             if (!doneAttack)
                 return false;
-
             float _ = float.NaN;
-            Vector2 start = beamStart;
-            Vector2 end = beamStart + directionToTarget * beamLength;
-            float beamWidth = 60 * Projectile.scale;
-
-            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, beamWidth, ref _);
+            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), beamStart, beamStart + directionToTarget * beamLength, 60 * Projectile.scale, ref _);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            if (beamFX == 0 || !initialized)
+            // Always draw if initialized, regardless of beamFX
+            if (!initialized)
                 return false;
 
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
             Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
 
-            float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
+            float clampedFX = Math.Max(beamFX, 0.01f); // never fully zero so beam is always visible while alive
+            float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(clampedFX, 1), 2);
             Color beamColor = drawColor with { A = 0 };
             Color orangeBeam = explosionColor with { A = 0 };
 
-            // Additive blending eliminates black box artifacts
             SpriteBatch spriteBatch = Main.spriteBatch;
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
@@ -233,8 +231,8 @@ namespace Neutronium.Content.Items.Weapons
             for (int t = 0; t < passes; t++)
             {
                 float beamThickness = (t == 0)
-                    ? 0.05f * beamFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f)
-                    : 0.09f * (1f - t * 0.2f) * beamFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f);
+                    ? 0.05f * clampedFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f)
+                    : 0.09f * (1f - t * 0.2f) * clampedFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f);
 
                 Color layerColor = (doneAttack && t > 0)
                     ? Color.Lerp(beamColor, orangeBeam, (float)t / passes) * opacity * (0.6f - t * 0.15f)
@@ -252,7 +250,6 @@ namespace Neutronium.Content.Items.Weapons
                 );
             }
 
-            // Sparkles at impact point
             if (doneAttack)
             {
                 for (int i = 0; i < 5; i++)
@@ -264,7 +261,6 @@ namespace Neutronium.Content.Items.Weapons
                 }
             }
 
-            // Restore default blending
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
