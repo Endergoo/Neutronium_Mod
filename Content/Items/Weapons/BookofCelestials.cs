@@ -146,7 +146,7 @@ namespace Neutronium.Content.Items.Weapons
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = targetPos + Main.rand.NextVector2Circular(100, 100);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IcorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, Color.Orange, 2f);
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, Color.Orange, 2f);
                     dust.noGravity = true;
                     
                     Dust dust2 = Dust.NewDustPerfect(dustPos, DustID.YellowTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Yellow, 1.5f);
