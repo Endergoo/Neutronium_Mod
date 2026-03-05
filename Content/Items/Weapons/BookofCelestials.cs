@@ -212,7 +212,7 @@ namespace Neutronium.Content.Items.Weapons
 
             int buffType = ModContent.BuffType<CelestialRegen>();
             if (!player.HasBuff(buffType))
-                player.AddBuff(buffType, 60); // 1-second duration, will refresh each hit
+                player.AddBuff(buffType, 120); // 1-second duration, will refresh each hit
             else
                 player.buffTime[player.FindBuffIndex(buffType)] = 60; // refresh duration
 
