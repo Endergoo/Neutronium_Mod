@@ -35,7 +35,7 @@ namespace Neutronium.Content.Items.Weapons
             position = Main.MouseWorld;
             
             Projectile.NewProjectile(
-                player.GetSource_ItemAI(Item),  // FIXED: player.GetSource_ItemAI(Item)
+                player.GetSource_ItemUse(Item),
                 position,
                 Vector2.Zero,
                 type,
