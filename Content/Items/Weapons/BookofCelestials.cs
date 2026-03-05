@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
-using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Graphics.CameraModifiers;
@@ -33,25 +32,26 @@ namespace Neutronium.Content.Items.Weapons
             Item.scale = 0.25f;
         }
 
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        public override bool Shoot(Player player, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Spawn beam above cursor, clamped to top of world
+            // Spawn beam above cursor
             float beamOffset = 800f;
-            float spawnY = Main.MouseWorld.Y - beamOffset;
-            if (spawnY < 0f) spawnY = 0f;
+            Vector2 spawnPos = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - beamOffset);
+            if (spawnPos.Y < 0) spawnPos.Y = 0f;
 
+            // Slight random rotation
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
+            // Spawn projectile
             Projectile.NewProjectile(
-                source,                                  // entity source
-                new Vector2(Main.MouseWorld.X, spawnY), // position
-                Vector2.Zero,                            // velocity
-                type,                                    // projectile type
-                damage,                                  // damage
-                knockback,                               // knockback
-                player.whoAmI,                           // owner
-                0.3f,                                    // ai0 = attack speed
-                beamRotation                             // ai1 = rotation
+                spawnPos,         // position
+                Vector2.Zero,     // velocity
+                type,             // projectile type
+                damage,           // damage
+                knockback,        // knockback
+                player.whoAmI,    // owner
+                0.3f,             // ai0 = attack speed
+                beamRotation       // ai1 = rotation
             );
 
             return false;
@@ -80,16 +80,15 @@ namespace Neutronium.Content.Items.Weapons
         private float storedTime = 0f;
 
         private Color drawColor = Color.Yellow;
-        private Color explosionColor = Color.Orange;
 
-        // Local Vector2 variables (not ai!)
         private Vector2 BeamStart;
         private Vector2 BeamEnd;
         private Vector2 Direction;
 
-        // attackSpeed stored in ai[0], beamRotation stored in ai[1]
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float beamRotation => ref Projectile.ai[1];
+
+        private bool canDamage => doneAttack && beamFX >= 1f;
 
         public override void SetStaticDefaults()
         {
@@ -119,14 +118,12 @@ namespace Neutronium.Content.Items.Weapons
             // Initialize beam
             if (time == 0f)
             {
-                drawColor = Color.Yellow;
-                explosionColor = Color.Orange;
-
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                BeamStart = Projectile.Center;                        // local Vector2
-                Direction = Vector2.UnitY.RotatedBy(beamRotation);   // local Vector2
-                BeamEnd = BeamStart + Direction * beamLength;         // local Vector2
+                // Set beam start above cursor
+                BeamStart = Projectile.Center;
+                Direction = Vector2.UnitY.RotatedBy(beamRotation); // slight random rotation
+                BeamEnd = BeamStart + Direction * beamLength;
 
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
@@ -134,7 +131,7 @@ namespace Neutronium.Content.Items.Weapons
 
             if (time >= attackTime && !doneAttack)
             {
-                SoundEngine.PlaySound(new SoundStyle("Terraria/Sounds/Item_72") { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
+                SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
                 beamFX = 3f;
                 doneAttack = true;
                 storedTime = time;
@@ -142,6 +139,7 @@ namespace Neutronium.Content.Items.Weapons
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                     Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
+                // Dust FX
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
@@ -153,7 +151,7 @@ namespace Neutronium.Content.Items.Weapons
             time += attackSpeed;
 
             // Full-length damage
-            if (doneAttack)
+            if (canDamage)
             {
                 foreach (NPC npc in Main.npc)
                 {
@@ -161,8 +159,9 @@ namespace Neutronium.Content.Items.Weapons
                     {
                         float collisionPoint = 0f;
                         float beamWidth = 140f * Projectile.scale;
+                        Vector2 end = BeamStart + Direction * beamLength * 2;
 
-                        if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, BeamEnd, beamWidth, ref collisionPoint))
+                        if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, end, beamWidth, ref collisionPoint))
                         {
                             NPC.HitInfo hitInfo = new NPC.HitInfo()
                             {
@@ -202,6 +201,7 @@ namespace Neutronium.Content.Items.Weapons
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };
 
+            // Draw bloom
             Main.EntitySpriteDraw(
                 bloom,
                 Projectile.Center - Main.screenPosition,
@@ -213,6 +213,7 @@ namespace Neutronium.Content.Items.Weapons
                 SpriteEffects.None,
                 0);
 
+            // Draw beam line
             Main.EntitySpriteDraw(
                 beam,
                 BeamStart - Main.screenPosition,
