@@ -40,7 +40,7 @@ namespace Neutronium.Content.Items.Weapons
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
             // Start the beam above the cursor
-            position = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - 800);
+            position = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - 1000);
 
             Projectile.NewProjectile(
                 player.GetSource_ItemUse(Item),
@@ -50,7 +50,7 @@ namespace Neutronium.Content.Items.Weapons
                 damage,
                 knockback,
                 player.whoAmI,
-                ai0: 0.3f // attack speed
+                ai0: 0.5f // attack speed
             );
         }
 
