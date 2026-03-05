@@ -1,3 +1,4 @@
+```csharp
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -88,6 +89,8 @@ namespace Neutronium.Content.Items.Weapons
         Vector2 beamStart = Vector2.Zero;
         Vector2 directionToTarget = Vector2.UnitY;
 
+        float beamRotation;
+
         public Vector2 targetPos => new Vector2(Projectile.Center.X, Projectile.Center.Y + beamLength);
 
         public override void SetStaticDefaults()
@@ -125,8 +128,11 @@ namespace Neutronium.Content.Items.Weapons
                 drawColor = Color.Yellow;
                 explosionColor = Color.Orange;
 
-                beamStart = Projectile.Center;
-                directionToTarget = Vector2.UnitY;
+                beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-25f, 25f));
+
+                directionToTarget = Vector2.UnitY.RotatedBy(beamRotation);
+
+                beamStart = Projectile.Center - directionToTarget * beamLength;
 
                 if (attackSpeed == 0)
                     attackSpeed = 0.3f;
@@ -139,37 +145,31 @@ namespace Neutronium.Content.Items.Weapons
             if (time >= attackTime && !doneAttack)
             {
                 SoundStyle attack = new SoundStyle("Terraria/Sounds/Item_72") with { Volume = 0.8f, Pitch = -0.2f };
-                SoundEngine.PlaySound(attack, targetPos);
+                SoundEngine.PlaySound(attack, Projectile.Center);
 
                 beamFX = 3f;
                 doneAttack = true;
                 storedTime = time;
 
-                if (Main.LocalPlayer.Distance(targetPos) < 2000)
+                if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                 {
-                    PunchCameraModifier modifier = new PunchCameraModifier(targetPos, Main.rand.NextVector2Unit(), 8f, 12f, 20);
+                    PunchCameraModifier modifier = new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20);
                     Main.instance.CameraModifiers.Add(modifier);
                 }
 
                 for (int i = 0; i < 30; i++)
                 {
-                    Vector2 dustPos = targetPos + Main.rand.NextVector2Circular(100, 100);
+                    Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
 
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch,
+                    Dust dust = Dust.NewDustPerfect(
+                        dustPos,
+                        DustID.IchorTorch,
                         Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15),
                         0,
                         Color.Orange,
                         2f);
 
                     dust.noGravity = true;
-
-                    Dust dust2 = Dust.NewDustPerfect(dustPos, DustID.YellowTorch,
-                        Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10),
-                        0,
-                        Color.Yellow,
-                        1.5f);
-
-                    dust2.noGravity = true;
                 }
             }
 
@@ -224,10 +224,10 @@ namespace Neutronium.Content.Items.Weapons
 
             float collisionPoint = 0f;
 
-            Vector2 start = Projectile.Center;
-            Vector2 end = start + Vector2.UnitY * beamLength;
+            Vector2 start = beamStart;
+            Vector2 end = beamStart + directionToTarget * beamLength;
 
-            float beamWidth = 120f * Projectile.scale;
+            float beamWidth = 140f * Projectile.scale;
 
             return Collision.CheckAABBvLineCollision(
                 targetHitbox.TopLeft(),
@@ -252,7 +252,7 @@ namespace Neutronium.Content.Items.Weapons
 
             Main.EntitySpriteDraw(
                 bloom,
-                targetPos - Main.screenPosition,
+                Projectile.Center - Main.screenPosition,
                 null,
                 beamColor * opacity,
                 0f,
@@ -276,3 +276,4 @@ namespace Neutronium.Content.Items.Weapons
         }
     }
 }
+```
