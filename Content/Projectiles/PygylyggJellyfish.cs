@@ -8,68 +8,32 @@ using Terraria.ModLoader;
 using Terraria;
 using Microsoft.Xna.Framework;
 
-namespace Neutronium.Content.Projectiles
+namespace Neutronium.Content.Projectiles;
+public class PygylyggJellyfish : ModProjectile
 {
-    public class PygylyggJellyfish : ModProjectile
+    public override void SetDefaults()
     {
-        public override void SetDefaults()
-        {
-            Projectile.width = 24;
-            Projectile.height = 24;
-            Projectile.friendly = true;
-            Projectile.hostile = false;
-            Projectile.DamageType = DamageClass.Magic;
-            Projectile.penetrate = 3; // Hits multiple enemies
-            Projectile.timeLeft = 300;
-            Projectile.ignoreWater = true;
-            Projectile.tileCollide = true;
-            Projectile.aiStyle = -1; // Disable default AI styles
-        }
+        Projectile.width = 24;
+        Projectile.height = 24;
+        Projectile.friendly = true;
+        Projectile.hostile = false;
+        Projectile.DamageType = DamageClass.Magic;
+        Projectile.penetrate = 3; // Hits multiple enemies
+        Projectile.timeLeft = 300;
+        Projectile.ignoreWater = true;
+        Projectile.tileCollide = true;
+        Projectile.aiStyle = ProjAIStyleID.Bounce;
+    }
 
-        public override void AI()
-        {
-            // Custom bouncing behavior - gravity
-            if (Projectile.velocity.Y < 15f)
-                Projectile.velocity.Y += 0.4f;
-            
-            // Add some air resistance/friction
-            Projectile.velocity.X *= 0.99f;
-            
-            // Your custom effects - BLUE ONLY
-            Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 
-                        DustID.BlueFairy, Projectile.velocity.X * 0.5f, 
-                        Projectile.velocity.Y * 0.5f);
-            Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f));
-        }
+    public override void AI()
+    {
+        Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.BlueFairy, Projectile.velocity.X * 0.5f, Projectile.velocity.Y * 0.5f);
+        Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f));
+    }
 
-        public override bool OnTileCollide(Vector2 oldVelocity)
-        {
-            // Bounce logic when hitting tiles
-            if (Projectile.velocity.X != oldVelocity.X)
-            {
-                Projectile.velocity.X = -oldVelocity.X * 0.8f; // Lose some energy on X bounce
-            }
-            
-            if (Projectile.velocity.Y != oldVelocity.Y)
-            {
-                Projectile.velocity.Y = -oldVelocity.Y * 0.7f; // Lose some energy on Y bounce
-                
-                // Optional: Add a little dust burst on bounce
-                for (int i = 0; i < 3; i++)
-                {
-                    Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
-                                DustID.BlueFairy, Projectile.velocity.X * 0.2f, 
-                                -Projectile.velocity.Y * 0.2f);
-                }
-            }
-            
-            return false; // Return false to prevent the projectile from dying on collision
-        }
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            // Apply a debuff on hit
-            target.AddBuff(BuffID.Venom, 120); // Poison for 2 seconds
-        }
+    public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+    {
+        // Apply a debuff on hit
+        target.AddBuff(BuffID.Venom, 120); // Poison for 2 seconds
     }
 }
