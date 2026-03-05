@@ -29,7 +29,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<CelestialBeam>();
             Item.shootSpeed = 0f;
-            Item.scale = 0.5f;
+            Item.scale = 0.25f;
         }
 
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
@@ -211,51 +211,44 @@ namespace Neutronium.Content.Items.Weapons
             if (beamFX == 0)
                 return false;
 
+            // Only use BloomLineThick - LineThick (bBeam) was causing black square artifacts
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
-            Texture2D bBeam = ModContent.Request<Texture2D>("CalamityMod/Particles/LineThick").Value;
             Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
 
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
             Color beamColor = drawColor with { A = 0 };
             Color orangeBeam = explosionColor with { A = 0 };
 
+            // Bloom at impact point
             float bloomScale = 0.8f * Projectile.scale * (doneAttack ? 2f : 0.6f);
             Color bloomColor = (doneAttack ? explosionColor : drawColor) * opacity * 0.8f;
             Main.EntitySpriteDraw(bloom, targetPos - Main.screenPosition, null, bloomColor, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0);
 
-            for (int t = 0; t < (doneAttack ? 4 : 2); t++)
+            // Draw beam - inner bright core + softer outer glow, both using BloomLineThick
+            int passes = doneAttack ? 3 : 2;
+            for (int t = 0; t < passes; t++)
             {
-                bool isOutline = (t > 1);
-                Texture2D beamTexture = isOutline ? bBeam : beam;
+                float beamThickness = (t == 0)
+                    ? 0.05f * beamFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f)           // core
+                    : 0.09f * (1f - t * 0.2f) * beamFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f); // glow layers
 
-                float beamThickness = isOutline ?
-                    0.08f * (0.9f - 0.1f * t) * beamFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f) :
-                    0.05f * beamFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f);
-
-                Color finalColor;
-                if (doneAttack && t >= 2)
-                {
-                    finalColor = Color.Lerp(orangeBeam, beamColor, 0.3f) * opacity * (0.4f + 0.1f * t);
-                }
-                else
-                {
-                    finalColor = isOutline ?
-                        beamColor * opacity * 0.15f :
-                        beamColor * opacity * (1 - t * 0.15f);
-                }
+                Color layerColor = (doneAttack && t > 0)
+                    ? Color.Lerp(beamColor, orangeBeam, (float)t / passes) * opacity * (0.6f - t * 0.15f)
+                    : beamColor * opacity * (1f - t * 0.25f);
 
                 Main.EntitySpriteDraw(
-                    beamTexture,
+                    beam,
                     beamStart - Main.screenPosition,
                     null,
-                    finalColor,
+                    layerColor,
                     directionToTarget.ToRotation() + MathHelper.PiOver2,
-                    new Vector2(beamTexture.Width / 2, beamTexture.Height),
-                    new Vector2(beamThickness, beamLength / 1000) * Projectile.scale,
+                    new Vector2(beam.Width / 2, beam.Height),
+                    new Vector2(beamThickness, beamLength / 1000f) * Projectile.scale,
                     SpriteEffects.None
                 );
             }
 
+            // Sparkles at impact point when firing
             if (doneAttack)
             {
                 for (int i = 0; i < 5; i++)
