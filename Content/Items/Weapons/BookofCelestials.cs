@@ -216,8 +216,6 @@ namespace Neutronium.Content.Items.Weapons
             else
                 player.buffTime[player.FindBuffIndex(buffType)] = 60; // refresh duration
 
-            OnHitEffects(target);
-
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
