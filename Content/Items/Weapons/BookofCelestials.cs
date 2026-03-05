@@ -35,14 +35,10 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Spawn the beam above the cursor
             float beamOffset = 800f;
             Vector2 spawnPos = Main.MouseWorld - new Vector2(0, beamOffset);
+            if (spawnPos.Y < 0) spawnPos.Y = 0;
 
-            if (spawnPos.Y < 0) // Clamp to top of world
-                spawnPos.Y = 0;
-
-            // Subtle random rotation (-7° to 7°)
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
             Projectile.NewProjectile(
@@ -53,11 +49,11 @@ namespace Neutronium.Content.Items.Weapons
                 damage,
                 knockback,
                 player.whoAmI,
-                ai0: 0.3f,      // attack speed
-                ai1: beamRotation // store rotation in ai1
+                ai0: 0.3f,       // attack speed
+                ai1: beamRotation // store rotation
             );
 
-            return false; // prevent default projectile spawn
+            return false;
         }
 
         public override void AddRecipes()
@@ -77,7 +73,7 @@ namespace Neutronium.Content.Items.Weapons
 
         public float time = 0;
         public ref float attackSpeed => ref Projectile.ai[0];
-        public ref float beamRotation => ref Projectile.ai[1]; // stored rotation
+        public ref float beamRotation => ref Projectile.ai[1];
 
         public bool doneAttack = false;
         public int attackTime = 12;
@@ -90,10 +86,7 @@ namespace Neutronium.Content.Items.Weapons
         public Color explosionColor = Color.Orange;
 
         Vector2 beamStart => Projectile.Center;
-
-        // Use downward direction with slight rotation
         Vector2 directionToTarget => Vector2.UnitY.RotatedBy(beamRotation);
-
         Vector2 beamEnd => beamStart + directionToTarget * beamLength;
 
         public override void SetStaticDefaults()
@@ -109,8 +102,7 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 6000;
-
+            Projectile.timeLeft = 60; // full attack duration
             Projectile.scale = 2.5f;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
@@ -126,10 +118,7 @@ namespace Neutronium.Content.Items.Weapons
             {
                 drawColor = Color.Yellow;
                 explosionColor = Color.Orange;
-
-                if (attackSpeed == 0)
-                    attackSpeed = 0.3f;
-
+                if (attackSpeed == 0) attackSpeed = 0.3f;
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
             }
@@ -144,36 +133,45 @@ namespace Neutronium.Content.Items.Weapons
                 storedTime = time;
 
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
-                {
-                    PunchCameraModifier modifier = new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20);
-                    Main.instance.CameraModifiers.Add(modifier);
-                }
+                    Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
-                    Dust dust = Dust.NewDustPerfect(
-                        dustPos,
-                        DustID.IchorTorch,
-                        Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15),
-                        0,
-                        Color.Orange,
-                        2f);
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, Color.Orange, 2f);
                     dust.noGravity = true;
                 }
             }
 
-            float endTime = storedTime + 15;
-            if (time >= endTime && doneAttack)
-            {
-                Projectile.Kill();
-                return;
-            }
-
             time += attackSpeed;
+
+            // Continuously deal damage along the entire beam
+            if (doneAttack)
+            {
+                foreach (NPC npc in Main.npc)
+                {
+                    if (npc.active && !npc.friendly && npc.CanBeChasedBy())
+                    {
+                        float collisionPoint = 0f;
+                        float beamWidth = 140f * Projectile.scale;
+                        if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), beamStart, beamEnd, beamWidth, ref collisionPoint))
+                        {
+                            int damage = Projectile.damage;
+                            NPC.HitInfo hitInfo = new NPC.HitInfo()
+                            {
+                                Damage = damage,
+                                Knockback = Projectile.knockBack,
+                                HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X)
+                            };
+                            npc.StrikeNPC(hitInfo);
+                            OnHitNPC(npc, hitInfo, damage);
+                        }
+                    }
+                }
+            }
         }
 
-        public override bool? CanHitNPC(NPC target) => doneAttack ? (bool?)null : false;
+        public override bool? CanHitNPC(NPC target) => false;
 
         public override bool CanHitPlayer(Player target) => false;
 
@@ -184,32 +182,9 @@ namespace Neutronium.Content.Items.Weapons
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
-                Dust dust = Dust.NewDustPerfect(
-                    dustPos,
-                    DustID.IchorTorch,
-                    Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10),
-                    0,
-                    Color.Orange,
-                    2f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Orange, 2f);
                 dust.noGravity = true;
             }
-        }
-
-        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
-        {
-            if (!doneAttack) return false;
-
-            float collisionPoint = 0f;
-            float beamWidth = 140f * Projectile.scale;
-
-            // Full vertical line collision: hits any enemy along the beam regardless of cursor
-            return Collision.CheckAABBvLineCollision(
-                targetHitbox.TopLeft(),
-                targetHitbox.Size(),
-                beamStart,
-                beamEnd,
-                beamWidth,
-                ref collisionPoint);
         }
 
         public override bool PreDraw(ref Color lightColor)
