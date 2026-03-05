@@ -23,7 +23,7 @@ public class PygylyggJellyfish : ModProjectile
         Projectile.light = 0.75f;
         Projectile.ignoreWater = true;
         Projectile.tileCollide = true;
-        Projectile.aiStyle = ProjAIStyleID.Bounce; // Makes it bounce
+        Projectile.aiStyle = ProjAIStyleID.Bounce;
     }
 
     public override void AI()
