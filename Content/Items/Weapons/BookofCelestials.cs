@@ -5,8 +5,8 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.Graphics.CameraModifiers;
 using Terraria.DataStructures;
+using Terraria.Graphics.CameraModifiers;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -35,25 +35,29 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Spawn beam above cursor
-            float beamOffset = 800f;
-            Vector2 spawnPos = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - beamOffset);
-            if (spawnPos.Y < 0) spawnPos.Y = 0f;
+            Vector2 targetPos = Main.MouseWorld;
+
+            // Max beam length
+            float maxBeamLength = 900f;
+
+            // Spawn position above target, clamped to not be ridiculously offscreen
+            Vector2 spawnPos = targetPos - Vector2.UnitY * maxBeamLength;
+            if (spawnPos.Y < Main.screenPosition.Y - 50) // clamp slightly above screen top
+                spawnPos.Y = Main.screenPosition.Y - 50;
 
             // Slight random rotation
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
-            // Spawn projectile
             Projectile.NewProjectile(
                 source,
-                spawnPos,         // position
-                Vector2.Zero,     // velocity
-                type,             // projectile type
-                damage,           // damage
-                knockback,        // knockback
-                player.whoAmI,    // owner
-                0.3f,             // ai0 = attack speed
-                beamRotation       // ai1 = rotation
+                spawnPos,
+                Vector2.Zero,
+                type,
+                damage,
+                knockback,
+                player.whoAmI,
+                0.3f,        // attack speed
+                beamRotation  // rotation
             );
 
             return false;
@@ -122,9 +126,10 @@ namespace Neutronium.Content.Items.Weapons
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                // Set beam start above cursor
+                // Beam starts at spawn position, direction toward targetPos
+                Vector2 targetPos = Main.MouseWorld;
                 BeamStart = Projectile.Center;
-                Direction = Vector2.UnitY.RotatedBy(beamRotation); // slight random rotation
+                Direction = Vector2.UnitY.RotatedBy(beamRotation); // slight rotation
                 BeamEnd = BeamStart + Direction * beamLength;
 
                 Projectile.velocity = Vector2.Zero;
@@ -168,7 +173,7 @@ namespace Neutronium.Content.Items.Weapons
                             NPC.HitInfo hitInfo = new NPC.HitInfo()
                             {
                                 Damage = Projectile.damage,
-                                Knockback = Projectile.knockBack,
+                                KnockBack = Projectile.knockBack,
                                 HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X)
                             };
                             npc.StrikeNPC(hitInfo);
