@@ -56,7 +56,7 @@ namespace Neutronium.Content.Items.Weapons
         {
             Recipe CurrentCaller = CreateRecipe();
             CurrentCaller.AddIngredient(ItemID.CelestialStone, 1);
-            CurrentCaller.AddIngredient(ItemID.Tome, 1);
+            CurrentCaller.AddIngredient(ItemID.SpellTome, 1);
             CurrentCaller.AddIngredient(ItemID.SoulofLight, 10);
             CurrentCaller.AddIngredient(ItemID.SoulofNight, 10);
             CurrentCaller.AddTile(TileID.CrystalBall);
