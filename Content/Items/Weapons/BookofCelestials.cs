@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.DataStructures;
 using Terraria.Graphics.CameraModifiers;
 
 namespace Neutronium.Content.Items.Weapons
@@ -33,25 +32,24 @@ namespace Neutronium.Content.Items.Weapons
             Item.scale = 0.25f;
         }
 
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        public override bool Shoot(Player player, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             // Spawn beam above cursor, clamped to top of world
             float beamOffset = 800f;
             float spawnY = Main.MouseWorld.Y - beamOffset;
-            if (spawnY < 0) spawnY = 0f;
+            if (spawnY < 0f) spawnY = 0f;
 
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
             Projectile.NewProjectile(
-                source: source,
-                position: new Vector2(Main.MouseWorld.X, spawnY), // <- combine X & Y into Vector2
-                velocity: Vector2.Zero,
-                Type: type,
-                Damage: damage,
-                KnockBack: knockback,
-                Owner: player.whoAmI,
-                ai0: 0.3f,          // attack speed
-                ai1: beamRotation    // rotation in radians
+                new Vector2(Main.MouseWorld.X, spawnY), // position
+                Vector2.Zero,                            // velocity
+                type,                                    // projectile type
+                damage,                                  // damage
+                knockback,                               // knockback
+                player.whoAmI,                           // owner
+                0.3f,                                    // ai0 = attack speed
+                beamRotation                              // ai1 = rotation
             );
 
             return false;
