@@ -127,7 +127,7 @@ Items: {
 
 	BookofCelestials: {
 		DisplayName: Book of Celestials
-		Tooltip: During the day, call down the sun on your enemies giving +2% regen up to 20% on hit.
+		Tooltip: During the day, hit your enemies for Celestial Regen, gaining +2% regen up to 20% for 10 seconds.
 	}
 }
 
@@ -199,6 +199,6 @@ Buffs: {
 
 	CelestialRegen: {
 		DisplayName: Celestial Regen
-		Description: Grants Cosmic Regen
+		Description: 2%-20% addition life regen
 	}
 }

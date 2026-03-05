@@ -37,7 +37,6 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Slight random rotation in radians
             float beamRotation = Main.rand.NextFloat(-0.05f, 0.05f); // ±~3 degrees
 
             Projectile.NewProjectile(
@@ -49,12 +48,13 @@ namespace Neutronium.Content.Items.Weapons
                 knockback,
                 player.whoAmI,
                 0.3f,        // attack speed
-                beamRotation  // rotation for slight tilt
+                beamRotation  // slight tilt
             );
 
             return false;
         }
-          public override void AddRecipes()
+
+        public override void AddRecipes()
         {
             Recipe CurrentCaller = CreateRecipe();
             CurrentCaller.AddIngredient(ItemID.CelestialStone, 1);
@@ -109,9 +109,12 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void AI()
         {
-
-            float pulseSpeed = 0.3f; // smaller = slower, bigger = faster
-            drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
+            // Day/night beam color with subtle pulse
+            float pulseSpeed = 0.3f; 
+            if (Main.dayTime)
+                drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
+            else
+                drawColor = Color.Lerp(Color.CornflowerBlue, Color.LightBlue, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
 
             if (beamFX > 0f)
                 beamFX = MathHelper.Lerp(beamFX, 0f, time > attackTime + 5 ? 0.07f : 0.01f);
@@ -120,12 +123,10 @@ namespace Neutronium.Content.Items.Weapons
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                // Optional subtle horizontal variance (±3px)
                 float horizontalOffset = Main.rand.NextFloat(-3f, 3f);
                 Vector2 cursor = Main.MouseWorld + new Vector2(horizontalOffset, 0f);
 
-                // Beam is centered on cursor
-                float verticalSpan = 3000f; // adjust height as needed
+                float verticalSpan = 3000f; 
                 Vector2 halfBeam = new Vector2(0f, verticalSpan).RotatedBy(rotation);
 
                 BeamStart = cursor - halfBeam;
@@ -136,7 +137,6 @@ namespace Neutronium.Content.Items.Weapons
                 Projectile.Center = cursor;
                 beamFX = 1f;
 
-
                 // Full beam lighting
                 Vector2 beamVector = BeamEnd - BeamStart;
                 float beamLength = beamVector.Length();
@@ -145,14 +145,14 @@ namespace Neutronium.Content.Items.Weapons
                 for (float i = 0; i <= beamLength; i += 60f)
                 {
                     Vector2 lightPos = BeamStart + beamDirection * i;
-
-                    float progress = i / beamLength; // fade along beam
+                    float progress = i / beamLength; 
                     float brightness = 1f - progress * 0.5f;
 
-                    Lighting.AddLight(lightPos, 0.9f * brightness, 0.85f * brightness, 0.4f * brightness);
+                    if (Main.dayTime)
+                        Lighting.AddLight(lightPos, 0.9f * brightness, 0.85f * brightness, 0.4f * brightness);
+                    else
+                        Lighting.AddLight(lightPos, 0.3f * brightness, 0.45f * brightness, 0.9f * brightness);
                 }
-
-                time += attackSpeed;
             }
 
             // Attack trigger
@@ -169,7 +169,7 @@ namespace Neutronium.Content.Items.Weapons
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, Color.Orange, 2f);
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, Main.dayTime ? Color.Orange : Color.Cyan, 2f);
                     dust.noGravity = true;
                 }
             }
@@ -207,42 +207,42 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(BuffID.OnFire, 300);
-
-            // Get the player who owns this projectile
             Player player = Main.player[Projectile.owner];
 
-            // Get the buff type and set duration
-            int buffType = ModContent.BuffType<CelestialRegen>();
-            int buffDuration = 600;
+            var modPlayer = player.GetModPlayer<NeutroniumPlayer>();
 
-            // Apply or refresh the buff
-            if (!player.HasBuff(buffType))
-                player.AddBuff(buffType, buffDuration);
+            if (Main.dayTime)
+            {
+                // Day: HP regen
+                int buffType = ModContent.BuffType<CelestialRegen>();
+                int buffDuration = 600;
+
+                if (!player.HasBuff(buffType))
+                    player.AddBuff(buffType, buffDuration);
+                else
+                    player.buffTime[player.FindBuffIndex(buffType)] = buffDuration;
+
+                modPlayer.celestialRegenStack += 0.02f;
+                if (modPlayer.celestialRegenStack > 0.2f)
+                    modPlayer.celestialRegenStack = 0.2f;
+            }
             else
-                player.buffTime[player.FindBuffIndex(buffType)] = buffDuration;
+            {
+                // Night: Damage boost
+                modPlayer.celestialDamageStack += 0.02f;
+                if (modPlayer.celestialDamageStack > 0.2f)
+                    modPlayer.celestialDamageStack = 0.2f;
+            }
 
             // Dust effect
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Orange, 2f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Main.dayTime ? Color.Orange : Color.Cyan, 2f);
                 dust.noGravity = true;
             }
-
-            // Increase CelestialRegen stack
-            var modPlayer = player.GetModPlayer<NeutroniumPlayer>();
-
-            // Increase stack on hit
-            modPlayer.celestialRegenStack += 0.02f; // +2% per hit
-            if (modPlayer.celestialRegenStack > 0.2f) // cap at 20%
-                modPlayer.celestialRegenStack = 0.2f;
-
-            /* Optional: floating combat text to see the current regen
-            int regenAmount = (int)(modPlayer.celestialRegenStack * player.statLifeMax2);
-            CombatText.NewText(player.Hitbox, Color.Green, $"+{regenAmount} HP/sec");
-            */
         }
+
         public override bool PreDraw(ref Color lightColor)
         {
             if (beamFX == 0f) return false;
@@ -252,7 +252,6 @@ namespace Neutronium.Content.Items.Weapons
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };
 
-            // Draw full-length beam
             Main.EntitySpriteDraw(
                 beam,
                 BeamStart - Main.screenPosition,
@@ -267,5 +266,4 @@ namespace Neutronium.Content.Items.Weapons
             return false;
         }
     }
-    
 }
