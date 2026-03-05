@@ -62,7 +62,7 @@ namespace Neutronium.Content.Items.Weapons
 
     public class CelestialBeam : ModProjectile
     {
-        public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj.png"
+        public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj.png";
         public float time = 0;
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float beamType => ref Projectile.ai[1];
