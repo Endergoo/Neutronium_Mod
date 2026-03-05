@@ -24,20 +24,22 @@ public class PygylyggJellyfish : ModProjectile
         Projectile.tileCollide = true;
     }
 
-        public override bool OnTileCollide(Vector2 oldVelocity)
-    {
-        if (Projectile.velocity.X != oldVelocity.X)
-            Projectile.velocity.X = -oldVelocity.X;
-        if (Projectile.velocity.Y != oldVelocity.Y)
-            Projectile.velocity.Y = -oldVelocity.Y;
-         return false;
-    }
-
     public override void AI()
-    {
-        Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.BlueFairy, Projectile.velocity.X * 0.5f, Projectile.velocity.Y * 0.5f);
-        Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f));
-    }
+{
+    Projectile.velocity.Y += 0.3f; // Gravity
+    
+    Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.BlueFairy, Projectile.velocity.X * 0.5f, Projectile.velocity.Y * 0.5f);
+    Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f));
+}
+
+public override bool OnTileCollide(Vector2 oldVelocity)
+{
+    if (Projectile.velocity.X != oldVelocity.X)
+        Projectile.velocity.X = -oldVelocity.X * 0.8f; // Slight energy loss
+    if (Projectile.velocity.Y != oldVelocity.Y)
+        Projectile.velocity.Y = -oldVelocity.Y * 0.8f; // Slight energy loss
+    return false;
+}
 
     public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
     {
