@@ -113,9 +113,9 @@ namespace Neutronium.Content.Items.Weapons
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                // Beam always spans far above and below the projectile
-                float verticalSpan = 2000f; // adjust for longer beam if needed
-                float mouseX = Main.MouseWorld.X;
+                float verticalSpan = 2500f; // slightly taller beam
+                BeamStart = new Vector2(mouseX, Projectile.Center.Y - verticalSpan);
+                BeamEnd   = new Vector2(mouseX, Projectile.Center.Y + verticalSpan);
 
                 BeamStart = new Vector2(mouseX, Projectile.Center.Y - verticalSpan);
                 BeamEnd   = new Vector2(mouseX, Projectile.Center.Y + verticalSpan);
