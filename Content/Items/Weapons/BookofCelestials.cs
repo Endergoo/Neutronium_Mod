@@ -173,7 +173,7 @@ namespace Neutronium.Content.Items.Weapons
                             NPC.HitInfo hitInfo = new NPC.HitInfo()
                             {
                                 Damage = Projectile.damage,
-                                KnockBack = Projectile.knockBack,
+                                Knockback = Projectile.knockBack,
                                 HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X)
                             };
                             npc.StrikeNPC(hitInfo);
