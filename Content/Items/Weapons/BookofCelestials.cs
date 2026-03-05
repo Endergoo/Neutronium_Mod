@@ -66,7 +66,7 @@ namespace Neutronium.Content.Items.Weapons
         public float time = 0;
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float beamType => ref Projectile.ai[1];
-        public bool canDamage => doneAttack && beamFX >= 1f;
+        public bool canDamage => doneAttack; // Remove beamFX requirement - whole beam damages during attack
         public bool doneAttack = false;
         public int attackTime = 12;
         public float beamLength => 900;
@@ -171,8 +171,9 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool? CanHitNPC(NPC target)
         {
-            if (canDamage)
-                return null;
+            // During the attack, the beam can hit
+            if (doneAttack)
+                return null; // null means "use default collision checking"
             return false;
         }
 
@@ -195,14 +196,18 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
-            if (!canDamage)
+            // Only check collision when the beam is active
+            if (!doneAttack)
                 return false;
 
             float _ = float.NaN;
             Vector2 start = beamStart;
             Vector2 end = beamStart + directionToTarget * beamLength;
-            float beamWidth = 30 * Projectile.scale;
+            
+            // Make the beam wider for better hit detection
+            float beamWidth = 60 * Projectile.scale;
 
+            // Check if the target hitbox intersects with the beam line
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, beamWidth, ref _);
         }
 
@@ -211,7 +216,6 @@ namespace Neutronium.Content.Items.Weapons
             if (beamFX == 0)
                 return false;
 
-            // Only use BloomLineThick - LineThick (bBeam) was causing black square artifacts
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
             Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
 
@@ -224,7 +228,7 @@ namespace Neutronium.Content.Items.Weapons
             Color bloomColor = (doneAttack ? explosionColor : drawColor) * opacity * 0.8f;
             Main.EntitySpriteDraw(bloom, targetPos - Main.screenPosition, null, bloomColor, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0);
 
-            // Draw beam - inner bright core + softer outer glow, both using BloomLineThick
+            // Draw beam - inner bright core + softer outer glow
             int passes = doneAttack ? 3 : 2;
             for (int t = 0; t < passes; t++)
             {
