@@ -201,19 +201,19 @@ namespace Neutronium.Content.Items.Weapons
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };
 
-            // Draw bloom at bottom
+            // Subtle bloom at bottom
             Main.EntitySpriteDraw(
                 bloom,
                 BeamEnd - Main.screenPosition,
                 null,
-                beamColor * opacity,
+                beamColor * 0.15f,    // very low opacity
                 0f,
                 bloom.Size() / 2f,
-                1.5f,
+                0.5f,                 // smaller scale
                 SpriteEffects.None,
                 0);
 
-            // Draw beam line full-screen
+            // Draw full-length beam
             Main.EntitySpriteDraw(
                 beam,
                 BeamStart - Main.screenPosition,
