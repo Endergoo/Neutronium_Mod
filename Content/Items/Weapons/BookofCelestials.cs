@@ -113,13 +113,12 @@ namespace Neutronium.Content.Items.Weapons
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                // Full vertical screen beam
-                float topOffset = 50f;
-                float bottomOffset = 50f;
+                // Beam always spans far above and below the projectile
+                float verticalSpan = 2000f; // adjust for longer beam if needed
                 float mouseX = Main.MouseWorld.X;
 
-                BeamStart = new Vector2(mouseX, Main.screenPosition.Y - topOffset);
-                BeamEnd = new Vector2(mouseX, Main.screenPosition.Y + Main.screenHeight + bottomOffset);
+                BeamStart = new Vector2(mouseX, Projectile.Center.Y - verticalSpan);
+                BeamEnd   = new Vector2(mouseX, Projectile.Center.Y + verticalSpan);
 
                 Direction = (BeamEnd - BeamStart).RotatedBy(rotation);
 
