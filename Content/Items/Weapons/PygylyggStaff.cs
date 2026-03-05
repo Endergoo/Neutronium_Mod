@@ -34,10 +34,10 @@ namespace Neutronium.Content.Items.Weapons
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient(ItemID.JellyfishNecklace, 1) // Example ingredient
-                .AddIngredient(ItemID.Pearlwood, 20) // Example ingredient
+                .AddIngredient(ItemID.JellyfishNecklace, 1) 
+                .AddIngredient(ItemID.Pearlwood, 20)
                 .AddIngredient(ItemID.SpiderFang, 10)
-                .AddTile(TileID.Anvils) // Crafting station
+                .AddTile(TileID.Anvils)
                 .Register();
         }
     }   

@@ -29,7 +29,7 @@ public class PygylyggJellyfish : ModProjectile
     public override void AI()
     {
         // Glowing jellyfish effect
-        Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.PurpleTorch, Projectile.velocity.X * 0.5f, Projectile.velocity.Y * 0.5f);
+        Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.Water, Projectile.velocity.X * 0.5f, Projectile.velocity.Y * 0.5f);
         Lighting.AddLight(Projectile.Center, new Vector3(1.5f, 0.0f, 1f));
 
     }
