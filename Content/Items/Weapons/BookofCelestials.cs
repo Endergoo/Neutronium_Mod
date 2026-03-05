@@ -218,7 +218,7 @@ namespace Neutronium.Content.Items.Weapons
 
             // Apply or refresh the buff
             if (!player.HasBuff(buffType))
-                player.AddBuff(buffType, buffDuration);
+                player.ASddBuff(buffType, buffDuration);
             else
                 player.buffTime[player.FindBuffIndex(buffType)] = buffDuration;
 
@@ -235,13 +235,13 @@ namespace Neutronium.Content.Items.Weapons
 
             // Increase stack on hit
             modPlayer.celestialRegenStack += 0.02f; // +2% per hit
-            if (modPlayer.celestialRegenStack > 0.5f) // cap at 20%
+            if (modPlayer.celestialRegenStack > 0.2f) // cap at 20%
                 modPlayer.celestialRegenStack = 0.2f;
 
-            // Optional: floating combat text to see the current regen
+            /* Optional: floating combat text to see the current regen
             int regenAmount = (int)(modPlayer.celestialRegenStack * player.statLifeMax2);
             CombatText.NewText(player.Hitbox, Color.Green, $"+{regenAmount} HP/sec");
-            
+            */
         }
         public override bool PreDraw(ref Color lightColor)
         {
