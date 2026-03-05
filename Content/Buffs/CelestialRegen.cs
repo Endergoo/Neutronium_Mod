@@ -1,7 +1,7 @@
 using Terraria;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
-using Neutronium.Content.Players;
+using Neutronium.Content.Players;   
 
 namespace Neutronium.Content.Buffs
 {
