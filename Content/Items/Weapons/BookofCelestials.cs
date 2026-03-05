@@ -5,8 +5,8 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.DataStructures;
 using Terraria.Graphics.CameraModifiers;
+using Terraria.DataStructures;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -35,7 +35,6 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Slight random horizontal rotation
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
             Projectile.NewProjectile(
@@ -47,7 +46,7 @@ namespace Neutronium.Content.Items.Weapons
                 knockback,
                 player.whoAmI,
                 0.3f,        // attack speed
-                beamRotation  // rotation
+                beamRotation  // slight rotation
             );
 
             return false;
@@ -110,12 +109,11 @@ namespace Neutronium.Content.Items.Weapons
             if (beamFX > 0)
                 beamFX = MathHelper.Lerp(beamFX, 0f, time > attackTime + 5 ? 0.07f : 0.01f);
 
-            // Initialize beam
             if (time == 0f)
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                // Beam spans full vertical screen
+                // Full vertical screen beam
                 float topOffset = 50f;
                 float bottomOffset = 50f;
                 float mouseX = Main.MouseWorld.X;
@@ -123,7 +121,6 @@ namespace Neutronium.Content.Items.Weapons
                 BeamStart = new Vector2(mouseX, Main.screenPosition.Y - topOffset);
                 BeamEnd = new Vector2(mouseX, Main.screenPosition.Y + Main.screenHeight + bottomOffset);
 
-                // Slight rotation
                 Direction = (BeamEnd - BeamStart).RotatedBy(rotation);
 
                 Projectile.Center = BeamStart;
@@ -196,22 +193,9 @@ namespace Neutronium.Content.Items.Weapons
             if (beamFX == 0f) return false;
 
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
-            Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
 
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };
-
-            // Subtle bloom at bottom
-            Main.EntitySpriteDraw(
-                bloom,
-                BeamEnd - Main.screenPosition,
-                null,
-                beamColor * 0.15f,    // very low opacity
-                0f,
-                bloom.Size() / 2f,
-                0.5f,                 // smaller scale
-                SpriteEffects.None,
-                0);
 
             // Draw full-length beam
             Main.EntitySpriteDraw(
