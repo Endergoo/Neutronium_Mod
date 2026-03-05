@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.CameraModifiers;
 
 namespace Neutronium.Content.Items.Weapons
 {
