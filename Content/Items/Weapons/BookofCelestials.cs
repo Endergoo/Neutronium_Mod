@@ -35,8 +35,9 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Spawn exactly above cursor
-            Vector2 spawnPos = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - 800);
+            // Beam originates from player’s hand
+            Vector2 handOffset = new Vector2(0, -10); // adjust so it looks like from book
+            Vector2 spawnPos = player.Center + handOffset;
 
             Projectile.NewProjectile(
                 source,
@@ -49,7 +50,7 @@ namespace Neutronium.Content.Items.Weapons
                 ai0: 0.3f // attack speed
             );
 
-            return false; // Prevent default projectile spawn
+            return false; // prevent default projectile spawn
         }
 
         public override void AddRecipes()
@@ -83,8 +84,11 @@ namespace Neutronium.Content.Items.Weapons
         public float beamRotation;
 
         Vector2 beamStart => Projectile.Center;
-        Vector2 directionToTarget => Vector2.UnitY.RotatedBy(beamRotation);
-        Vector2 targetPos => beamStart + directionToTarget * beamLength;
+
+        // Compute direction towards mouse plus a subtle rotation
+        Vector2 directionToTarget => (Main.MouseWorld - beamStart).SafeNormalize(Vector2.UnitY).RotatedBy(beamRotation);
+
+        Vector2 beamEnd => beamStart + directionToTarget * beamLength;
 
         public override void SetStaticDefaults()
         {
@@ -117,7 +121,7 @@ namespace Neutronium.Content.Items.Weapons
                 drawColor = Color.Yellow;
                 explosionColor = Color.Orange;
 
-                // Subtle rotation on spawn (-7° to 7°)
+                // subtle random rotation (-7° to 7°)
                 beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
                 if (attackSpeed == 0)
@@ -195,11 +199,12 @@ namespace Neutronium.Content.Items.Weapons
             float collisionPoint = 0f;
             float beamWidth = 140f * Projectile.scale;
 
+            // Use the full beam line for collision
             return Collision.CheckAABBvLineCollision(
                 targetHitbox.TopLeft(),
                 targetHitbox.Size(),
                 beamStart,
-                targetPos,
+                beamEnd,
                 beamWidth,
                 ref collisionPoint);
         }
@@ -226,7 +231,7 @@ namespace Neutronium.Content.Items.Weapons
                 SpriteEffects.None,
                 0);
 
-            // Draw beam
+            // Draw beam along full length
             Main.EntitySpriteDraw(
                 beam,
                 beamStart - Main.screenPosition,
