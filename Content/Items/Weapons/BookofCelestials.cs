@@ -32,6 +32,11 @@ namespace Neutronium.Content.Items.Weapons
             Item.scale = 0.25f;
         }
 
+        public override bool CanUseItem(Player player)
+        {
+            return player.ownedProjectileCounts[Item.shoot] == 0;
+        }
+
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
             position = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - 800);
@@ -63,21 +68,27 @@ namespace Neutronium.Content.Items.Weapons
     public class CelestialBeam : ModProjectile
     {
         public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
+
         public float time = 0;
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float beamType => ref Projectile.ai[1];
-        public bool canDamage => doneAttack; // Remove beamFX requirement - whole beam damages during attack
+
         public bool doneAttack = false;
         public int attackTime = 12;
-        public float beamLength => 900;
+
+        public float beamLength = 900;
         public float beamFX = 0;
         public float storedTime = 0;
+
         public Color drawColor = Color.Yellow;
         public Color explosionColor = Color.Orange;
+
         public float sine = 0;
+
         Vector2 beamStart = Vector2.Zero;
-        Vector2 directionToTarget = Vector2.Zero;
-        public Vector2 targetPos => new Vector2(Projectile.Center.X, Projectile.Center.Y + 800);
+        Vector2 directionToTarget = Vector2.UnitY;
+
+        public Vector2 targetPos => new Vector2(Projectile.Center.X, Projectile.Center.Y + beamLength);
 
         public override void SetStaticDefaults()
         {
@@ -86,16 +97,19 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void SetDefaults()
         {
-            Projectile.width = 1;
-            Projectile.height = 1;
+            Projectile.width = 10;
+            Projectile.height = 10;
             Projectile.friendly = true;
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
             Projectile.timeLeft = 6000;
+
             Projectile.scale = 2.5f;
+
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = -1;
+            Projectile.localNPCHitCooldown = 10;
+
             Projectile.DamageType = DamageClass.Magic;
         }
 
@@ -111,13 +125,14 @@ namespace Neutronium.Content.Items.Weapons
                 drawColor = Color.Yellow;
                 explosionColor = Color.Orange;
 
-                beamStart = targetPos - new Vector2(0, beamLength);
+                beamStart = Projectile.Center;
                 directionToTarget = Vector2.UnitY;
 
                 if (attackSpeed == 0)
                     attackSpeed = 0.3f;
 
                 Projectile.velocity = Vector2.Zero;
+
                 beamFX = 1f;
             }
 
@@ -139,31 +154,31 @@ namespace Neutronium.Content.Items.Weapons
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = targetPos + Main.rand.NextVector2Circular(100, 100);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, Color.Orange, 2f);
+
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch,
+                        Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15),
+                        0,
+                        Color.Orange,
+                        2f);
+
                     dust.noGravity = true;
 
-                    Dust dust2 = Dust.NewDustPerfect(dustPos, DustID.YellowTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Yellow, 1.5f);
+                    Dust dust2 = Dust.NewDustPerfect(dustPos, DustID.YellowTorch,
+                        Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10),
+                        0,
+                        Color.Yellow,
+                        1.5f);
+
                     dust2.noGravity = true;
                 }
             }
 
             float endTime = storedTime + 15;
+
             if (time >= endTime && doneAttack)
             {
                 Projectile.Kill();
                 return;
-            }
-            else if (doneAttack)
-            {
-                float progress = (time - storedTime) / (endTime - storedTime);
-                drawColor = Color.Lerp(Color.Yellow, Color.Orange, progress);
-
-                if (Main.rand.NextBool(3))
-                {
-                    Vector2 dustPos = targetPos + Main.rand.NextVector2Circular(150, 150);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(2, 8), 0, Color.Orange, 1.5f);
-                    dust.noGravity = true;
-                }
             }
 
             time += attackSpeed;
@@ -171,9 +186,9 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool? CanHitNPC(NPC target)
         {
-            // During the attack, the beam can hit
             if (doneAttack)
-                return null; // null means "use default collision checking"
+                return null;
+
             return false;
         }
 
@@ -189,26 +204,38 @@ namespace Neutronium.Content.Items.Weapons
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Orange, 2f);
+
+                Dust dust = Dust.NewDustPerfect(
+                    dustPos,
+                    DustID.IchorTorch,
+                    Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10),
+                    0,
+                    Color.Orange,
+                    2f);
+
                 dust.noGravity = true;
             }
         }
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
-            // Only check collision when the beam is active
             if (!doneAttack)
                 return false;
 
-            float _ = float.NaN;
-            Vector2 start = beamStart;
-            Vector2 end = beamStart + directionToTarget * beamLength;
-            
-            // Make the beam wider for better hit detection
-            float beamWidth = 60 * Projectile.scale;
+            float collisionPoint = 0f;
 
-            // Check if the target hitbox intersects with the beam line
-            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, beamWidth, ref _);
+            Vector2 start = Projectile.Center;
+            Vector2 end = start + Vector2.UnitY * beamLength;
+
+            float beamWidth = 120f * Projectile.scale;
+
+            return Collision.CheckAABBvLineCollision(
+                targetHitbox.TopLeft(),
+                targetHitbox.Size(),
+                start,
+                end,
+                beamWidth,
+                ref collisionPoint);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -220,49 +247,30 @@ namespace Neutronium.Content.Items.Weapons
             Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
 
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
+
             Color beamColor = drawColor with { A = 0 };
-            Color orangeBeam = explosionColor with { A = 0 };
 
-            // Bloom at impact point
-            float bloomScale = 0.8f * Projectile.scale * (doneAttack ? 2f : 0.6f);
-            Color bloomColor = (doneAttack ? explosionColor : drawColor) * opacity * 0.8f;
-            Main.EntitySpriteDraw(bloom, targetPos - Main.screenPosition, null, bloomColor, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0);
+            Main.EntitySpriteDraw(
+                bloom,
+                targetPos - Main.screenPosition,
+                null,
+                beamColor * opacity,
+                0f,
+                bloom.Size() / 2f,
+                1.5f,
+                SpriteEffects.None,
+                0);
 
-            // Draw beam - inner bright core + softer outer glow
-            int passes = doneAttack ? 3 : 2;
-            for (int t = 0; t < passes; t++)
-            {
-                float beamThickness = (t == 0)
-                    ? 0.05f * beamFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f)           // core
-                    : 0.09f * (1f - t * 0.2f) * beamFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f); // glow layers
-
-                Color layerColor = (doneAttack && t > 0)
-                    ? Color.Lerp(beamColor, orangeBeam, (float)t / passes) * opacity * (0.6f - t * 0.15f)
-                    : beamColor * opacity * (1f - t * 0.25f);
-
-                Main.EntitySpriteDraw(
-                    beam,
-                    beamStart - Main.screenPosition,
-                    null,
-                    layerColor,
-                    directionToTarget.ToRotation() + MathHelper.PiOver2,
-                    new Vector2(beam.Width / 2, beam.Height),
-                    new Vector2(beamThickness, beamLength / 1000f) * Projectile.scale,
-                    SpriteEffects.None
-                );
-            }
-
-            // Sparkles at impact point when firing
-            if (doneAttack)
-            {
-                for (int i = 0; i < 5; i++)
-                {
-                    float offset = sine * 15 + i * 30;
-                    Color sparkleColor = Color.Lerp(Color.Yellow, Color.Orange, (float)i / 5) * opacity * 0.5f;
-                    Vector2 sparklePos = targetPos + new Vector2(offset - 30, 0) + Main.rand.NextVector2Circular(20, 20);
-                    Main.EntitySpriteDraw(bloom, sparklePos - Main.screenPosition, null, sparkleColor, 0f, bloom.Size() / 2f, 0.4f, SpriteEffects.None, 0);
-                }
-            }
+            Main.EntitySpriteDraw(
+                beam,
+                beamStart - Main.screenPosition,
+                null,
+                beamColor * opacity,
+                directionToTarget.ToRotation() + MathHelper.PiOver2,
+                new Vector2(beam.Width / 2, beam.Height),
+                new Vector2(0.07f, beamLength / 1000f) * Projectile.scale,
+                SpriteEffects.None,
+                0);
 
             return false;
         }
