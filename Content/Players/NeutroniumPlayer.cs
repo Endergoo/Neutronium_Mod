@@ -1,38 +1,26 @@
 using Terraria;
 using Terraria.ModLoader;
 
-namespace Neutronium.Content.Players
+public class NeutroniumPlayer : ModPlayer
 {
-    public class NeutroniumPlayer : ModPlayer
+    // 0.0 → 0.2 (max 20% of max HP per second)
+    public float celestialRegenStack = 0f;
+
+    public override void ResetEffects()
     {
-        // Tracks regen from celestial beam hits
-        public float celestialRegenStack = 0f;
+        // Nothing here for regen stack since we don't want decay
+    }
 
-        public override void ResetEffects()
+    public override void PostUpdate()
+    {
+        if (celestialRegenStack > 0f)
         {
-            // Reset every tick
-            celestialRegenStack = 0f;
-        }
+            // Apply regen per tick (60 ticks per second)
+            Player.statLife += (int)((Player.statLifeMax2 * celestialRegenStack) / 60f);
 
-        public override void UpdateLifeRegen()
-        {
-            // Apply the regen to player's lifeRegen
-            Player.lifeRegen += (int)(celestialRegenStack * Player.statLifeMax2 / 60f);
-        }
-
-        public override void UpdateDead()
-        {
-            // Optional: reset stack on death
-            celestialRegenStack = 0f;
-        }
-
-        public override void PostUpdate()
-        {
-            if (celestialRegenStack > 0f)
-            {
-                float effectiveRegen = Player.statLifeMax2 * celestialRegenStack;
-                Main.NewText($"Celestial Beam Regen: {effectiveRegen:F1} HP/sec", 255, 255, 0);
-            }
+            // Clamp so you don't exceed max life
+            if (Player.statLife > Player.statLifeMax2)
+                Player.statLife = Player.statLifeMax2;
         }
     }
 }

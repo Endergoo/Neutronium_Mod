@@ -232,11 +232,13 @@ namespace Neutronium.Content.Items.Weapons
 
             // Increase CelestialRegen stack
             var modPlayer = player.GetModPlayer<NeutroniumPlayer>();
-            modPlayer.celestialRegenStack += 0.02f;
-            if (modPlayer.celestialRegenStack > 0.2f)
+
+            // Increase stack on hit
+            modPlayer.celestialRegenStack += 0.02f; // +2% per hit
+            if (modPlayer.celestialRegenStack > 0.2f) // cap at 20%
                 modPlayer.celestialRegenStack = 0.2f;
 
-            // Floating combat text to show regen
+            // Optional: floating combat text to see the current regen
             int regenAmount = (int)(modPlayer.celestialRegenStack * player.statLifeMax2);
             CombatText.NewText(player.Hitbox, Color.Green, $"+{regenAmount} HP/sec");
         }
