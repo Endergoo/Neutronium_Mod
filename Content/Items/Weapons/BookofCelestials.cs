@@ -60,7 +60,7 @@ namespace Neutronium.Content.Items.Weapons
 
         private float time = 0f;
         private bool doneAttack = false;
-        private int attackTime = 12;
+        private int attackTime = 8;
         private float beamFX = 0f;
         private float storedTime = 0f;
 
@@ -68,7 +68,7 @@ namespace Neutronium.Content.Items.Weapons
         private Vector2 BeamEnd;
         private Vector2 Direction;
 
-        private Color drawColor = Color.Yellow;
+        private Color drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)Math.Sin(time));
 
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float rotation => ref Projectile.ai[1];
@@ -135,7 +135,7 @@ namespace Neutronium.Content.Items.Weapons
 
                     Lighting.AddLight(lightPos, 0.9f * brightness, 0.85f * brightness, 0.4f * brightness);
                 }
-                
+
                 time += attackSpeed;
             }
 
