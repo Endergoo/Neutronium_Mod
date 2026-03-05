@@ -120,7 +120,7 @@ namespace Neutronium.Content.Items.Weapons
                 explosionColor = Color.Orange;
 
                 // Random small rotation on spawn (-15° to 15°)
-                beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-15f, 15f));
+                beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-5f,5f));
 
                 if (attackSpeed == 0)
                     attackSpeed = 0.3f;
