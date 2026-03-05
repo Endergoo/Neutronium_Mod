@@ -35,7 +35,7 @@ namespace Neutronium.Content.Items.Weapons
             position = Main.MouseWorld;
             
             Projectile.NewProjectile(
-                player.GetSource_ItemAI(Item),
+                player.GetSource_ItemAI(Item),  // Fixed: GetSource_ItemAI (underscore, not two)
                 position,
                 Vector2.Zero,
                 type,
@@ -58,7 +58,6 @@ namespace Neutronium.Content.Items.Weapons
         }
     }
 
-    // Put the CelestialBeam class HERE, inside the same namespace
     public class CelestialBeam : ModProjectile
     {
         public override string Texture => "Terraria/Images/Projectile_0";
@@ -215,6 +214,8 @@ namespace Neutronium.Content.Items.Weapons
             if (beamFX == 0)
                 return false;
 
+            // Make sure you have CalamityMod referenced for these textures
+            // If you don't have CalamityMod, you'll need to use different textures
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
             Texture2D bBeam = ModContent.Request<Texture2D>("CalamityMod/Particles/LineThick").Value;
             Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
