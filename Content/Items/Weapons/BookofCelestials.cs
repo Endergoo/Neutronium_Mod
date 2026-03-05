@@ -39,8 +39,8 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
-            // Spawn the beam exactly at the cursor position
-            position = Main.MouseWorld;
+            // Start the beam above the cursor
+            position = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - 800);
 
             Projectile.NewProjectile(
                 player.GetSource_ItemUse(Item),
@@ -82,7 +82,7 @@ namespace Neutronium.Content.Items.Weapons
         public Color drawColor = Color.Yellow;
         public Color explosionColor = Color.Orange;
 
-        public float beamRotation; // fixed rotation
+        public float beamRotation;
 
         Vector2 beamStart => Projectile.Center;
         Vector2 directionToTarget => Vector2.UnitY.RotatedBy(beamRotation);
@@ -129,7 +129,6 @@ namespace Neutronium.Content.Items.Weapons
                 beamFX = 1f;
             }
 
-            // Trigger attack effects
             if (time >= attackTime && !doneAttack)
             {
                 SoundStyle attack = new SoundStyle("Terraria/Sounds/Item_72") { Volume = 0.8f, Pitch = -0.2f };
@@ -217,9 +216,6 @@ namespace Neutronium.Content.Items.Weapons
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
             Color beamColor = drawColor with { A = 0 };
 
-            // Stable beam, no sway
-            Vector2 drawDirection = directionToTarget;
-
             // Draw bloom at projectile center
             Main.EntitySpriteDraw(
                 bloom,
@@ -238,7 +234,7 @@ namespace Neutronium.Content.Items.Weapons
                 beamStart - Main.screenPosition,
                 null,
                 beamColor * opacity,
-                drawDirection.ToRotation() + MathHelper.PiOver2,
+                directionToTarget.ToRotation() + MathHelper.PiOver2,
                 new Vector2(beam.Width / 2, beam.Height),
                 new Vector2(0.07f, beamLength / 1000f) * Projectile.scale,
                 SpriteEffects.None,
