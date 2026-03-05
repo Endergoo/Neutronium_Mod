@@ -29,6 +29,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<CelestialBeam>();
             Item.shootSpeed = 0f;
+            Item.scale = 0.5f;
         }
 
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
@@ -200,7 +201,7 @@ namespace Neutronium.Content.Items.Weapons
             float _ = float.NaN;
             Vector2 start = beamStart;
             Vector2 end = beamStart + directionToTarget * beamLength;
-            float beamWidth = 100 * Projectile.scale;
+            float beamWidth = 30 * Projectile.scale;
 
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, beamWidth, ref _);
         }
@@ -218,7 +219,7 @@ namespace Neutronium.Content.Items.Weapons
             Color beamColor = drawColor with { A = 0 };
             Color orangeBeam = explosionColor with { A = 0 };
 
-            float bloomScale = 1.5f * Projectile.scale * (doneAttack ? 3f : 1f);
+            float bloomScale = 0.8f * Projectile.scale * (doneAttack ? 2f : 0.6f);
             Color bloomColor = (doneAttack ? explosionColor : drawColor) * opacity * 0.8f;
             Main.EntitySpriteDraw(bloom, targetPos - Main.screenPosition, null, bloomColor, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0);
 
@@ -228,18 +229,18 @@ namespace Neutronium.Content.Items.Weapons
                 Texture2D beamTexture = isOutline ? bBeam : beam;
 
                 float beamThickness = isOutline ?
-                    0.2f * (0.9f - 0.1f * t) * beamFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f) :
-                    0.15f * beamFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f);
+                    0.08f * (0.9f - 0.1f * t) * beamFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f) :
+                    0.05f * beamFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f);
 
                 Color finalColor;
                 if (doneAttack && t >= 2)
                 {
-                    finalColor = Color.Lerp(Color.Black, orangeBeam, 0.3f) * opacity * (0.4f + 0.1f * t);
+                    finalColor = Color.Lerp(orangeBeam, beamColor, 0.3f) * opacity * (0.4f + 0.1f * t);
                 }
                 else
                 {
                     finalColor = isOutline ?
-                        Color.Black * opacity * (0.3f + 0.1f * t) :
+                        beamColor * opacity * 0.15f :
                         beamColor * opacity * (1 - t * 0.15f);
                 }
 
