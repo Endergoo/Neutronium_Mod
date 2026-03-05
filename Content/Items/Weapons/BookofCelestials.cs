@@ -98,8 +98,9 @@ namespace Neutronium.Content.Items.Weapons
         public override void AI()
         {
 
-            drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)Math.Sin(time));
-            
+            float pulseSpeed = 0.2f; // smaller = slower, bigger = faster
+            drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
+
             if (beamFX > 0f)
                 beamFX = MathHelper.Lerp(beamFX, 0f, time > attackTime + 5 ? 0.07f : 0.01f);
 
@@ -225,6 +226,17 @@ namespace Neutronium.Content.Items.Weapons
                 0);
 
             return false;
+        }
+
+         public override void AddRecipes()
+        {
+            Recipe CurrentCaller = CreateRecipe();
+            CurrentCaller.AddIngredient(ItemID.CelestialStone, 1);
+            CurrentCaller.AddIngredient(ItemID.Tome, 1);
+            CurrentCaller.AddIngredient(ItemID.SoulofLight, 10);
+            CurrentCaller.AddIngredient(ItemID.SoulofNight, 10);
+            CurrentCaller.AddTile(TileID.CrystalBall);
+            CurrentCaller.Register();
         }
     }
 }
