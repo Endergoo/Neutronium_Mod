@@ -8,8 +8,6 @@ namespace Neutronium.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Celestial Regen");
-            Description.SetDefault("Regenerating life from celestial energy");
             Main.buffNoSave[Type] = true; // doesn’t save on exit
             Main.debuff[Type] = false; // it’s a positive buff
         }
