@@ -124,6 +124,11 @@ Items: {
 		DisplayName: Moonlit Stiletto
 		Tooltip: ""
 	}
+
+	BookofCelestials: {
+		DisplayName: Bookof Celestials
+		Tooltip: ""
+	}
 }
 
 Projectiles: {
@@ -157,6 +162,7 @@ Projectiles: {
 	BlackHole.DisplayName: Black Hole
 	BHLProjectile.DisplayName: B H L Projectile
 	MoonlitStilettoProjectile.DisplayName: Moonlit Stiletto Projectile
+	CelestialBeam.DisplayName: Celestial Beam
 }
 
 DarkFogUnitBuff: {

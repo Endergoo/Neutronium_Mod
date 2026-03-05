@@ -13,16 +13,16 @@ namespace Neutronium.Content.Items.Weapons
     {
         public override void SetDefaults()
         {
-            Item.damage = 50;
+            Item.damage = 75; // Increased damage for single beam
             Item.DamageType = DamageClass.Magic;
-            Item.mana = 20;
+            Item.mana = 30;
             Item.width = 28;
             Item.height = 30;
-            Item.useTime = 30;
-            Item.useAnimation = 30;
+            Item.useTime = 40; // Slower use time for single powerful beam
+            Item.useAnimation = 40;
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.noMelee = true;
-            Item.knockBack = 4;
+            Item.knockBack = 5;
             Item.value = Item.sellPrice(0, 5, 0, 0);
             Item.rare = ItemRarityID.Pink;
             Item.UseSound = SoundID.Item8;
@@ -31,10 +31,12 @@ namespace Neutronium.Content.Items.Weapons
             Item.shootSpeed = 0f;
         }
 
-            public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
+        public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
-            position = Main.MouseWorld;
+            // Position the beam start above the target (coming from sky)
+            position = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - 800);
             
+            // Only spawn one beam with fixed type 1 (yellow/orange)
             Projectile.NewProjectile(
                 player.GetSource_ItemUse(Item),
                 position,
@@ -43,8 +45,8 @@ namespace Neutronium.Content.Items.Weapons
                 damage,
                 knockback,
                 player.whoAmI,
-                ai0: 0.4f,
-                ai1: (float)(Main.time % 4)
+                ai0: 0.3f, // Slightly faster attack speed
+                ai1: 1f // Fixed beam type 1 for yellow/orange
             );
         }
 
@@ -67,16 +69,16 @@ namespace Neutronium.Content.Items.Weapons
         public ref float beamType => ref Projectile.ai[1];
         public bool canDamage => doneAttack && beamFX >= 1f;
         public bool doneAttack = false;
-        public int attackTime = 15;
-        public float beamLength => 2500;
+        public int attackTime = 12; // Shorter charge time
+        public float beamLength => 900; // Shorter beam for sky strike
         public float beamFX = 0;
         public float storedTime = 0;
-        public Color drawColor = Color.White;
+        public Color drawColor = Color.Yellow;
+        public Color explosionColor = Color.Orange;
         public float sine = 0;
-        public float beamRot = 0;
         Vector2 beamStart = Vector2.Zero;
         Vector2 directionToTarget = Vector2.Zero;
-        public Vector2 targetPos => Projectile.Center;
+        public Vector2 targetPos => new Vector2(Projectile.Center.X, Projectile.Center.Y + 800); // Target below
 
         public override void SetStaticDefaults()
         {
@@ -92,7 +94,7 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
             Projectile.timeLeft = 6000;
-            Projectile.scale = 2;
+            Projectile.scale = 2.5f; // Slightly larger scale
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
             Projectile.DamageType = DamageClass.Magic;
@@ -107,23 +109,16 @@ namespace Neutronium.Content.Items.Weapons
 
             if (time == 0)
             {
-                drawColor = beamType switch
-                {
-                    0 => Color.Cyan,
-                    1 => Color.Gold,
-                    2 => Color.Silver,
-                    3 => Color.Magenta,
-                    _ => Color.White
-                };
+                // Fixed colors for this beam type
+                drawColor = Color.Yellow;
+                explosionColor = Color.Orange;
 
-                beamRot = Main.rand.NextFloat(-0.3f, 0.3f);
-                beamStart = targetPos + Vector2.UnitX.RotatedBy(beamRot) * beamLength;
-                directionToTarget = beamStart.DirectionTo(targetPos);
+                // Beam comes from above (straight down)
+                beamStart = targetPos - new Vector2(0, beamLength);
+                directionToTarget = Vector2.UnitY; // Straight down
 
-                Projectile.Center += Main.rand.NextVector2CircularEdge(300, 300);
-                
                 if (attackSpeed == 0)
-                    attackSpeed = 0.4f;
+                    attackSpeed = 0.3f;
                 
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
@@ -131,28 +126,35 @@ namespace Neutronium.Content.Items.Weapons
 
             if (time >= attackTime && !doneAttack)
             {
-                SoundStyle attack = beamType switch
-                {
-                    0 => new SoundStyle("Terraria/Sounds/Item_28") with { Volume = 0.5f },
-                    1 => new SoundStyle("Terraria/Sounds/Item_29") with { Volume = 0.6f },
-                    2 => new SoundStyle("Terraria/Sounds/Item_30") with { Volume = 0.5f },
-                    3 => new SoundStyle("Terraria/Sounds/Item_72") with { Volume = 0.7f },
-                    _ => new SoundStyle("Terraria/Sounds/Item_28") with { Volume = 0.5f }
-                };
-                
+                // Powerful beam sound
+                SoundStyle attack = new SoundStyle("Terraria/Sounds/Item_72") with { Volume = 0.8f, Pitch = -0.2f };
                 SoundEngine.PlaySound(attack, targetPos);
-                beamFX = 2.5f;
+                
+                // Bigger visual impact
+                beamFX = 3f;
                 doneAttack = true;
                 storedTime = time;
 
-                if (Main.LocalPlayer.Distance(Projectile.Center) < 1600)
+                // Screen shake for impact
+                if (Main.LocalPlayer.Distance(targetPos) < 2000)
                 {
-                    PunchCameraModifier modifier = new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 3f, 6f, 20);
+                    PunchCameraModifier modifier = new PunchCameraModifier(targetPos, Main.rand.NextVector2Unit(), 8f, 12f, 20);
                     Main.instance.CameraModifiers.Add(modifier);
+                }
+
+                // Create explosion dust effects
+                for (int i = 0; i < 30; i++)
+                {
+                    Vector2 dustPos = targetPos + Main.rand.NextVector2Circular(100, 100);
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.SolarFlame, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, Color.Orange, 2f);
+                    dust.noGravity = true;
+                    
+                    Dust dust2 = Dust.NewDustPerfect(dustPos, DustID.YellowTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Yellow, 1.5f);
+                    dust2.noGravity = true;
                 }
             }
 
-            float endTime = storedTime + 12;
+            float endTime = storedTime + 15; // Longer duration for explosion effect
             if (time >= endTime && doneAttack)
             {
                 Projectile.Kill();
@@ -160,7 +162,17 @@ namespace Neutronium.Content.Items.Weapons
             }
             else if (doneAttack)
             {
-                drawColor = Color.Lerp(drawColor, Color.White, (float)Math.Pow(Utils.GetLerpValue(endTime, storedTime, time, true), 2));
+                // Lerp from Yellow to Orange during explosion
+                float progress = (time - storedTime) / (endTime - storedTime);
+                drawColor = Color.Lerp(Color.Yellow, Color.Orange, progress);
+                
+                // Spawn explosion dust during beam
+                if (Main.rand.NextBool(3))
+                {
+                    Vector2 dustPos = targetPos + Main.rand.NextVector2Circular(150, 150);
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.SolarFlame, Main.rand.NextVector2Unit() * Main.rand.NextFloat(2, 8), 0, Color.Orange, 1.5f);
+                    dust.noGravity = true;
+                }
             }
 
             time += attackSpeed;
@@ -180,23 +192,15 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            switch (beamType)
+            // Apply OnFire! (burn) debuff
+            target.AddBuff(BuffID.OnFire, 300); // 5 seconds of burn
+            
+            // Additional explosion effects on hit
+            for (int i = 0; i < 15; i++)
             {
-                case 0:
-                    target.AddBuff(BuffID.Frostburn, 180);
-                    break;
-                case 1:
-                    target.AddBuff(BuffID.OnFire, 180);
-                    break;
-                case 2:
-                    target.AddBuff(BuffID.ShadowFlame, 180);
-                    break;
-                case 3:
-                    target.AddBuff(BuffID.CursedInferno, 180);
-                    break;
-                default:
-                    target.AddBuff(BuffID.OnFire, 120);
-                    break;
+                Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.SolarFlame, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Orange, 2f);
+                dust.noGravity = true;
             }
         }
 
@@ -207,8 +211,8 @@ namespace Neutronium.Content.Items.Weapons
             
             float _ = float.NaN;
             Vector2 start = beamStart;
-            Vector2 end = beamStart + directionToTarget * beamLength * 2;
-            float beamWidth = 50 * Projectile.scale;
+            Vector2 end = beamStart + directionToTarget * beamLength;
+            float beamWidth = 100 * Projectile.scale; // Wider beam for impact
             
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, beamWidth, ref _);
         }
@@ -218,31 +222,41 @@ namespace Neutronium.Content.Items.Weapons
             if (beamFX == 0)
                 return false;
 
-            // Make sure you have CalamityMod referenced for these textures
-            // If you don't have CalamityMod, you'll need to use different textures
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
             Texture2D bBeam = ModContent.Request<Texture2D>("CalamityMod/Particles/LineThick").Value;
             Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
             
-            float opacity = (doneAttack ? 0.7f : 0.4f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
+            float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
             Color beamColor = drawColor with { A = 0 };
+            Color orangeBeam = explosionColor with { A = 0 };
 
-            float bloomScale = 0.5f * Projectile.scale * (doneAttack ? 2f : 1f);
-            Color bloomColor = drawColor * opacity * 0.5f;
-            Main.EntitySpriteDraw(bloom, beamStart - Main.screenPosition, null, bloomColor, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0);
+            // Draw impact bloom at target
+            float bloomScale = 1.5f * Projectile.scale * (doneAttack ? 3f : 1f);
+            Color bloomColor = (doneAttack ? explosionColor : drawColor) * opacity * 0.8f;
+            Main.EntitySpriteDraw(bloom, targetPos - Main.screenPosition, null, bloomColor, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0);
 
-            for (int t = 0; t < (doneAttack ? 3 : 1); t++)
+            // Draw the beam
+            for (int t = 0; t < (doneAttack ? 4 : 2); t++)
             {
-                bool isOutline = (t > 0);
+                bool isOutline = (t > 1);
                 Texture2D beamTexture = isOutline ? bBeam : beam;
                 
                 float beamThickness = isOutline ? 
-                    0.15f * (0.8f - 0.1f * t) * beamFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f) :
-                    0.1f * beamFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f);
+                    0.2f * (0.9f - 0.1f * t) * beamFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f) :
+                    0.15f * beamFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f);
                 
-                Color finalColor = isOutline ? 
-                    Color.Black * opacity * (0.3f + 0.1f * t) :
-                    beamColor * opacity * (1 - t * 0.2f);
+                Color finalColor;
+                if (doneAttack && t >= 2)
+                {
+                    // Outer layers become orange during explosion
+                    finalColor = Color.Lerp(Color.Black, orangeBeam, 0.3f) * opacity * (0.4f + 0.1f * t);
+                }
+                else
+                {
+                    finalColor = isOutline ? 
+                        Color.Black * opacity * (0.3f + 0.1f * t) :
+                        beamColor * opacity * (1 - t * 0.15f);
+                }
 
                 Main.EntitySpriteDraw(
                     beamTexture, 
@@ -256,14 +270,15 @@ namespace Neutronium.Content.Items.Weapons
                 );
             }
 
-            if (beamType == 3 && doneAttack)
+            // Add extra explosion sparks
+            if (doneAttack)
             {
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 5; i++)
                 {
-                    float offset = sine * 10;
-                    Color sparkleColor = Color.Lerp(Color.Magenta, Color.Cyan, (float)i / 3) * opacity * 0.3f;
-                    Vector2 sparklePos = beamStart + directionToTarget * (beamLength * 0.5f + offset + i * 50);
-                    Main.EntitySpriteDraw(bloom, sparklePos - Main.screenPosition, null, sparkleColor, 0f, bloom.Size() / 2f, 0.3f, SpriteEffects.None, 0);
+                    float offset = sine * 15 + i * 30;
+                    Color sparkleColor = Color.Lerp(Color.Yellow, Color.Orange, (float)i / 5) * opacity * 0.5f;
+                    Vector2 sparklePos = targetPos + new Vector2(offset - 30, 0) + Main.rand.NextVector2Circular(20, 20);
+                    Main.EntitySpriteDraw(bloom, sparklePos - Main.screenPosition, null, sparkleColor, 0f, bloom.Size() / 2f, 0.4f, SpriteEffects.None, 0);
                 }
             }
 
