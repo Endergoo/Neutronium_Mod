@@ -70,7 +70,7 @@ namespace Neutronium.Content.Items.Weapons
         public bool doneAttack = false;
         public int attackTime = 12;
         public float beamLength => 900;
-        public float beamFX = 1f; // start at 1 immediately
+        public float beamFX = 1f;
         public float storedTime = 0;
         public Color drawColor = Color.Yellow;
         public Color explosionColor = Color.Orange;
@@ -114,13 +114,6 @@ namespace Neutronium.Content.Items.Weapons
                     attackSpeed = 0.3f;
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
-
-                // DEBUG: spawn dust at beamStart (green) and fixedTargetPos (red)
-                for (int i = 0; i < 10; i++)
-                {
-                    Dust.NewDustPerfect(beamStart, DustID.GreenTorch, Vector2.Zero, 0, Color.Green, 3f);
-                    Dust.NewDustPerfect(fixedTargetPos, DustID.Torch, Vector2.Zero, 0, Color.Red, 3f);
-                }
             }
 
             if (beamFX > 0)
@@ -205,14 +198,13 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Always draw if initialized, regardless of beamFX
             if (!initialized)
                 return false;
 
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
             Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
 
-            float clampedFX = Math.Max(beamFX, 0.01f); // never fully zero so beam is always visible while alive
+            float clampedFX = Math.Max(beamFX, 0.01f);
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(clampedFX, 1), 2);
             Color beamColor = drawColor with { A = 0 };
             Color orangeBeam = explosionColor with { A = 0 };
@@ -226,7 +218,7 @@ namespace Neutronium.Content.Items.Weapons
             Color bloomColor = (doneAttack ? explosionColor : drawColor) * opacity * 0.8f;
             Main.EntitySpriteDraw(bloom, fixedTargetPos - Main.screenPosition, null, bloomColor, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0);
 
-            // Draw beam layers
+            // Draw beam layers - origin at top (0) so beam draws downward from beamStart to fixedTargetPos
             int passes = doneAttack ? 3 : 2;
             for (int t = 0; t < passes; t++)
             {
@@ -244,7 +236,7 @@ namespace Neutronium.Content.Items.Weapons
                     null,
                     layerColor,
                     directionToTarget.ToRotation() + MathHelper.PiOver2,
-                    new Vector2(beam.Width / 2, beam.Height),
+                    new Vector2(beam.Width / 2, 0), // TOP of texture anchors to beamStart, draws downward
                     new Vector2(beamThickness, beamLength / 1000f) * Projectile.scale,
                     SpriteEffects.None
                 );
