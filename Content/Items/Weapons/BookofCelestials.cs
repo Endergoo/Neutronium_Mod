@@ -218,7 +218,7 @@ namespace Neutronium.Content.Items.Weapons
 
             // Apply or refresh the buff
             if (!player.HasBuff(buffType))
-                player.ASddBuff(buffType, buffDuration);
+                player.AddBuff(buffType, buffDuration);
             else
                 player.buffTime[player.FindBuffIndex(buffType)] = buffDuration;
 
