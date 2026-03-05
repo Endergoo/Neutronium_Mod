@@ -39,7 +39,8 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
-            position = new Vector2(Main.MouseWorld.X, Main.MouseWorld.Y - 800);
+            // Spawn the beam exactly at the cursor position
+            position = Main.MouseWorld;
 
             Projectile.NewProjectile(
                 player.GetSource_ItemUse(Item),
@@ -49,8 +50,7 @@ namespace Neutronium.Content.Items.Weapons
                 damage,
                 knockback,
                 player.whoAmI,
-                ai0: 0.3f,
-                ai1: 1f
+                ai0: 0.3f // attack speed
             );
         }
 
@@ -82,7 +82,7 @@ namespace Neutronium.Content.Items.Weapons
         public Color drawColor = Color.Yellow;
         public Color explosionColor = Color.Orange;
 
-        public float beamRotation; // fixed rotation of the beam
+        public float beamRotation; // fixed rotation
 
         Vector2 beamStart => Projectile.Center;
         Vector2 directionToTarget => Vector2.UnitY.RotatedBy(beamRotation);
@@ -217,9 +217,8 @@ namespace Neutronium.Content.Items.Weapons
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
             Color beamColor = drawColor with { A = 0 };
 
-            // Optional subtle sway for visuals only
-            float swayRotation = beamRotation + (float)Math.Sin(time * 0.1f) * MathHelper.ToRadians(2f);
-            Vector2 drawDirection = Vector2.UnitY.RotatedBy(swayRotation);
+            // Stable beam, no sway
+            Vector2 drawDirection = directionToTarget;
 
             // Draw bloom at projectile center
             Main.EntitySpriteDraw(
@@ -249,4 +248,3 @@ namespace Neutronium.Content.Items.Weapons
         }
     }
 }
-
