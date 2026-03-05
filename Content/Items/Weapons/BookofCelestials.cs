@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.Graphics.CameraModifiers;
 using Terraria.DataStructures;
 using Neutronium.Content.Buffs;
+using Neutronium.Content.Player;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -231,7 +232,7 @@ namespace Neutronium.Content.Items.Weapons
             // Print effective regen on hit
             float effectiveRegen = modPlayer.celestialRegenStack * Projectile.owner.statLifeMax2;
             Main.NewText($"Celestial Beam Regen: {effectiveRegen:F1} HP/sec", 50, 255, 50);
-            
+
         }
 
         public override bool PreDraw(ref Color lightColor)
