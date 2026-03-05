@@ -66,7 +66,7 @@ namespace Neutronium.Content.Items.Weapons
         public float time = 0;
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float beamType => ref Projectile.ai[1];
-        public bool canDamage => doneAttack;
+        public bool canDamage => doneAttack; // Remove beamFX requirement - whole beam damages during attack
         public bool doneAttack = false;
         public int attackTime = 12;
         public float beamLength => 900;
@@ -171,8 +171,9 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool? CanHitNPC(NPC target)
         {
+            // During the attack, the beam can hit
             if (doneAttack)
-                return null;
+                return null; // null means "use default collision checking"
             return false;
         }
 
@@ -195,72 +196,88 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
+            // Only check collision when the beam is active
             if (!doneAttack)
                 return false;
 
             float _ = float.NaN;
             Vector2 start = beamStart;
             Vector2 end = beamStart + directionToTarget * beamLength;
+            
+            // Make the beam wider for better hit detection
             float beamWidth = 60 * Projectile.scale;
 
+            // Check if the target hitbox intersects with the beam line
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, beamWidth, ref _);
         }
 
         public override bool PreDraw(ref Color lightColor)
+{
+    if (beamFX == 0)
+        return false;
+
+    // Use CalamityMod textures but with proper blending
+    Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
+    Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
+
+    float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
+    Color beamColor = drawColor with { A = 0 };
+    Color orangeBeam = explosionColor with { A = 0 };
+
+    // Save the current blend state
+    SpriteBatch spriteBatch = Main.spriteBatch;
+    
+    // Start a new sprite batch with additive blending to eliminate black backgrounds
+    spriteBatch.End();
+    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+    // Bloom at impact point
+    float bloomScale = 0.8f * Projectile.scale * (doneAttack ? 2f : 0.6f);
+    Color bloomColor = (doneAttack ? explosionColor : drawColor) * opacity * 0.8f;
+    Main.EntitySpriteDraw(bloom, targetPos - Main.screenPosition, null, bloomColor, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0);
+
+    // Draw beam layers
+    int passes = doneAttack ? 3 : 2;
+    for (int t = 0; t < passes; t++)
+    {
+        float beamThickness = (t == 0)
+            ? 0.05f * beamFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f)
+            : 0.09f * (1f - t * 0.2f) * beamFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f);
+
+        Color layerColor = (doneAttack && t > 0)
+            ? Color.Lerp(beamColor, orangeBeam, (float)t / passes) * opacity * (0.6f - t * 0.15f)
+            : beamColor * opacity * (1f - t * 0.25f);
+
+        Main.EntitySpriteDraw(
+            beam,
+            beamStart - Main.screenPosition,
+            null,
+            layerColor,
+            directionToTarget.ToRotation() + MathHelper.PiOver2,
+            new Vector2(beam.Width / 2, beam.Height),
+            new Vector2(beamThickness, beamLength / 1000f) * Projectile.scale,
+            SpriteEffects.None
+        );
+    }
+
+    // Sparkles at impact point
+    if (doneAttack)
+    {
+        for (int i = 0; i < 5; i++)
         {
-            if (beamFX == 0)
-                return false;
-
-            // Use Terraria's built-in textures instead of CalamityMod ones
-            Texture2D beam = ModContent.Request<Texture2D>("Terraria/Images/Extra_193").Value; // White gradient
-            Texture2D bloom = ModContent.Request<Texture2D>("Terraria/Images/Extra_98").Value; // Soft glow
-            
-            float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
-            Color beamColor = drawColor with { A = 0 };
-            Color orangeBeam = explosionColor with { A = 0 };
-
-            // Bloom at impact point - use Extra_98 which is a soft glow without black background
-            float bloomScale = 0.8f * Projectile.scale * (doneAttack ? 2f : 0.6f);
-            Color bloomColor = (doneAttack ? explosionColor : drawColor) * opacity * 0.6f;
-            Main.EntitySpriteDraw(bloom, targetPos - Main.screenPosition, null, bloomColor, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0);
-
-            // Draw beam using Extra_193 (white gradient)
-            int passes = doneAttack ? 3 : 2;
-            for (int t = 0; t < passes; t++)
-            {
-                float beamThickness = (t == 0)
-                    ? 0.05f * beamFX * Utils.Remap(sine, -1, 1, 0.8f, 1.2f)
-                    : 0.09f * (1f - t * 0.2f) * beamFX * Utils.Remap(sine, -1, 1, 0.9f, 1.1f);
-
-                Color layerColor = (doneAttack && t > 0)
-                    ? Color.Lerp(beamColor, orangeBeam, (float)t / passes) * opacity * (0.6f - t * 0.15f)
-                    : beamColor * opacity * (1f - t * 0.25f);
-
-                Main.EntitySpriteDraw(
-                    beam,
-                    beamStart - Main.screenPosition,
-                    null,
-                    layerColor,
-                    directionToTarget.ToRotation(),
-                    new Vector2(0, beam.Height / 2), // Changed origin to left side for proper stretching
-                    new Vector2(beamLength / 50f * beamThickness, beamThickness * 2), // Adjust scaling
-                    SpriteEffects.None
-                );
-            }
-
-            // Sparkles at impact point using Extra_98
-            if (doneAttack)
-            {
-                for (int i = 0; i < 5; i++)
-                {
-                    float offset = sine * 15 + i * 30;
-                    Color sparkleColor = Color.Lerp(Color.Yellow, Color.Orange, (float)i / 5) * opacity * 0.5f;
-                    Vector2 sparklePos = targetPos + new Vector2(offset - 30, 0) + Main.rand.NextVector2Circular(20, 20);
-                    Main.EntitySpriteDraw(bloom, sparklePos - Main.screenPosition, null, sparkleColor, 0f, bloom.Size() / 2f, 0.3f, SpriteEffects.None, 0);
-                }
-            }
-
-            return false;
+            float offset = sine * 15 + i * 30;
+            Color sparkleColor = Color.Lerp(Color.Yellow, Color.Orange, (float)i / 5) * opacity * 0.5f;
+            Vector2 sparklePos = targetPos + new Vector2(offset - 30, 0) + Main.rand.NextVector2Circular(20, 20);
+            Main.EntitySpriteDraw(bloom, sparklePos - Main.screenPosition, null, sparkleColor, 0f, bloom.Size() / 2f, 0.4f, SpriteEffects.None, 0);
         }
+    }
+
+    // Restore the original blend state
+    spriteBatch.End();
+    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+    return false;
+
+    }
     }
 }
