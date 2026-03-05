@@ -35,20 +35,12 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Vector2 targetPos = Main.MouseWorld;
-
-            // Spawn beam above the screen, never visible
-            float beamLength = 900f;
-            float minY = Main.screenPosition.Y - 50f; // 50px above screen
-            Vector2 spawnPos = targetPos - Vector2.UnitY * beamLength;
-            if (spawnPos.Y < minY) spawnPos.Y = minY;
-
-            // Slight random rotation
+            // Slight random horizontal rotation
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
             Projectile.NewProjectile(
                 source,
-                spawnPos,
+                player.Center,
                 Vector2.Zero,
                 type,
                 damage,
@@ -81,15 +73,15 @@ namespace Neutronium.Content.Items.Weapons
         private int attackTime = 12;
         private float beamFX = 0f;
         private float storedTime = 0f;
-        private float attackSpeedValue => Projectile.ai[0];
-        private float rotation => Projectile.ai[1];
 
         private Vector2 BeamStart;
         private Vector2 BeamEnd;
         private Vector2 Direction;
-        private Vector2 targetPos;
 
         private Color drawColor = Color.Yellow;
+
+        public ref float attackSpeed => ref Projectile.ai[0];
+        public ref float rotation => ref Projectile.ai[1];
 
         private bool canDamage => doneAttack && beamFX >= 1f;
 
@@ -121,23 +113,24 @@ namespace Neutronium.Content.Items.Weapons
             // Initialize beam
             if (time == 0f)
             {
-                if (attackSpeedValue == 0f) Projectile.ai[0] = 0.3f;
+                if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                targetPos = Main.MouseWorld;
+                // Beam spans full vertical screen
+                float topOffset = 50f;
+                float bottomOffset = 50f;
+                float mouseX = Main.MouseWorld.X;
 
-                BeamStart = Projectile.Center; // Spawn above screen
-                Direction = Vector2.UnitY.RotatedBy(rotation); // slight rotation
-                BeamEnd = BeamStart; // start with zero-length
+                BeamStart = new Vector2(mouseX, Main.screenPosition.Y - topOffset);
+                BeamEnd = new Vector2(mouseX, Main.screenPosition.Y + Main.screenHeight + bottomOffset);
 
-                Projectile.velocity = Vector2.Zero;
+                // Slight rotation
+                Direction = (BeamEnd - BeamStart).RotatedBy(rotation);
+
+                Projectile.Center = BeamStart;
                 beamFX = 1f;
             }
 
-            // Animate beam growing toward target
-            float progress = MathHelper.Clamp(time / attackTime, 0f, 1f);
-            BeamEnd = Vector2.Lerp(BeamStart, targetPos, progress);
-
-            // Trigger attack visuals and damage
+            // Trigger attack
             if (time >= attackTime && !doneAttack)
             {
                 SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
@@ -148,7 +141,6 @@ namespace Neutronium.Content.Items.Weapons
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                     Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
-                // Dust FX
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
@@ -157,7 +149,7 @@ namespace Neutronium.Content.Items.Weapons
                 }
             }
 
-            // Full-length damage along beam
+            // Full-length collision along beam
             if (canDamage)
             {
                 foreach (NPC npc in Main.npc)
@@ -182,7 +174,7 @@ namespace Neutronium.Content.Items.Weapons
                 }
             }
 
-            time += attackSpeedValue;
+            time += attackSpeed;
         }
 
         public override bool? CanHitNPC(NPC target) => false;
@@ -209,7 +201,7 @@ namespace Neutronium.Content.Items.Weapons
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };
 
-            // Draw bloom at the target
+            // Draw bloom at bottom
             Main.EntitySpriteDraw(
                 bloom,
                 BeamEnd - Main.screenPosition,
@@ -221,7 +213,7 @@ namespace Neutronium.Content.Items.Weapons
                 SpriteEffects.None,
                 0);
 
-            // Draw beam line from top (offscreen) to target
+            // Draw beam line full-screen
             Main.EntitySpriteDraw(
                 beam,
                 BeamStart - Main.screenPosition,
