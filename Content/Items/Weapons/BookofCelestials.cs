@@ -8,7 +8,7 @@ using Terraria.ModLoader;
 using Terraria.Graphics.CameraModifiers;
 using Terraria.DataStructures;
 using Neutronium.Content.Buffs;
-using Neutronium.Content.Player;
+using Neutronium.Content.Players;
 
 namespace Neutronium.Content.Items.Weapons
 {
