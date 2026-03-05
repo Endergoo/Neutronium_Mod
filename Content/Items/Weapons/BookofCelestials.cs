@@ -145,8 +145,10 @@ namespace Neutronium.Content.Items.Weapons
                 storedTime = time;
 
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 1600)
+                {
                     PunchCameraModifier modifier = new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 3f, 6f, 20);
                     Main.instance.CameraModifiers.Add(modifier);
+                }
             }
 
             float endTime = storedTime + 12;
