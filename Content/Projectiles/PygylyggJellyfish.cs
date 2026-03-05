@@ -35,5 +35,6 @@ public class PygylyggJellyfish : ModProjectile
     {
         // Apply a debuff on hit
         target.AddBuff(BuffID.Venom, 120); // Poison for 2 seconds
+        target.AddBuff(BuffID.OnFire, 120);
     }
 }
