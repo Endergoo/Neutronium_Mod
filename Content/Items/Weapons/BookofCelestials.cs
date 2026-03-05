@@ -76,7 +76,7 @@ namespace Neutronium.Content.Items.Weapons
         public Color explosionColor = Color.Orange;
         public float sine = 0;
         Vector2 beamStart = Vector2.Zero;
-        Vector2 fixedTargetPos = Vector2.Zero; // set once at spawn, never drifts
+        Vector2 fixedTargetPos = Vector2.Zero;
         Vector2 directionToTarget = Vector2.Zero;
 
         public override void SetStaticDefaults()
@@ -97,6 +97,7 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
             Projectile.DamageType = DamageClass.Magic;
+            beamFX = 1f; // initialize here so PreDraw never bails on frame 1
         }
 
         public override void AI()
@@ -111,7 +112,7 @@ namespace Neutronium.Content.Items.Weapons
                 drawColor = Color.Yellow;
                 explosionColor = Color.Orange;
 
-                // Lock the target position once so beamStart never drifts
+                // Lock position once so beam never drifts
                 fixedTargetPos = new Vector2(Projectile.Center.X, Projectile.Center.Y + 800);
                 beamStart = fixedTargetPos - new Vector2(0, beamLength);
                 directionToTarget = Vector2.UnitY;
@@ -210,7 +211,8 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool PreDraw(ref Color lightColor)
         {
-            if (beamFX == 0)
+            // Don't draw until beam position is initialized
+            if (beamFX == 0 || beamStart == Vector2.Zero)
                 return false;
 
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
@@ -220,7 +222,7 @@ namespace Neutronium.Content.Items.Weapons
             Color beamColor = drawColor with { A = 0 };
             Color orangeBeam = explosionColor with { A = 0 };
 
-            // Switch to additive blending - this eliminates black box artifacts
+            // Additive blending eliminates black box artifacts
             SpriteBatch spriteBatch = Main.spriteBatch;
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
