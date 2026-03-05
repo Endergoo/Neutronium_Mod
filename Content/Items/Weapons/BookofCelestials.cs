@@ -35,7 +35,7 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
+            float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-4f, 4f));
 
             Projectile.NewProjectile(
                 source,
