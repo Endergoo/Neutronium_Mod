@@ -52,6 +52,16 @@ namespace Neutronium.Content.Items.Weapons
 
             return false;
         }
+          public override void AddRecipes()
+        {
+            Recipe CurrentCaller = CreateRecipe();
+            CurrentCaller.AddIngredient(ItemID.CelestialStone, 1);
+            CurrentCaller.AddIngredient(ItemID.Tome, 1);
+            CurrentCaller.AddIngredient(ItemID.SoulofLight, 10);
+            CurrentCaller.AddIngredient(ItemID.SoulofNight, 10);
+            CurrentCaller.AddTile(TileID.CrystalBall);
+            CurrentCaller.Register();
+        }
     }
 
     public class CelestialBeam : ModProjectile
@@ -227,16 +237,6 @@ namespace Neutronium.Content.Items.Weapons
 
             return false;
         }
-
-         public override void AddRecipes()
-        {
-            Recipe CurrentCaller = CreateRecipe();
-            CurrentCaller.AddIngredient(ItemID.CelestialStone, 1);
-            CurrentCaller.AddIngredient(ItemID.Tome, 1);
-            CurrentCaller.AddIngredient(ItemID.SoulofLight, 10);
-            CurrentCaller.AddIngredient(ItemID.SoulofNight, 10);
-            CurrentCaller.AddTile(TileID.CrystalBall);
-            CurrentCaller.Register();
-        }
     }
+    
 }
