@@ -209,14 +209,18 @@ namespace Neutronium.Content.Items.Weapons
         {
             target.AddBuff(BuffID.OnFire, 300);
 
+            // Get the player who owns this projectile
             Player player = Main.player[Projectile.owner];
 
-            // Apply CelestialRegen buff
-            int buffDuration = 240; // 4 seconds (60 ticks per second * 4)
+            // Get the buff type and set duration
+            int buffType = ModContent.BuffType<CelestialRegen>();
+            int buffDuration = 300; // 4 seconds
+
+            // Apply or refresh the buff
             if (!player.HasBuff(buffType))
                 player.AddBuff(buffType, buffDuration);
             else
-                player.buffTime[player.FindBuffIndex(buffType)] = buffDuration; // refresh full duration
+                player.buffTime[player.FindBuffIndex(buffType)] = buffDuration;
 
             // Dust effect
             for (int i = 0; i < 15; i++)
@@ -226,13 +230,13 @@ namespace Neutronium.Content.Items.Weapons
                 dust.noGravity = true;
             }
 
-            // Increase Celestial Regen stack
+            // Increase CelestialRegen stack
             var modPlayer = player.GetModPlayer<NeutroniumPlayer>();
             modPlayer.celestialRegenStack += 0.02f;
             if (modPlayer.celestialRegenStack > 0.2f)
                 modPlayer.celestialRegenStack = 0.2f;
 
-            // Floating combat text for feedback
+            // Floating combat text to show regen
             int regenAmount = (int)(modPlayer.celestialRegenStack * player.statLifeMax2);
             CombatText.NewText(player.Hitbox, Color.Green, $"+{regenAmount} HP/sec");
         }
