@@ -35,7 +35,8 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-4f, 4f));
+            // Slight random rotation in radians
+            float beamRotation = Main.rand.NextFloat(-0.05f, 0.05f); // ±~3 degrees
 
             Projectile.NewProjectile(
                 source,
@@ -46,20 +47,10 @@ namespace Neutronium.Content.Items.Weapons
                 knockback,
                 player.whoAmI,
                 0.3f,        // attack speed
-                beamRotation  // slight rotation
+                beamRotation  // rotation for slight tilt
             );
 
             return false;
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ItemID.Book, 1)
-                .AddIngredient(ItemID.FallenStar, 5)
-                .AddIngredient(ItemID.SoulofLight, 10)
-                .AddTile(TileID.Bookcases)
-                .Register();
         }
     }
 
@@ -106,27 +97,31 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void AI()
         {
-            if (beamFX > 0)
+            if (beamFX > 0f)
                 beamFX = MathHelper.Lerp(beamFX, 0f, time > attackTime + 5 ? 0.07f : 0.01f);
 
             if (time == 0f)
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                // Beam always spans far above and below the projectile
-                float verticalSpan = 2500f; // adjust for longer beam if needed
-                float mouseX = Main.MouseWorld.X;
+                // Optional subtle horizontal variance (±3px)
+                float horizontalOffset = Main.rand.NextFloat(-3f, 3f);
+                Vector2 cursor = Main.MouseWorld + new Vector2(horizontalOffset, 0f);
 
-                BeamStart = new Vector2(mouseX, Projectile.Center.Y - verticalSpan);
-                BeamEnd   = new Vector2(mouseX, Projectile.Center.Y + verticalSpan);
+                // Beam is centered on cursor
+                float verticalSpan = 2000f; // adjust height as needed
+                Vector2 halfBeam = new Vector2(0f, verticalSpan).RotatedBy(rotation);
 
-                Direction = (BeamEnd - BeamStart).RotatedBy(rotation);
+                BeamStart = cursor - halfBeam;
+                BeamEnd = cursor + halfBeam;
 
-                Projectile.Center = BeamStart;
+                Direction = (BeamEnd - BeamStart).SafeNormalize(Vector2.UnitY);
+
+                Projectile.Center = cursor;
                 beamFX = 1f;
             }
 
-            // Trigger attack
+            // Attack trigger
             if (time >= attackTime && !doneAttack)
             {
                 SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
