@@ -236,7 +236,7 @@ namespace Neutronium.Content.Items.Weapons
                 beamColor * opacity,
                 directionToTarget.ToRotation() + MathHelper.PiOver2,
                 new Vector2(beam.Width / 2, beam.Height),
-                new Vector2(0.07f, beamLength / 10000f) * Projectile.scale,
+                new Vector2(0.07f, beamLength / 1000f) * Projectile.scale,
                 SpriteEffects.None,
                 0);
 
