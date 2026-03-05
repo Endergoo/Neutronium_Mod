@@ -212,11 +212,11 @@ namespace Neutronium.Content.Items.Weapons
             Player player = Main.player[Projectile.owner];
 
             // Apply CelestialRegen buff
-            int buffType = ModContent.BuffType<CelestialRegen>();
+            int buffDuration = 240; // 4 seconds (60 ticks per second * 4)
             if (!player.HasBuff(buffType))
-                player.AddBuff(buffType, 300); // 1-second duration, will refresh each hit
+                player.AddBuff(buffType, buffDuration);
             else
-                player.buffTime[player.FindBuffIndex(buffType)] = 60; // refresh duration
+                player.buffTime[player.FindBuffIndex(buffType)] = buffDuration; // refresh full duration
 
             // Dust effect
             for (int i = 0; i < 15; i++)
