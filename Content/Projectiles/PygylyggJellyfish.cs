@@ -22,7 +22,15 @@ public class PygylyggJellyfish : ModProjectile
         Projectile.timeLeft = 300;
         Projectile.ignoreWater = true;
         Projectile.tileCollide = true;
-      //Projectile.aiStyle = ProjAIStyleID.Bounce;
+    }
+
+        public override bool OnTileCollide(Vector2 oldVelocity)
+    {
+        if (Projectile.velocity.X != oldVelocity.X)
+            Projectile.velocity.X = -oldVelocity.X;
+        if (Projectile.velocity.Y != oldVelocity.Y)
+            Projectile.velocity.Y = -oldVelocity.Y;
+         return false;
     }
 
     public override void AI()
