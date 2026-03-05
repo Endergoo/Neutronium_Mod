@@ -35,7 +35,6 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Spawn the beam at a fixed height above cursor, clamped to world top
             float beamOffset = 800f;
             float spawnY = Main.MouseWorld.Y - beamOffset;
             if (spawnY < 0) spawnY = 0;
@@ -44,15 +43,15 @@ namespace Neutronium.Content.Items.Weapons
 
             Projectile.NewProjectile(
                 source,
-                Main.MouseWorld.X,      // X aligned to mouse
-                spawnY,                 // Y is top of beam
+                Main.MouseWorld.X,
+                spawnY,
                 Vector2.Zero,
                 type,
                 damage,
                 knockback,
                 player.whoAmI,
-                ai0: 0.3f,             // attack speed
-                ai1: beamRotation       // rotation
+                ai0: 0.3f,       // attack speed
+                ai1: beamRotation // rotation (float)
             );
 
             return false;
@@ -87,7 +86,6 @@ namespace Neutronium.Content.Items.Weapons
         public Color drawColor = Color.Yellow;
         public Color explosionColor = Color.Orange;
 
-        // Beam positions in world space
         private Vector2 BeamStart;
         private Vector2 BeamEnd;
         private Vector2 Direction;
@@ -105,7 +103,7 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 60; // duration of attack
+            Projectile.timeLeft = 60;
             Projectile.scale = 2.5f;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
@@ -124,7 +122,6 @@ namespace Neutronium.Content.Items.Weapons
 
                 if (attackSpeed == 0) attackSpeed = 0.3f;
 
-                // Set beam start and end in world coordinates
                 BeamStart = Projectile.Center;
                 Direction = Vector2.UnitY.RotatedBy(beamRotation);
                 BeamEnd = BeamStart + Direction * beamLength;
@@ -153,7 +150,7 @@ namespace Neutronium.Content.Items.Weapons
 
             time += attackSpeed;
 
-            // DAMAGE: check all NPCs every tick along full beam
+            // Apply damage along the full beam line
             if (doneAttack)
             {
                 foreach (NPC npc in Main.npc)
