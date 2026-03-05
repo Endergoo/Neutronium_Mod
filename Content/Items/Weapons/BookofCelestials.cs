@@ -75,9 +75,10 @@ namespace Neutronium.Content.Items.Weapons
         public Color drawColor = Color.Yellow;
         public Color explosionColor = Color.Orange;
         public float sine = 0;
+        public bool initialized = false;
         Vector2 beamStart = Vector2.Zero;
         Vector2 fixedTargetPos = Vector2.Zero;
-        Vector2 directionToTarget = Vector2.Zero;
+        Vector2 directionToTarget = Vector2.UnitY; // default so beam always has direction
 
         public override void SetStaticDefaults()
         {
@@ -97,32 +98,28 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
             Projectile.DamageType = DamageClass.Magic;
-            beamFX = 1f; // initialize here so PreDraw never bails on frame 1
         }
 
         public override void AI()
         {
+            // Initialize on the very first AI tick using real world position
+            if (!initialized)
+            {
+                initialized = true;
+                drawColor = Color.Yellow;
+                explosionColor = Color.Orange;
+                fixedTargetPos = new Vector2(Projectile.Center.X, Projectile.Center.Y + 800);
+                beamStart = fixedTargetPos - new Vector2(0, beamLength);
+                directionToTarget = Vector2.UnitY;
+                attackSpeed = (attackSpeed == 0) ? 0.3f : attackSpeed;
+                Projectile.velocity = Vector2.Zero;
+                beamFX = 1f;
+            }
+
             if (beamFX > 0)
                 beamFX = MathHelper.Lerp(beamFX, 0, time > attackTime + 5 ? 0.07f : 0.01f);
 
             sine = (float)Math.Sin(time * 4f / MathHelper.Pi);
-
-            if (time == 0)
-            {
-                drawColor = Color.Yellow;
-                explosionColor = Color.Orange;
-
-                // Lock position once so beam never drifts
-                fixedTargetPos = new Vector2(Projectile.Center.X, Projectile.Center.Y + 800);
-                beamStart = fixedTargetPos - new Vector2(0, beamLength);
-                directionToTarget = Vector2.UnitY;
-
-                if (attackSpeed == 0)
-                    attackSpeed = 0.3f;
-
-                Projectile.velocity = Vector2.Zero;
-                beamFX = 1f;
-            }
 
             if (time >= attackTime && !doneAttack)
             {
@@ -211,8 +208,7 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Don't draw until beam position is initialized
-            if (beamFX == 0 || beamStart == Vector2.Zero)
+            if (beamFX == 0 || !initialized)
                 return false;
 
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
