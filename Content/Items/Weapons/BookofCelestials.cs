@@ -119,6 +119,24 @@ namespace Neutronium.Content.Items.Weapons
 
                 Projectile.Center = cursor;
                 beamFX = 1f;
+
+
+                // Full beam lighting
+                Vector2 beamVector = BeamEnd - BeamStart;
+                float beamLength = beamVector.Length();
+                Vector2 beamDirection = beamVector.SafeNormalize(Vector2.UnitY);
+
+                for (float i = 0; i <= beamLength; i += 60f)
+                {
+                    Vector2 lightPos = BeamStart + beamDirection * i;
+
+                    float progress = i / beamLength; // fade along beam
+                    float brightness = 1f - progress * 0.5f;
+
+                    Lighting.AddLight(lightPos, 0.9f * brightness, 0.85f * brightness, 0.4f * brightness);
+                }
+                
+                time += attackSpeed;
             }
 
             // Attack trigger
