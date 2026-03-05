@@ -30,12 +30,12 @@ namespace Neutronium.Content.Items.Weapons
             Item.shootSpeed = 0f;
         }
 
-        public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
+            public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
             position = Main.MouseWorld;
             
             Projectile.NewProjectile(
-                player.GetSource_ItemAI(Item),  // Fixed: GetSource_ItemAI (underscore, not two)
+                player.GetSource_ItemAI(Item),  // FIXED: player.GetSource_ItemAI(Item)
                 position,
                 Vector2.Zero,
                 type,
@@ -45,6 +45,7 @@ namespace Neutronium.Content.Items.Weapons
                 ai0: 0.4f,
                 ai1: (float)(Main.time % 4)
             );
+}
         }
 
         public override void AddRecipes()
