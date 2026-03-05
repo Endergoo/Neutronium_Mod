@@ -1,4 +1,17 @@
-﻿public override void SetDefaults()
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Terraria.ID;
+using Terraria.ModLoader;
+using Terraria;
+using Microsoft.Xna.Framework;
+
+namespace Neutronium.Content.Projectiles;
+public class PygylyggJellyfish : ModProjectile
+{
+    public override void SetDefaults()
 {
     Projectile.width = 24;
     Projectile.height = 24;
@@ -40,4 +53,5 @@ public override void AI()
                 DustID.BlueFairy, Projectile.velocity.X * 0.5f, 
                 Projectile.velocity.Y * 0.5f);
     Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f));
+}
 }
