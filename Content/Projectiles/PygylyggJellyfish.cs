@@ -30,7 +30,7 @@ public class PygylyggJellyfish : ModProjectile
     {
         // Glowing jellyfish effect
         Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.Water, Projectile.velocity.X * 0.5f, Projectile.velocity.Y * 0.5f);
-        Lighting.AddLight(Projectile.Center, new Vector3(1.5f, 0.0f, 1f));
+        Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f));
 
     }
 
