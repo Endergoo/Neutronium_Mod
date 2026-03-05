@@ -31,7 +31,7 @@ public class PewPew : ModItem, ILocalizedModType
         Item.shoot = ProjectileID.PurificationPowder;
         Item.shootSpeed = 15f;
         Item.useAmmo = AmmoID.Arrow;
-        Item.scale = 0.75;
+        Item.scale = 0.75f;
     }
 
     // Terraria seems to really dislike high crit values in SetDefaults
