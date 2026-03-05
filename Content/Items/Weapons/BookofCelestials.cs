@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Graphics.CameraModifiers;
@@ -32,7 +33,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.scale = 0.25f;
         }
 
-        public override bool Shoot(Player player, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             // Spawn beam above cursor, clamped to top of world
             float beamOffset = 800f;
@@ -42,6 +43,7 @@ namespace Neutronium.Content.Items.Weapons
             float beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-7f, 7f));
 
             Projectile.NewProjectile(
+                source,                                  // entity source
                 new Vector2(Main.MouseWorld.X, spawnY), // position
                 Vector2.Zero,                            // velocity
                 type,                                    // projectile type
@@ -49,7 +51,7 @@ namespace Neutronium.Content.Items.Weapons
                 knockback,                               // knockback
                 player.whoAmI,                           // owner
                 0.3f,                                    // ai0 = attack speed
-                beamRotation                              // ai1 = rotation
+                beamRotation                             // ai1 = rotation
             );
 
             return false;
@@ -124,7 +126,7 @@ namespace Neutronium.Content.Items.Weapons
 
                 BeamStart = Projectile.Center;                        // local Vector2
                 Direction = Vector2.UnitY.RotatedBy(beamRotation);   // local Vector2
-                BeamEnd = BeamStart + Direction * beamLength;        // local Vector2
+                BeamEnd = BeamStart + Direction * beamLength;         // local Vector2
 
                 Projectile.velocity = Vector2.Zero;
                 beamFX = 1f;
