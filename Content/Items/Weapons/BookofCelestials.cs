@@ -12,6 +12,60 @@ using Neutronium.Content.Players;
 
 namespace Neutronium.Content.Items.Weapons
 {
+    public class BookofCelestials : ModItem
+    {
+        public override void SetDefaults()
+        {
+            Item.damage = 75;
+            Item.DamageType = DamageClass.Magic;
+            Item.mana = 30;
+            Item.width = 28;
+            Item.height = 30;
+            Item.useTime = 40;
+            Item.useAnimation = 40;
+            Item.useStyle = ItemUseStyleID.Shoot;
+            Item.noMelee = true;
+            Item.knockBack = 5;
+            Item.value = Item.sellPrice(0, 5, 0, 0);
+            Item.rare = ItemRarityID.Pink;
+            Item.UseSound = SoundID.Item8;
+            Item.autoReuse = true;
+            Item.shoot = ModContent.ProjectileType<CelestialBeam>();
+            Item.shootSpeed = 0f;
+            Item.scale = 0.25f;
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            float beamRotation = Main.rand.NextFloat(-0.05f, 0.05f); // ±~3 degrees
+
+            Projectile.NewProjectile(
+                source,
+                player.Center,
+                Vector2.Zero,
+                type,
+                damage,
+                knockback,
+                player.whoAmI,
+                0.3f,        // attack speed
+                beamRotation  // slight tilt
+            );
+
+            return false;
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe CurrentCaller = CreateRecipe();
+            CurrentCaller.AddIngredient(ItemID.CelestialStone, 1);
+            CurrentCaller.AddIngredient(ItemID.SpellTome, 1);
+            CurrentCaller.AddIngredient(ItemID.SoulofLight, 10);
+            CurrentCaller.AddIngredient(ItemID.SoulofNight, 10);
+            CurrentCaller.AddTile(TileID.CrystalBall);
+            CurrentCaller.Register();
+        }
+    }
+
     public class CelestialBeam : ModProjectile
     {
         public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
@@ -56,7 +110,8 @@ namespace Neutronium.Content.Items.Weapons
         public override void AI()
         {
             // Day/night beam color with subtle pulse
-            float pulseSpeed = 0.3f;
+             // Update beam color every frame based on day/night
+            float pulseSpeed = 0.3f; // smaller = slower, bigger = faster
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
@@ -72,7 +127,7 @@ namespace Neutronium.Content.Items.Weapons
                 float horizontalOffset = Main.rand.NextFloat(-3f, 3f);
                 Vector2 cursor = Main.MouseWorld + new Vector2(horizontalOffset, 0f);
 
-                float verticalSpan = 3000f;
+                float verticalSpan = 3000f; 
                 Vector2 halfBeam = new Vector2(0f, verticalSpan).RotatedBy(rotation);
 
                 BeamStart = cursor - halfBeam;
@@ -91,7 +146,7 @@ namespace Neutronium.Content.Items.Weapons
                 for (float i = 0; i <= beamLength; i += 60f)
                 {
                     Vector2 lightPos = BeamStart + beamDirection * i;
-                    float progress = i / beamLength;
+                    float progress = i / beamLength; 
                     float brightness = 1f - progress * 0.5f;
 
                     if (Main.dayTime)
@@ -112,16 +167,15 @@ namespace Neutronium.Content.Items.Weapons
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                     Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
-                // Explosion dust
-                Color explosionColor = Main.dayTime ? Color.Orange : Color.LightBlue;
+                // Dust effect
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, explosionColor, 2f);
+                    Color dustColor = Main.dayTime ? Color.Orange : Color.CornflowerBlue; // <- switch based on day/night
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, dustColor, 2f);
                     dust.noGravity = true;
                 }
             }
-
             // Full-length collision along beam
             if (canDamage)
             {
@@ -156,6 +210,7 @@ namespace Neutronium.Content.Items.Weapons
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Player player = Main.player[Projectile.owner];
+
             var modPlayer = player.GetModPlayer<NeutroniumPlayer>();
 
             if (Main.dayTime)
@@ -181,12 +236,11 @@ namespace Neutronium.Content.Items.Weapons
                     modPlayer.celestialDamageStack = 0.2f;
             }
 
-            // Hit dust matches day/night
-            Color hitColor = Main.dayTime ? Color.Orange : Color.LightBlue;
+            // Dust effect
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, hitColor, 2f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Main.dayTime ? Color.Orange : Color.Cyan, 2f);
                 dust.noGravity = true;
             }
         }
