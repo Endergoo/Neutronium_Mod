@@ -35,12 +35,11 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Spawn the beam above the mouse
+            // Spawn the beam above the cursor
             float beamOffset = 800f;
             Vector2 spawnPos = Main.MouseWorld - new Vector2(0, beamOffset);
 
-            // Optional: clamp spawn to not go above world top
-            if (spawnPos.Y < 0)
+            if (spawnPos.Y < 0) // Clamp to top of world
                 spawnPos.Y = 0;
 
             // Subtle random rotation (-7° to 7°)
@@ -54,11 +53,11 @@ namespace Neutronium.Content.Items.Weapons
                 damage,
                 knockback,
                 player.whoAmI,
-                ai0: 0.3f,   // attack speed
+                ai0: 0.3f,      // attack speed
                 ai1: beamRotation // store rotation in ai1
             );
 
-            return false; // Prevent default projectile spawn
+            return false; // prevent default projectile spawn
         }
 
         public override void AddRecipes()
@@ -91,7 +90,10 @@ namespace Neutronium.Content.Items.Weapons
         public Color explosionColor = Color.Orange;
 
         Vector2 beamStart => Projectile.Center;
-        Vector2 directionToTarget => Vector2.UnitY.RotatedBy(beamRotation); // downward with slight rotation
+
+        // Use downward direction with slight rotation
+        Vector2 directionToTarget => Vector2.UnitY.RotatedBy(beamRotation);
+
         Vector2 beamEnd => beamStart + directionToTarget * beamLength;
 
         public override void SetStaticDefaults()
@@ -200,6 +202,7 @@ namespace Neutronium.Content.Items.Weapons
             float collisionPoint = 0f;
             float beamWidth = 140f * Projectile.scale;
 
+            // Full vertical line collision: hits any enemy along the beam regardless of cursor
             return Collision.CheckAABBvLineCollision(
                 targetHitbox.TopLeft(),
                 targetHitbox.Size(),
