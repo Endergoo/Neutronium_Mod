@@ -30,7 +30,8 @@ namespace Neutronium.Content.Players
         {
             if (celestialRegenStack > 0f)
             {
-                Main.NewText($"Celestial Regen Stack: {celestialRegenStack * 100f}% | LifeRegen: {Player.lifeRegen}", 255, 255, 0);
+                float effectiveRegen = Player.statLifeMax2 * celestialRegenStack;
+                Main.NewText($"Celestial Beam Regen: {effectiveRegen:F1} HP/sec", 255, 255, 0);
             }
         }
     }
