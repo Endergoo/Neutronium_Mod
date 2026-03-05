@@ -110,7 +110,8 @@ namespace Neutronium.Content.Items.Weapons
         public override void AI()
         {
             // Day/night beam color with subtle pulse
-            float pulseSpeed = 0.3f; 
+             // Update beam color every frame based on day/night
+            float pulseSpeed = 0.3f; // smaller = slower, bigger = faster
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
