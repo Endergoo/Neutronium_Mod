@@ -18,7 +18,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.noUseGraphic = false; // Show the weapon's sprite
             Item.autoReuse = true; // Automatically reuse the weapon
             Item.useStyle = ItemUseStyleID.Swing; // Use the Swing style for swinging
-            Item.damage = 138; // Base damage
+            Item.damage = 22; // Base damage
             Item.DamageType = DamageClass.Melee; // Melee weapon
             Item.useAnimation = Item.useTime = 13; // Attack speed
             Item.shootSpeed = 2.4f; // Speed of the projectile (if any)
