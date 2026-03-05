@@ -22,24 +22,32 @@ public class PygylyggJellyfish : ModProjectile
         Projectile.timeLeft = 300;
         Projectile.ignoreWater = true;
         Projectile.tileCollide = true;
+        Projectile.aiStyle = -1; // Disable default AI styles
     }
 
     public override void AI()
-{
-    Projectile.velocity.Y += 0.3f; // Gravity
-    
-    Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.BlueFairy, Projectile.velocity.X * 0.5f, Projectile.velocity.Y * 0.5f);
-    Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f));
-}
+    {
+        // Custom bouncing behavior
+        if (Projectile.velocity.Y < 15f) // Simulate gravity/bounce
+            Projectile.velocity.Y += 0.4f;
+            
+        // Your custom effects - BLUE ONLY
+        Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 
+                    DustID.BlueFairy, Projectile.velocity.X * 0.5f, 
+                    Projectile.velocity.Y * 0.5f);
+        Lighting.AddLight(Projectile.Center, new Vector3(0.0f, 0.5f, 1.5f));
+    }
 
-public override bool OnTileCollide(Vector2 oldVelocity)
-{
-    if (Projectile.velocity.X != oldVelocity.X)
-        Projectile.velocity.X = -oldVelocity.X * 0.8f; // Slight energy loss
-    if (Projectile.velocity.Y != oldVelocity.Y)
-        Projectile.velocity.Y = -oldVelocity.Y * 0.8f; // Slight energy loss
-    return false;
-}
+    public override bool OnTileCollide(Vector2 oldVelocity)
+    {
+        // Bounce logic
+        if (Projectile.velocity.X != oldVelocity.X)
+            Projectile.velocity.X = -oldVelocity.X;
+        if (Projectile.velocity.Y != oldVelocity.Y)
+            Projectile.velocity.Y = -oldVelocity.Y * 0.7f; // Lose some energy on Y bounce
+            
+        return false; // Return false to prevent the projectile from dying
+    }
 
     public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
     {
