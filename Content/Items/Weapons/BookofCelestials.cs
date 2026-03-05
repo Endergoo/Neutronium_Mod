@@ -87,7 +87,10 @@ namespace Neutronium.Content.Items.Weapons
 
         Vector2 beamStart = Vector2.Zero;
         Vector2 directionToTarget = Vector2.UnitY;
+
         float beamRotation;
+
+        public Vector2 targetPos => new Vector2(Projectile.Center.X, Projectile.Center.Y + beamLength);
 
         public override void SetStaticDefaults()
         {
@@ -103,9 +106,12 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
             Projectile.timeLeft = 6000;
+
             Projectile.scale = 2.5f;
+
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
+
             Projectile.DamageType = DamageClass.Magic;
         }
 
@@ -122,15 +128,16 @@ namespace Neutronium.Content.Items.Weapons
                 explosionColor = Color.Orange;
 
                 beamRotation = MathHelper.ToRadians(Main.rand.NextFloat(-25f, 25f));
+
                 directionToTarget = Vector2.UnitY.RotatedBy(beamRotation);
 
-                // Projectile spawns at the top of the beam, so beamStart = its position
-                beamStart = Projectile.Center;
+                beamStart = Projectile.Center - directionToTarget * beamLength;
 
                 if (attackSpeed == 0)
                     attackSpeed = 0.3f;
 
                 Projectile.velocity = Vector2.Zero;
+
                 beamFX = 1f;
             }
 
@@ -143,25 +150,30 @@ namespace Neutronium.Content.Items.Weapons
                 doneAttack = true;
                 storedTime = time;
 
-                Vector2 impactPos = beamStart + directionToTarget * beamLength;
-
-                if (Main.LocalPlayer.Distance(impactPos) < 2000)
+                if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                 {
-                    PunchCameraModifier modifier = new PunchCameraModifier(impactPos, Main.rand.NextVector2Unit(), 8f, 12f, 20);
+                    PunchCameraModifier modifier = new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20);
                     Main.instance.CameraModifiers.Add(modifier);
                 }
 
                 for (int i = 0; i < 30; i++)
                 {
-                    Vector2 dustPos = impactPos + Main.rand.NextVector2Circular(100, 100);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, Color.Orange, 2f);
+                    Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
+
+                    Dust dust = Dust.NewDustPerfect(
+                        dustPos,
+                        DustID.IchorTorch,
+                        Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15),
+                        0,
+                        Color.Orange,
+                        2f);
+
                     dust.noGravity = true;
-                    Dust dust2 = Dust.NewDustPerfect(dustPos, DustID.YellowTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Yellow, 1.5f);
-                    dust2.noGravity = true;
                 }
             }
 
             float endTime = storedTime + 15;
+
             if (time >= endTime && doneAttack)
             {
                 Projectile.Kill();
@@ -175,10 +187,14 @@ namespace Neutronium.Content.Items.Weapons
         {
             if (doneAttack)
                 return null;
+
             return false;
         }
 
-        public override bool CanHitPlayer(Player target) => false;
+        public override bool CanHitPlayer(Player target)
+        {
+            return false;
+        }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
@@ -187,7 +203,15 @@ namespace Neutronium.Content.Items.Weapons
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Color.Orange, 2f);
+
+                Dust dust = Dust.NewDustPerfect(
+                    dustPos,
+                    DustID.IchorTorch,
+                    Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10),
+                    0,
+                    Color.Orange,
+                    2f);
+
                 dust.noGravity = true;
             }
         }
@@ -198,8 +222,10 @@ namespace Neutronium.Content.Items.Weapons
                 return false;
 
             float collisionPoint = 0f;
+
             Vector2 start = beamStart;
             Vector2 end = beamStart + directionToTarget * beamLength;
+
             float beamWidth = 140f * Projectile.scale;
 
             return Collision.CheckAABBvLineCollision(
@@ -220,31 +246,28 @@ namespace Neutronium.Content.Items.Weapons
             Texture2D bloom = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
 
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1), 2);
-            Color beamColor = drawColor with { A = 0 };
-            Vector2 impactPos = beamStart + directionToTarget * beamLength;
 
-            // Bloom at impact point
+            Color beamColor = drawColor with { A = 0 };
+
             Main.EntitySpriteDraw(
                 bloom,
-                impactPos - Main.screenPosition,
+                Projectile.Center - Main.screenPosition,
                 null,
                 beamColor * opacity,
                 0f,
                 bloom.Size() / 2f,
-                1.5f * Projectile.scale * (doneAttack ? 1.5f : 0.5f),
+                1.5f,
                 SpriteEffects.None,
                 0);
 
-            // Beam drawn from beamStart downward
-            // Origin at top (Y=0) so texture extends from beamStart toward impactPos
             Main.EntitySpriteDraw(
                 beam,
                 beamStart - Main.screenPosition,
                 null,
                 beamColor * opacity,
                 directionToTarget.ToRotation() + MathHelper.PiOver2,
-                new Vector2(beam.Width / 2f, 0f),
-                new Vector2(0.07f, beamLength / beam.Height) * Projectile.scale,
+                new Vector2(beam.Width / 2, beam.Height),
+                new Vector2(0.07f, beamLength / 1000f) * Projectile.scale,
                 SpriteEffects.None,
                 0);
 
@@ -252,3 +275,4 @@ namespace Neutronium.Content.Items.Weapons
         }
     }
 }
+
