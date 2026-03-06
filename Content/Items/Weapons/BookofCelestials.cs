@@ -193,7 +193,7 @@ namespace Neutronium.Content.Items.Weapons
             {
                 foreach (NPC npc in Main.npc)
                 {
-                    if (npc.active && !npc.friendly && npc.CanBeChasedBy())
+                    if (npc.active && !npc.immortal && npc.lifeMax > 1 && !npc.isLikeATownNPC)
                     {
                         float collisionPoint = 0f;
                         float beamWidth = Math.Max(100f * Projectile.scale, 16f); // Ensure min width of 16 pixels
