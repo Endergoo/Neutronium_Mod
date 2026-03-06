@@ -121,7 +121,7 @@ namespace Neutronium.Content.Items.Weapons
                 beamFX = MathHelper.Min(beamFX + 0.1f, 1f); // fade-in
             else
             {
-                beamFX = MathHelper.Lerp(beamFX, 0f, 0.25f); // quick fade
+                beamFX = MathHelper.Lerp(beamFX, 0f, 0.1f); // quick fade
                 if (beamFX < 0.01f)
                     Projectile.Kill();
             }
