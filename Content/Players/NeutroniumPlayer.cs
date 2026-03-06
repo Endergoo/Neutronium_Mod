@@ -8,8 +8,8 @@ namespace Neutronium.Content.Players
         // Daytime regen
         public float celestialRegenStack = 0f; // 0.0 -> 0.2 (max 20%)
 
-        // Nighttime damage buff
-        public float celestialDamageStack = 0f; // 0.0 -> 0.2 (max 20%)
+        // Nighttime Crit buff
+        public float celestialCritStack = 0f; // 0.0 -> 0.5 (max 50%)
 
         public override void PostUpdate()
         {
@@ -25,10 +25,11 @@ namespace Neutronium.Content.Players
             }
             else
             {
-                // Apply damage boost for night
-                if (celestialDamageStack > 0f)
+                // Apply crit bonus for night
+                if (celestialCritStack > 0f)
                 {
-                    Player.GetDamage(DamageClass.Generic) += celestialDamageStack;
+                    // Apply to magic crit chance
+                    Player.GetCritChance(DamageClass.Magic) += (int)(celestialCritStack * 100);
                 }
             }
         }
