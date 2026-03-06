@@ -66,7 +66,7 @@ namespace Neutronium.Content.Items.Weapons
         }
     }
 
-    public class CelestialBeam : ModProjectile
+        public class CelestialBeam : ModProjectile
     {
         public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
 
@@ -109,9 +109,8 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void AI()
         {
-            // Day/night beam color with subtle pulse
-             // Update beam color every frame based on day/night
-            float pulseSpeed = 0.3f; // smaller = slower, bigger = faster
+            float pulseSpeed = 0.3f;
+
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
@@ -127,7 +126,7 @@ namespace Neutronium.Content.Items.Weapons
                 float horizontalOffset = Main.rand.NextFloat(-3f, 3f);
                 Vector2 cursor = Main.MouseWorld + new Vector2(horizontalOffset, 0f);
 
-                float verticalSpan = 3000f; 
+                float verticalSpan = 3000f;
                 Vector2 halfBeam = new Vector2(0f, verticalSpan).RotatedBy(rotation);
 
                 BeamStart = cursor - halfBeam;
@@ -138,7 +137,6 @@ namespace Neutronium.Content.Items.Weapons
                 Projectile.Center = cursor;
                 beamFX = 1f;
 
-                // Full beam lighting
                 Vector2 beamVector = BeamEnd - BeamStart;
                 float beamLength = beamVector.Length();
                 Vector2 beamDirection = beamVector.SafeNormalize(Vector2.UnitY);
@@ -146,7 +144,7 @@ namespace Neutronium.Content.Items.Weapons
                 for (float i = 0; i <= beamLength; i += 60f)
                 {
                     Vector2 lightPos = BeamStart + beamDirection * i;
-                    float progress = i / beamLength; 
+                    float progress = i / beamLength;
                     float brightness = 1f - progress * 0.5f;
 
                     if (Main.dayTime)
@@ -156,10 +154,10 @@ namespace Neutronium.Content.Items.Weapons
                 }
             }
 
-            // Attack trigger
             if (time >= attackTime && !doneAttack)
             {
                 SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
+
                 beamFX = 3f;
                 doneAttack = true;
                 storedTime = time;
@@ -167,16 +165,18 @@ namespace Neutronium.Content.Items.Weapons
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                     Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
-                // Dust effect
+                Color dustColor = Main.dayTime ? Color.Orange : Color.CornflowerBlue;
+
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
-                    Color dustColor = Main.dayTime ? Color.Orange : Color.CornflowerBlue; // <- switch based on day/night
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, dustColor, 2f);
+                    Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15);
+
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemSapphire, velocity, 0, dustColor, 2f);
                     dust.noGravity = true;
                 }
             }
-            // Full-length collision along beam
+
             if (canDamage)
             {
                 foreach (NPC npc in Main.npc)
@@ -194,6 +194,7 @@ namespace Neutronium.Content.Items.Weapons
                                 Knockback = Projectile.knockBack,
                                 HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X)
                             };
+
                             npc.StrikeNPC(hitInfo);
                             OnHitNPC(npc, hitInfo, Projectile.damage);
                         }
@@ -210,12 +211,10 @@ namespace Neutronium.Content.Items.Weapons
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Player player = Main.player[Projectile.owner];
-
             var modPlayer = player.GetModPlayer<NeutroniumPlayer>();
 
             if (Main.dayTime)
             {
-                // Day: HP regen
                 int buffType = ModContent.BuffType<CelestialRegen>();
                 int buffDuration = 600;
 
@@ -230,17 +229,19 @@ namespace Neutronium.Content.Items.Weapons
             }
             else
             {
-                // Night: Damage boost
                 modPlayer.celestialDamageStack += 0.02f;
                 if (modPlayer.celestialDamageStack > 0.2f)
                     modPlayer.celestialDamageStack = 0.2f;
             }
 
-            // Dust effect
+            Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
+
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Main.dayTime ? Color.Orange : Color.Cyan, 2f);
+                Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10);
+
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemSapphire, velocity, 0, dustColor, 2f);
                 dust.noGravity = true;
             }
         }
