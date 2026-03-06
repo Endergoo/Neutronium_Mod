@@ -73,7 +73,8 @@ namespace Neutronium.Content.Items.Weapons
         private float time = 0f;
         private bool doneAttack = false;
         private int attackTime = 8;
-        private float beamFX = 0f;
+        private float beamFX = 0f;       // opacity
+        private float beamScale = 0f;    // for thin → full beam effect
 
         private Vector2 BeamStart;
         private Vector2 BeamEnd;
@@ -116,13 +117,22 @@ namespace Neutronium.Content.Items.Weapons
             else
                 drawColor = Color.Lerp(Color.CornflowerBlue, Color.LightBlue, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
 
-            // Fade-in at start
+            // Fade-in and grow beam before attack
             if (!doneAttack)
-                beamFX = MathHelper.Min(beamFX + 0.1f, 1f); // fade in quickly
+            {
+                beamFX = MathHelper.Min(beamFX + 0.05f, 0.5f); // semi-transparent
+                beamScale = MathHelper.Min(beamScale + 0.02f, 0.07f); // thin line growing
+            }
+            else
+            {
+                // Full beam after attack
+                beamFX = MathHelper.Min(beamFX + 0.1f, 1f);
+                beamScale = 0.12f; // full thickness
 
-            // Quick fade-out after attack
-            if (doneAttack)
-                beamFX = MathHelper.Lerp(beamFX, 0f, 0.2f);
+                // Quick fade-out after attack
+                if (beamFX >= 1f)
+                    beamFX = MathHelper.Lerp(beamFX, 0f, 0.2f);
+            }
 
             if (time == 0f)
             {
@@ -140,7 +150,8 @@ namespace Neutronium.Content.Items.Weapons
                 Direction = (BeamEnd - BeamStart).SafeNormalize(Vector2.UnitY);
 
                 Projectile.Center = cursor;
-                beamFX = 0f; // start fade-in
+                beamFX = 0f;
+                beamScale = 0f;
             }
 
             // Attack trigger
@@ -235,7 +246,6 @@ namespace Neutronium.Content.Items.Weapons
 
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
             float beamLength = Vector2.Distance(BeamStart, BeamEnd);
-            float opacity = beamFX;
 
             Color beamColor = drawColor with { A = 0 };
 
@@ -244,10 +254,10 @@ namespace Neutronium.Content.Items.Weapons
                 beam,
                 BeamStart - Main.screenPosition,
                 null,
-                beamColor * 0.35f * opacity,
+                beamColor * 0.35f * beamFX,
                 Direction.ToRotation() + MathHelper.PiOver2,
                 new Vector2(beam.Width / 2, beam.Height),
-                new Vector2(0.12f, beamLength / 1000f) * Projectile.scale,
+                new Vector2(beamScale * 1.7f, beamLength / 1000f) * Projectile.scale,
                 SpriteEffects.None,
                 0);
 
@@ -256,10 +266,10 @@ namespace Neutronium.Content.Items.Weapons
                 beam,
                 BeamStart - Main.screenPosition,
                 null,
-                beamColor * opacity,
+                beamColor * beamFX,
                 Direction.ToRotation() + MathHelper.PiOver2,
                 new Vector2(beam.Width / 2, beam.Height),
-                new Vector2(0.06f, beamLength / 1000f) * Projectile.scale,
+                new Vector2(beamScale, beamLength / 1000f) * Projectile.scale,
                 SpriteEffects.None,
                 0);
 
