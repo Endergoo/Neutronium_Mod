@@ -118,7 +118,7 @@ namespace Neutronium.Content.Items.Weapons
 
             // Quick fade after attack
             if (doneAttack && beamFX > 0f)
-                beamFX = MathHelper.Lerp(beamFX, 0f, 0.2f);
+                beamFX = MathHelper.Lerp(beamFX, 0f, 1f);
 
             if (time == 0f)
             {
