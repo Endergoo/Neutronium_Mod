@@ -45,17 +45,11 @@ namespace Neutronium.Content.Items.Weapons
                 damage,
                 knockback,
                 player.whoAmI,
-                0.3f,
+                0.3f,       // attack speed
                 beamRotation
             );
 
             return false;
-        }
-
-        public override void ModifyWeaponCrit(Player player, ref float crit)
-        {
-            if (!Main.dayTime)
-                crit += 50f; // Nighttime crit bonus
         }
 
         public override void AddRecipes()
@@ -106,7 +100,7 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.timeLeft = 600;
             Projectile.scale = 2.5f;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 50;
+            Projectile.localNPCHitCooldown = -1;
             Projectile.DamageType = DamageClass.Magic;
         }
 
@@ -114,7 +108,7 @@ namespace Neutronium.Content.Items.Weapons
         {
             float pulseSpeed = 0.3f;
 
-            // Color pulsing
+            // Beam colors (day = yellow/orange, night = cyan/lightblue)
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
@@ -122,10 +116,10 @@ namespace Neutronium.Content.Items.Weapons
 
             // Fade in/out
             if (!doneAttack)
-                beamFX = MathHelper.Min(beamFX + 0.1f, 1f);
+                beamFX = MathHelper.Min(beamFX + 0.1f, 1f); // fade in
             else
             {
-                beamFX = MathHelper.Lerp(beamFX, 0f, 0.15f);
+                beamFX = MathHelper.Lerp(beamFX, 0f, 0.15f); // fade out
                 if (beamFX < 0.02f)
                     Projectile.Kill();
             }
@@ -143,7 +137,7 @@ namespace Neutronium.Content.Items.Weapons
                 Direction = (BeamEnd - BeamStart).SafeNormalize(Vector2.UnitY);
                 Projectile.Center = cursor;
 
-                // Beam lighting
+                // Lighting along beam
                 Vector2 beamVector = BeamEnd - BeamStart;
                 float beamLength = beamVector.Length();
                 Vector2 beamDir = beamVector.SafeNormalize(Vector2.UnitY);
@@ -151,8 +145,7 @@ namespace Neutronium.Content.Items.Weapons
                 for (float i = 0; i <= beamLength; i += 60f)
                 {
                     Vector2 lightPos = BeamStart + beamDir * i;
-                    float progress = i / beamLength;
-                    float brightness = 1f - progress * 0.5f;
+                    float brightness = 1f - (i / beamLength) * 0.5f;
 
                     if (Main.dayTime)
                         Lighting.AddLight(lightPos, 0.9f * brightness, 0.85f * brightness, 0.4f * brightness);
@@ -161,14 +154,14 @@ namespace Neutronium.Content.Items.Weapons
                 }
             }
 
-            // Attack trigger
+            // Trigger attack
             if (time >= attackTime && !doneAttack)
             {
                 SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
                 beamFX = 1.5f;
                 doneAttack = true;
 
-                if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
+                if (Main.LocalPlayer.Distance(Projectile.Center) < 2000f)
                     Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
                 Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
@@ -181,38 +174,44 @@ namespace Neutronium.Content.Items.Weapons
                 }
             }
 
-            // Beam collision (hits all enemies, including tiny ones)
+            // Beam collision
             if (canDamage)
             {
-                float beamWidth = 180f * Projectile.scale;
-                Vector2 beamDir = (BeamEnd - BeamStart);
-                float beamLength = beamDir.Length();
-                beamDir.Normalize();
-
+                float beamWidth = 100f * Projectile.scale;
                 foreach (NPC npc in Main.npc)
                 {
                     if (!npc.active || npc.friendly || !npc.CanBeChasedBy())
                         continue;
 
-                    Vector2 npcToStart = npc.Center - BeamStart;
-                    float projected = Vector2.Dot(npcToStart, beamDir);
-
-                    if (projected < 0 || projected > beamLength)
-                        continue;
-
-                    Vector2 closest = BeamStart + beamDir * projected;
-                    float distance = Vector2.Distance(npc.Center, closest);
-
-                    if (distance <= beamWidth / 2f)
+                    float collisionPoint = 0f;
+                    if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, BeamEnd, beamWidth, ref collisionPoint))
                     {
-                        NPC.HitInfo hitInfo = new NPC.HitInfo()
+                        int direction = Math.Sign(npc.Center.X - Projectile.Center.X);
+                        npc.StrikeNPC(Projectile.damage, Projectile.knockBack, direction);
+
+                        // Lifesteal during day
+                        Player player = Main.player[Projectile.owner];
+                        if (Main.dayTime)
                         {
-                            Damage = Projectile.damage,
-                            KnockBack = Projectile.knockBack,
-                            HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X)
-                        };
-                        npc.StrikeNPC(hitInfo);
-                        OnHitNPC(npc, hitInfo, Projectile.damage);
+                            int heal = Projectile.damage / 6;
+                            if (heal > 0)
+                            {
+                                player.statLife += heal;
+                                if (player.statLife > player.statLifeMax2)
+                                    player.statLife = player.statLifeMax2;
+                                player.HealEffect(heal);
+                            }
+                        }
+
+                        // Dust effect
+                        Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
+                        for (int i = 0; i < 10; i++)
+                        {
+                            Vector2 dustPos = npc.Center + Main.rand.NextVector2Circular(50, 50);
+                            Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3f, 10f);
+                            Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemDiamond, velocity, 0, dustColor, 2f);
+                            dust.noGravity = true;
+                        }
                     }
                 }
             }
@@ -223,38 +222,12 @@ namespace Neutronium.Content.Items.Weapons
         public override bool? CanHitNPC(NPC target) => false;
         public override bool CanHitPlayer(Player target) => false;
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            Player player = Main.player[Projectile.owner];
-
-            if (Main.dayTime)
-            {
-                // Lifesteal
-                int heal = damageDone / 6;
-                if (heal > 0)
-                {
-                    player.statLife += heal;
-                    if (player.statLife > player.statLifeMax2)
-                        player.statLife = player.statLifeMax2;
-                    player.HealEffect(heal);
-                }
-            }
-
-            Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
-            for (int i = 0; i < 15; i++)
-            {
-                Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
-                Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3f, 10f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemDiamond, velocity, 0, dustColor, 2f);
-                dust.noGravity = true;
-            }
-        }
-
         public override bool PreDraw(ref Color lightColor)
         {
             if (beamFX <= 0f) return false;
 
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
+            float beamLength = Vector2.Distance(BeamStart, BeamEnd);
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };
 
@@ -266,7 +239,7 @@ namespace Neutronium.Content.Items.Weapons
                 beamColor * 0.35f * opacity,
                 Direction.ToRotation() + MathHelper.PiOver2,
                 new Vector2(beam.Width / 2, beam.Height),
-                new Vector2(0.12f, Vector2.Distance(BeamStart, BeamEnd) / 1000f) * Projectile.scale,
+                new Vector2(0.12f, beamLength / 1000f) * Projectile.scale,
                 SpriteEffects.None,
                 0);
 
@@ -278,7 +251,7 @@ namespace Neutronium.Content.Items.Weapons
                 beamColor * opacity,
                 Direction.ToRotation() + MathHelper.PiOver2,
                 new Vector2(beam.Width / 2, beam.Height),
-                new Vector2(0.06f, Vector2.Distance(BeamStart, BeamEnd) / 1000f) * Projectile.scale,
+                new Vector2(0.06f, beamLength / 1000f) * Projectile.scale,
                 SpriteEffects.None,
                 0);
 
