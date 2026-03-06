@@ -56,17 +56,17 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void AddRecipes()
         {
-            Recipe CurrentCaller = CreateRecipe();
-            CurrentCaller.AddIngredient(ItemID.CelestialStone, 1);
-            CurrentCaller.AddIngredient(ItemID.SpellTome, 1);
-            CurrentCaller.AddIngredient(ItemID.SoulofLight, 10);
-            CurrentCaller.AddIngredient(ItemID.SoulofNight, 10);
-            CurrentCaller.AddTile(TileID.CrystalBall);
-            CurrentCaller.Register();
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ItemID.CelestialStone, 1);
+            recipe.AddIngredient(ItemID.SpellTome, 1);
+            recipe.AddIngredient(ItemID.SoulofLight, 10);
+            recipe.AddIngredient(ItemID.SoulofNight, 10);
+            recipe.AddTile(TileID.CrystalBall);
+            recipe.Register();
         }
     }
 
-        public class CelestialBeam : ModProjectile
+    public class CelestialBeam : ModProjectile
     {
         public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
 
@@ -74,7 +74,6 @@ namespace Neutronium.Content.Items.Weapons
         private bool doneAttack = false;
         private int attackTime = 8;
         private float beamFX = 0f;
-        private float storedTime = 0f;
 
         private Vector2 BeamStart;
         private Vector2 BeamEnd;
@@ -111,32 +110,39 @@ namespace Neutronium.Content.Items.Weapons
         {
             float pulseSpeed = 0.3f;
 
+            // Day/night pulsing color
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
                 drawColor = Color.Lerp(Color.CornflowerBlue, Color.LightBlue, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
 
-            if (beamFX > 0f)
-                beamFX = MathHelper.Lerp(beamFX, 0f, time > attackTime + 5 ? 0.07f : 0.01f);
+            // Beam fade logic
+            if (!doneAttack)
+            {
+                beamFX = MathHelper.Min(beamFX + 0.1f, 1f); // fade-in before attack
+            }
+            else
+            {
+                beamFX = MathHelper.Lerp(beamFX, 0f, 0.25f); // fast fade-out after attack
+                if (beamFX < 0.01f)
+                    Projectile.Kill();
+            }
 
+            // Initialize beam
             if (time == 0f)
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
 
-                float horizontalOffset = Main.rand.NextFloat(-3f, 3f);
-                Vector2 cursor = Main.MouseWorld + new Vector2(horizontalOffset, 0f);
-
+                Vector2 cursor = Main.MouseWorld + new Vector2(Main.rand.NextFloat(-3f, 3f), 0f);
                 float verticalSpan = 3000f;
                 Vector2 halfBeam = new Vector2(0f, verticalSpan).RotatedBy(rotation);
 
                 BeamStart = cursor - halfBeam;
                 BeamEnd = cursor + halfBeam;
-
                 Direction = (BeamEnd - BeamStart).SafeNormalize(Vector2.UnitY);
-
                 Projectile.Center = cursor;
-                beamFX = 1f;
 
+                // Lighting along beam
                 Vector2 beamVector = BeamEnd - BeamStart;
                 float beamLength = beamVector.Length();
                 Vector2 beamDirection = beamVector.SafeNormalize(Vector2.UnitY);
@@ -154,29 +160,28 @@ namespace Neutronium.Content.Items.Weapons
                 }
             }
 
+            // Trigger attack
             if (time >= attackTime && !doneAttack)
             {
                 SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
 
-                beamFX = 3f;
+                beamFX = 1.5f; // full beam flash
                 doneAttack = true;
-                storedTime = time;
 
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                     Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
                 Color dustColor = Main.dayTime ? Color.Orange : Color.CornflowerBlue;
-
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
-                    Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15);
-
+                    Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 15f);
                     Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemSapphire, velocity, 0, dustColor, 2f);
                     dust.noGravity = true;
                 }
             }
 
+            // Beam collision
             if (canDamage)
             {
                 foreach (NPC npc in Main.npc)
@@ -194,7 +199,6 @@ namespace Neutronium.Content.Items.Weapons
                                 Knockback = Projectile.knockBack,
                                 HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X)
                             };
-
                             npc.StrikeNPC(hitInfo);
                             OnHitNPC(npc, hitInfo, Projectile.damage);
                         }
@@ -217,30 +221,25 @@ namespace Neutronium.Content.Items.Weapons
             {
                 int buffType = ModContent.BuffType<CelestialRegen>();
                 int buffDuration = 600;
-
                 if (!player.HasBuff(buffType))
                     player.AddBuff(buffType, buffDuration);
                 else
                     player.buffTime[player.FindBuffIndex(buffType)] = buffDuration;
 
                 modPlayer.celestialRegenStack += 0.02f;
-                if (modPlayer.celestialRegenStack > 0.2f)
-                    modPlayer.celestialRegenStack = 0.2f;
+                modPlayer.celestialRegenStack = Math.Min(modPlayer.celestialRegenStack, 0.2f);
             }
             else
             {
                 modPlayer.celestialDamageStack += 0.02f;
-                if (modPlayer.celestialDamageStack > 0.2f)
-                    modPlayer.celestialDamageStack = 0.2f;
+                modPlayer.celestialDamageStack = Math.Min(modPlayer.celestialDamageStack, 0.2f);
             }
 
-            Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
-
+            Color dustColor = Main.dayTime ? Color.Orange : Color.CornflowerBlue;
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
-                Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10);
-
+                Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3f, 10f);
                 Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemSapphire, velocity, 0, dustColor, 2f);
                 dust.noGravity = true;
             }
@@ -248,13 +247,26 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool PreDraw(ref Color lightColor)
         {
-            if (beamFX == 0f) return false;
+            if (beamFX <= 0f) return false;
 
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
 
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };
 
+            // outer glow
+            Main.EntitySpriteDraw(
+                beam,
+                BeamStart - Main.screenPosition,
+                null,
+                beamColor * 0.35f * opacity,
+                Direction.ToRotation() + MathHelper.PiOver2,
+                new Vector2(beam.Width / 2, beam.Height),
+                new Vector2(0.12f, Vector2.Distance(BeamStart, BeamEnd) / 1000f) * Projectile.scale,
+                SpriteEffects.None,
+                0);
+
+            // inner core
             Main.EntitySpriteDraw(
                 beam,
                 BeamStart - Main.screenPosition,
@@ -262,7 +274,7 @@ namespace Neutronium.Content.Items.Weapons
                 beamColor * opacity,
                 Direction.ToRotation() + MathHelper.PiOver2,
                 new Vector2(beam.Width / 2, beam.Height),
-                new Vector2(0.07f, Vector2.Distance(BeamStart, BeamEnd) / 1000f) * Projectile.scale,
+                new Vector2(0.06f, Vector2.Distance(BeamStart, BeamEnd) / 1000f) * Projectile.scale,
                 SpriteEffects.None,
                 0);
 
