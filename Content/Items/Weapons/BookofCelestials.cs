@@ -26,7 +26,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.knockBack = 5;
             Item.value = Item.sellPrice(0, 5, 0, 0);
             Item.rare = ItemRarityID.Pink;
-            Item.UseSound = SoundID.Item8;
+            Item.UseSound = SoundID.Item159;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<CelestialBeam>();
             Item.shootSpeed = 0f;
