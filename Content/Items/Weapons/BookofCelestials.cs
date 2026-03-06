@@ -196,7 +196,7 @@ namespace Neutronium.Content.Items.Weapons
                     if (npc.active && !npc.immortal && npc.lifeMax > 1 && !npc.isLikeATownNPC)
                     {
                         float collisionPoint = 0f;
-                        float beamWidth = Math.Max(75f * Projectile.scale);
+                        float beamWidth = Math.Max(75f * Projectile.scale, 16f);
 
                         if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, BeamEnd, beamWidth, ref collisionPoint))
                         {
