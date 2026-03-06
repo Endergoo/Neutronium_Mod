@@ -196,7 +196,7 @@ namespace Neutronium.Content.Items.Weapons
                     if (npc.active && !npc.friendly && npc.CanBeChasedBy())
                     {
                         float collisionPoint = 0f;
-                        float beamWidth = 100f * Projectile.scale;
+                        float beamWidth = Math.Max(100f * Projectile.scale, 16f); // Ensure min width of 16 pixels
 
                         if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, BeamEnd, beamWidth, ref collisionPoint))
                         {
