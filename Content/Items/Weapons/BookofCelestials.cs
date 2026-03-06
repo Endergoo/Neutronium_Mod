@@ -7,8 +7,6 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Graphics.CameraModifiers;
 using Terraria.DataStructures;
-using Neutronium.Content.Buffs;
-using Neutronium.Content.Players;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -33,6 +31,12 @@ namespace Neutronium.Content.Items.Weapons
             Item.shoot = ModContent.ProjectileType<CelestialBeam>();
             Item.shootSpeed = 0f;
             Item.scale = 0.25f;
+        }
+
+        public override void ModifyWeaponCrit(Player player, ref float crit)
+        {
+            if (!Main.dayTime)
+                crit += 50f; // +50% crit at night
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -110,19 +114,18 @@ namespace Neutronium.Content.Items.Weapons
         {
             float pulseSpeed = 0.3f;
 
-            // **Colors from the first snippet**
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
                 drawColor = Color.Lerp(Color.Cyan, Color.LightBlue, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
 
-            // Fade in before attack, fade out after
             if (!doneAttack)
-                beamFX = MathHelper.Min(beamFX + 0.1f, 1f); // fade-in
+                beamFX = MathHelper.Min(beamFX + 0.1f, 1f);
             else
             {
-                beamFX = MathHelper.Lerp(beamFX, 0f, 0.1f); // quick fade
-                if (beamFX < 0.01f)
+                beamFX = MathHelper.Lerp(beamFX, 0f, 0.15f);
+
+                if (beamFX < 0.02f)
                     Projectile.Kill();
             }
 
@@ -138,46 +141,46 @@ namespace Neutronium.Content.Items.Weapons
                 BeamEnd = cursor + halfBeam;
                 Direction = (BeamEnd - BeamStart).SafeNormalize(Vector2.UnitY);
                 Projectile.Center = cursor;
-
-                // Lighting along beam
-                Vector2 beamVector = BeamEnd - BeamStart;
-                float beamLength = beamVector.Length();
-                Vector2 beamDirection = beamVector.SafeNormalize(Vector2.UnitY);
-
-                for (float i = 0; i <= beamLength; i += 60f)
-                {
-                    Vector2 lightPos = BeamStart + beamDirection * i;
-                    float progress = i / beamLength;
-                    float brightness = 1f - progress * 0.5f;
-
-                    if (Main.dayTime)
-                        Lighting.AddLight(lightPos, 0.9f * brightness, 0.85f * brightness, 0.4f * brightness);
-                    else
-                        Lighting.AddLight(lightPos, 0.3f * brightness, 0.45f * brightness, 0.9f * brightness);
-                }
             }
 
-            // Attack trigger
             if (time >= attackTime && !doneAttack)
             {
                 SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
-                beamFX = 1.5f; // full beam
+
+                beamFX = 1.5f;
                 doneAttack = true;
 
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
-                    Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
+                {
+                    Main.instance.CameraModifiers.Add(
+                        new PunchCameraModifier(
+                            Projectile.Center,
+                            Main.rand.NextVector2Unit(),
+                            8f,
+                            12f,
+                            20
+                        ));
+                }
 
                 Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
+
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
                     Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 15f);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemDiamond, velocity, 0, dustColor, 2f);
+
+                    Dust dust = Dust.NewDustPerfect(
+                        dustPos,
+                        DustID.GemDiamond,
+                        velocity,
+                        0,
+                        dustColor,
+                        2f);
+
                     dust.noGravity = true;
                 }
             }
 
-            // Beam collision
             if (canDamage)
             {
                 foreach (NPC npc in Main.npc)
@@ -187,7 +190,13 @@ namespace Neutronium.Content.Items.Weapons
                         float collisionPoint = 0f;
                         float beamWidth = 100f * Projectile.scale;
 
-                        if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, BeamEnd, beamWidth, ref collisionPoint))
+                        if (Collision.CheckAABBvLineCollision(
+                            npc.Hitbox.TopLeft(),
+                            npc.Hitbox.Size(),
+                            BeamStart,
+                            BeamEnd,
+                            beamWidth,
+                            ref collisionPoint))
                         {
                             NPC.HitInfo hitInfo = new NPC.HitInfo()
                             {
@@ -195,7 +204,9 @@ namespace Neutronium.Content.Items.Weapons
                                 Knockback = Projectile.knockBack,
                                 HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X)
                             };
+
                             npc.StrikeNPC(hitInfo);
+
                             OnHitNPC(npc, hitInfo, Projectile.damage);
                         }
                     }
@@ -206,32 +217,41 @@ namespace Neutronium.Content.Items.Weapons
         }
 
         public override bool? CanHitNPC(NPC target) => false;
-        public override bool CanHitPlayer(Player target) => false;
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Player player = Main.player[Projectile.owner];
-            var modPlayer = player.GetModPlayer<NeutroniumPlayer>();
 
             if (Main.dayTime)
             {
-                int buffType = ModContent.BuffType<CelestialRegen>();
-                int buffDuration = 600;
-                if (!player.HasBuff(buffType))
-                    player.AddBuff(buffType, buffDuration);
-                else
-                    player.buffTime[player.FindBuffIndex(buffType)] = buffDuration;
+                int heal = damageDone / 10;
 
-                modPlayer.celestialRegenStack += 0.02f;
-                modPlayer.celestialRegenStack = Math.Min(modPlayer.celestialRegenStack, 0.2f);
+                if (heal > 0)
+                {
+                    player.statLife += heal;
+
+                    if (player.statLife > player.statLifeMax2)
+                        player.statLife = player.statLifeMax2;
+
+                    player.HealEffect(heal);
+                }
             }
 
             Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
+
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
                 Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3f, 10f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemDiamond, velocity, 0, dustColor, 2f);
+
+                Dust dust = Dust.NewDustPerfect(
+                    dustPos,
+                    DustID.GemDiamond,
+                    velocity,
+                    0,
+                    dustColor,
+                    2f);
+
                 dust.noGravity = true;
             }
         }
