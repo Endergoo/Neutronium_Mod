@@ -36,7 +36,7 @@ namespace Neutronium.Content.Items.Weapons
         public override void ModifyWeaponCrit(Player player, ref float crit)
         {
             if (!Main.dayTime)
-                crit += 75f; // +50% crit at night
+                crit += 75f; // +75% crit at night
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

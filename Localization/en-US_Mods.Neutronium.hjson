@@ -127,7 +127,7 @@ Items: {
 
 	BookofCelestials: {
 		DisplayName: Book of Celestials
-		Tooltip: During the day, hit your enemies for Celestial Regen, gaining +2% regen up to 20% for 10 seconds.
+		Tooltip: During the day, gain 15% lifesteal. During the night, gain +75% critical hit chance.
 	}
 }
 
@@ -195,10 +195,5 @@ Buffs: {
 	StrandOfLaniakeaDebuffAdvanced: {
 		DisplayName: Strand Of Laniakea Debuff Advanced
 		Description: Mods.Neutronium.Buffs.StrandOfLaniakeaDebuffAdvanced.Description
-	}
-
-	CelestialRegen: {
-		DisplayName: Celestial Regen
-		Description: 2%-20% addition life regen
 	}
 }
