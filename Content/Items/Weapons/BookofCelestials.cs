@@ -164,7 +164,15 @@ namespace Neutronium.Content.Items.Weapons
             // Attack trigger
             if (time >= attackTime && !doneAttack)
             {
-                SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
+                if (Main.dayTime)
+                {
+                    SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
+                }
+                else
+                {
+                    SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.9f, Pitch = 0.1f }, Projectile.Center);
+                }
+
                 beamFX = 1.5f;
                 doneAttack = true;
 
