@@ -106,7 +106,7 @@ namespace Neutronium.Content.Items.Weapons
             Projectile.timeLeft = 600;
             Projectile.scale = 2.5f;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 20;
+            Projectile.localNPCHitCooldown = -1;
             Projectile.DamageType = DamageClass.Magic;
         }
 
