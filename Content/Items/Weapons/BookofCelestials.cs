@@ -225,11 +225,6 @@ namespace Neutronium.Content.Items.Weapons
                 modPlayer.celestialRegenStack += 0.02f;
                 modPlayer.celestialRegenStack = Math.Min(modPlayer.celestialRegenStack, 0.2f);
             }
-            else
-            {
-                modPlayer.celestialDamageStack += 0.02f;
-                modPlayer.celestialDamageStack = Math.Min(modPlayer.celestialDamageStack, 0.2f);
-            }
 
             Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
             for (int i = 0; i < 15; i++)
