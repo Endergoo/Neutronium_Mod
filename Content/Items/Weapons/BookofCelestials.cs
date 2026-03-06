@@ -110,15 +110,19 @@ namespace Neutronium.Content.Items.Weapons
         {
             float pulseSpeed = 0.3f;
 
-            // Day/night beam color with pulse
+            // Day/night beam color
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
                 drawColor = Color.Lerp(Color.CornflowerBlue, Color.LightBlue, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
 
-            // Fade beam quickly after attack
-            if (doneAttack && beamFX > 0f)
-                beamFX = MathHelper.Lerp(beamFX, 0f, 0.2f); // quick fade (~0.5 sec)
+            // Fade-in at start
+            if (!doneAttack)
+                beamFX = MathHelper.Min(beamFX + 0.1f, 1f); // fade in quickly
+
+            // Quick fade-out after attack
+            if (doneAttack)
+                beamFX = MathHelper.Lerp(beamFX, 0f, 0.2f);
 
             if (time == 0f)
             {
@@ -136,24 +140,7 @@ namespace Neutronium.Content.Items.Weapons
                 Direction = (BeamEnd - BeamStart).SafeNormalize(Vector2.UnitY);
 
                 Projectile.Center = cursor;
-                beamFX = 1f;
-
-                // Lighting along beam
-                Vector2 beamVector = BeamEnd - BeamStart;
-                float beamLength = beamVector.Length();
-                Vector2 beamDirection = beamVector.SafeNormalize(Vector2.UnitY);
-
-                for (float i = 0; i <= beamLength; i += 60f)
-                {
-                    Vector2 lightPos = BeamStart + beamDirection * i;
-                    float progress = i / beamLength;
-                    float brightness = 1f - progress * 0.5f;
-
-                    if (Main.dayTime)
-                        Lighting.AddLight(lightPos, 0.9f * brightness, 0.85f * brightness, 0.4f * brightness);
-                    else
-                        Lighting.AddLight(lightPos, 0.3f * brightness, 0.45f * brightness, 0.9f * brightness);
-                }
+                beamFX = 0f; // start fade-in
             }
 
             // Attack trigger
@@ -161,7 +148,6 @@ namespace Neutronium.Content.Items.Weapons
             {
                 SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
                 doneAttack = true;
-                beamFX = 1.5f; // show brief beam during explosion
 
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                     Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
@@ -248,9 +234,8 @@ namespace Neutronium.Content.Items.Weapons
             if (beamFX <= 0f) return false;
 
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
-
             float beamLength = Vector2.Distance(BeamStart, BeamEnd);
-            float opacity = beamFX; // quick fade based on beamFX
+            float opacity = beamFX;
 
             Color beamColor = drawColor with { A = 0 };
 
