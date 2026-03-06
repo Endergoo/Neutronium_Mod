@@ -1,7 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Audio;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
@@ -27,7 +26,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.knockBack = 5;
             Item.value = Item.sellPrice(0, 5, 0, 0);
             Item.rare = ItemRarityID.Pink;
-            Item.UseSound = SoundID.Item159; // charge sound
+            Item.UseSound = SoundID.Item8;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<CelestialBeam>();
             Item.shootSpeed = 0f;
@@ -83,9 +82,8 @@ namespace Neutronium.Content.Items.Weapons
         private Vector2 BeamStart;
         private Vector2 BeamEnd;
         private Vector2 Direction;
-        private Color drawColor = Color.Yellow;
 
-        private int chargeSoundID = -1; // Track the charge sound
+        private Color drawColor = Color.Yellow;
 
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float rotation => ref Projectile.ai[1];
@@ -116,7 +114,7 @@ namespace Neutronium.Content.Items.Weapons
         {
             float pulseSpeed = 0.3f;
 
-            // Beam color
+            // Colors from your first snippet
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
@@ -132,7 +130,6 @@ namespace Neutronium.Content.Items.Weapons
                     Projectile.Kill();
             }
 
-            // Initial setup
             if (time == 0f)
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
@@ -146,30 +143,35 @@ namespace Neutronium.Content.Items.Weapons
                 Direction = (BeamEnd - BeamStart).SafeNormalize(Vector2.UnitY);
                 Projectile.Center = cursor;
 
-                // Play charge sound once
-                if (chargeSoundID == -1)
+                // Lighting along beam
+                Vector2 beamVector = BeamEnd - BeamStart;
+                float beamLength = beamVector.Length();
+                Vector2 beamDirection = beamVector.SafeNormalize(Vector2.UnitY);
+
+                for (float i = 0; i <= beamLength; i += 60f)
                 {
-                    chargeSoundID = SoundEngine.PlaySound(SoundID.Item159 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center).ToInt();
+                    Vector2 lightPos = BeamStart + beamDirection * i;
+                    float progress = i / beamLength;
+                    float brightness = 1f - progress * 0.5f;
+
+                    if (Main.dayTime)
+                        Lighting.AddLight(lightPos, 0.9f * brightness, 0.85f * brightness, 0.4f * brightness);
+                    else
+                        Lighting.AddLight(lightPos, 0.3f * brightness, 0.45f * brightness, 0.9f * brightness);
                 }
             }
 
             // Attack trigger
             if (time >= attackTime && !doneAttack)
             {
-                // Stop the charge sound
-                if (chargeSoundID != -1)
-                {
-                    var active = SoundEngine.TryGetActiveSound(chargeSoundID);
-                    if (active != null)
-                        active.Stop();
-                    chargeSoundID = -1;
-                }
-
-                // Play hit sound
                 if (Main.dayTime)
+                {
                     SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
+                }
                 else
+                {
                     SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.9f, Pitch = 0.1f }, Projectile.Center);
+                }
 
                 beamFX = 1.5f;
                 doneAttack = true;
@@ -184,7 +186,6 @@ namespace Neutronium.Content.Items.Weapons
                         20));
                 }
 
-                // Dust effects
                 Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
                 for (int i = 0; i < 30; i++)
                 {
@@ -210,10 +211,10 @@ namespace Neutronium.Content.Items.Weapons
                             NPC.HitInfo hitInfo = new NPC.HitInfo()
                             {
                                 Damage = Projectile.damage,
+                                Knockback = Projectile.knockBack,
                                 HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X),
                                 Crit = Main.rand.NextFloat() < Main.player[Projectile.owner].GetCritChance(DamageClass.Magic) / 100f
                             };
-
                             npc.StrikeNPC(hitInfo);
 
                             // Lifesteal during day
