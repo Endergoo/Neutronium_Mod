@@ -37,7 +37,7 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float beamRotation = Main.rand.NextFloat(-0.05f, 0.05f); // ±~3 degrees
+            float beamRotation = Main.rand.NextFloat(-0.05f, 0.05f);
 
             Projectile.NewProjectile(
                 source,
@@ -47,8 +47,8 @@ namespace Neutronium.Content.Items.Weapons
                 damage,
                 knockback,
                 player.whoAmI,
-                0.3f,        // attack speed
-                beamRotation  // slight tilt
+                0.3f,
+                beamRotation
             );
 
             return false;
@@ -110,25 +110,22 @@ namespace Neutronium.Content.Items.Weapons
         {
             float pulseSpeed = 0.3f;
 
-            // Day/night pulsing color
+            // **Colors from the first snippet**
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
-                drawColor = Color.Lerp(Color.CornflowerBlue, Color.LightBlue, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
+                drawColor = Color.Lerp(Color.Cyan, Color.LightBlue, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
 
-            // Beam fade logic
+            // Fade in before attack, fade out after
             if (!doneAttack)
-            {
-                beamFX = MathHelper.Min(beamFX + 0.1f, 1f); // fade-in before attack
-            }
+                beamFX = MathHelper.Min(beamFX + 0.1f, 1f); // fade-in
             else
             {
-                beamFX = MathHelper.Lerp(beamFX, 0f, 0.25f); // fast fade-out after attack
+                beamFX = MathHelper.Lerp(beamFX, 0f, 0.25f); // quick fade
                 if (beamFX < 0.01f)
                     Projectile.Kill();
             }
 
-            // Initialize beam
             if (time == 0f)
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
@@ -160,23 +157,22 @@ namespace Neutronium.Content.Items.Weapons
                 }
             }
 
-            // Trigger attack
+            // Attack trigger
             if (time >= attackTime && !doneAttack)
             {
                 SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
-
-                beamFX = 1.5f; // full beam flash
+                beamFX = 1.5f; // full beam
                 doneAttack = true;
 
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
                     Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
-                Color dustColor = Main.dayTime ? Color.Orange : Color.CornflowerBlue;
+                Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
                     Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 15f);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemSapphire, velocity, 0, dustColor, 2f);
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemDiamond, velocity, 0, dustColor, 2f);
                     dust.noGravity = true;
                 }
             }
@@ -235,12 +231,12 @@ namespace Neutronium.Content.Items.Weapons
                 modPlayer.celestialDamageStack = Math.Min(modPlayer.celestialDamageStack, 0.2f);
             }
 
-            Color dustColor = Main.dayTime ? Color.Orange : Color.CornflowerBlue;
+            Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
                 Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3f, 10f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemSapphire, velocity, 0, dustColor, 2f);
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemDiamond, velocity, 0, dustColor, 2f);
                 dust.noGravity = true;
             }
         }
@@ -254,7 +250,6 @@ namespace Neutronium.Content.Items.Weapons
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };
 
-            // outer glow
             Main.EntitySpriteDraw(
                 beam,
                 BeamStart - Main.screenPosition,
@@ -266,7 +261,6 @@ namespace Neutronium.Content.Items.Weapons
                 SpriteEffects.None,
                 0);
 
-            // inner core
             Main.EntitySpriteDraw(
                 beam,
                 BeamStart - Main.screenPosition,
