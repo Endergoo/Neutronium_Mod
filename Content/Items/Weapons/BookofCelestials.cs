@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
@@ -26,7 +27,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.knockBack = 5;
             Item.value = Item.sellPrice(0, 5, 0, 0);
             Item.rare = ItemRarityID.Pink;
-            Item.UseSound = SoundID.Item159;
+            Item.UseSound = SoundID.Item159; // default
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<CelestialBeam>();
             Item.shootSpeed = 0f;
@@ -84,6 +85,7 @@ namespace Neutronium.Content.Items.Weapons
         private Vector2 Direction;
 
         private Color drawColor = Color.Yellow;
+        private SoundEffectInstance beamSoundInstance; // For cutting sound short
 
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float rotation => ref Projectile.ai[1];
@@ -114,7 +116,7 @@ namespace Neutronium.Content.Items.Weapons
         {
             float pulseSpeed = 0.3f;
 
-            // Colors from your first snippet
+            // Beam color based on day/night
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
@@ -126,10 +128,16 @@ namespace Neutronium.Content.Items.Weapons
             else
             {
                 beamFX = MathHelper.Lerp(beamFX, 0f, 0.15f);
+
                 if (beamFX < 0.02f)
+                {
+                    // Stop sound if still playing
+                    beamSoundInstance?.Stop();
                     Projectile.Kill();
+                }
             }
 
+            // Initialize beam
             if (time == 0f)
             {
                 if (attackSpeed == 0f) attackSpeed = 0.3f;
@@ -161,30 +169,22 @@ namespace Neutronium.Content.Items.Weapons
                 }
             }
 
-            // Attack trigger
+            // Trigger attack
             if (time >= attackTime && !doneAttack)
             {
-                if (Main.dayTime)
-                {
-                    SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
-                }
-                else
-                {
-                    SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.9f, Pitch = 0.1f }, Projectile.Center);
-                }
+                // Play sound with instance for cut short
+                SoundStyle style = Main.dayTime ? SoundID.Item159 : SoundID.Item73;
+                beamSoundInstance?.Stop();
+                beamSoundInstance = style.ToSoundEffectInstance();
+                beamSoundInstance.Volume = Main.dayTime ? 0.8f : 0.9f;
+                beamSoundInstance.Pitch = Main.dayTime ? -0.2f : 0.1f;
+                beamSoundInstance.Play();
 
                 beamFX = 1.5f;
                 doneAttack = true;
 
                 if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
-                {
-                    Main.instance.CameraModifiers.Add(new PunchCameraModifier(
-                        Projectile.Center,
-                        Main.rand.NextVector2Unit(),
-                        8f,
-                        12f,
-                        20));
-                }
+                    Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
 
                 Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
                 for (int i = 0; i < 30; i++)
@@ -211,13 +211,12 @@ namespace Neutronium.Content.Items.Weapons
                             NPC.HitInfo hitInfo = new NPC.HitInfo()
                             {
                                 Damage = Projectile.damage,
-                                Knockback = Projectile.knockBack,
                                 HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X),
                                 Crit = Main.rand.NextFloat() < Main.player[Projectile.owner].GetCritChance(DamageClass.Magic) / 100f
                             };
                             npc.StrikeNPC(hitInfo);
 
-                            // Lifesteal during day
+                            // Daytime lifesteal
                             Player player = Main.player[Projectile.owner];
                             if (Main.dayTime)
                             {
