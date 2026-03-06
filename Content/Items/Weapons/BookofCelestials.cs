@@ -7,7 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Graphics.CameraModifiers;
 using Terraria.DataStructures;
-using Microsoft.Xna.Framework.Audio
+using Microsoft.Xna.Framework.Audio;
 
 namespace Neutronium.Content.Items.Weapons
 {
