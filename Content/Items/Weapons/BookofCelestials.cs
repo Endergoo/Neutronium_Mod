@@ -37,7 +37,7 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float beamRotation = Main.rand.NextFloat(-0.05f, 0.05f); // ±~3 degrees
+            float beamRotation = Main.rand.NextFloat(-0.05f, 0.05f);
 
             Projectile.NewProjectile(
                 source,
@@ -47,8 +47,8 @@ namespace Neutronium.Content.Items.Weapons
                 damage,
                 knockback,
                 player.whoAmI,
-                0.3f,        // attack speed
-                beamRotation  // slight tilt
+                0.3f,
+                beamRotation
             );
 
             return false;
@@ -56,13 +56,13 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void AddRecipes()
         {
-            Recipe CurrentCaller = CreateRecipe();
-            CurrentCaller.AddIngredient(ItemID.CelestialStone, 1);
-            CurrentCaller.AddIngredient(ItemID.SpellTome, 1);
-            CurrentCaller.AddIngredient(ItemID.SoulofLight, 10);
-            CurrentCaller.AddIngredient(ItemID.SoulofNight, 10);
-            CurrentCaller.AddTile(TileID.CrystalBall);
-            CurrentCaller.Register();
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ItemID.CelestialStone, 1);
+            recipe.AddIngredient(ItemID.SpellTome, 1);
+            recipe.AddIngredient(ItemID.SoulofLight, 10);
+            recipe.AddIngredient(ItemID.SoulofNight, 10);
+            recipe.AddTile(TileID.CrystalBall);
+            recipe.Register();
         }
     }
 
@@ -73,15 +73,18 @@ namespace Neutronium.Content.Items.Weapons
         private float time = 0f;
         private bool doneAttack = false;
         private int attackTime = 8;
+        private float beamFX = 0f;
+
         private Vector2 BeamStart;
         private Vector2 BeamEnd;
         private Vector2 Direction;
+
         private Color drawColor = Color.Yellow;
 
         public ref float attackSpeed => ref Projectile.ai[0];
         public ref float rotation => ref Projectile.ai[1];
 
-        private bool canDamage => doneAttack;
+        private bool canDamage => doneAttack && beamFX >= 1f;
 
         public override void SetStaticDefaults()
         {
@@ -105,12 +108,15 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void AI()
         {
-            // Day/night beam color with subtle pulse
             float pulseSpeed = 0.3f;
+
             if (Main.dayTime)
                 drawColor = Color.Lerp(Color.Yellow, Color.Orange, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
             else
                 drawColor = Color.Lerp(Color.CornflowerBlue, Color.LightBlue, (float)((Math.Sin(time * pulseSpeed) + 1) / 2));
+
+            if (beamFX > 0f)
+                beamFX = MathHelper.Lerp(beamFX, 0f, time > attackTime + 5 ? 0.07f : 0.01f);
 
             if (time == 0f)
             {
@@ -119,50 +125,48 @@ namespace Neutronium.Content.Items.Weapons
                 float horizontalOffset = Main.rand.NextFloat(-3f, 3f);
                 Vector2 cursor = Main.MouseWorld + new Vector2(horizontalOffset, 0f);
 
-                float verticalSpan = 3000f; 
+                float verticalSpan = 3000f;
                 Vector2 halfBeam = new Vector2(0f, verticalSpan).RotatedBy(rotation);
 
                 BeamStart = cursor - halfBeam;
                 BeamEnd = cursor + halfBeam;
 
                 Direction = (BeamEnd - BeamStart).SafeNormalize(Vector2.UnitY);
+
                 Projectile.Center = cursor;
-
-                // Full beam lighting
-                Vector2 beamVector = BeamEnd - BeamStart;
-                float beamLength = beamVector.Length();
-                Vector2 beamDirection = beamVector.SafeNormalize(Vector2.UnitY);
-
-                for (float i = 0; i <= beamLength; i += 60f)
-                {
-                    Vector2 lightPos = BeamStart + beamDirection * i;
-                    float progress = i / beamLength; 
-                    float brightness = 1f - progress * 0.5f;
-
-                    if (Main.dayTime)
-                        Lighting.AddLight(lightPos, 0.9f * brightness, 0.85f * brightness, 0.4f * brightness);
-                    else
-                        Lighting.AddLight(lightPos, 0.3f * brightness, 0.45f * brightness, 0.9f * brightness);
-                }
+                beamFX = 1f;
             }
 
-            // Attack trigger
             if (time >= attackTime && !doneAttack)
             {
                 SoundEngine.PlaySound(SoundID.Item72 with { Volume = 0.8f, Pitch = -0.2f }, Projectile.Center);
+
+                beamFX = 3f;
                 doneAttack = true;
 
-                // Dust effect
-                for (int i = 0; i < 30; i++)
+                if (Main.LocalPlayer.Distance(Projectile.Center) < 2000)
+                    Main.instance.CameraModifiers.Add(new PunchCameraModifier(Projectile.Center, Main.rand.NextVector2Unit(), 8f, 12f, 20));
+
+                Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
+
+                for (int i = 0; i < 40; i++)
                 {
                     Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(100, 100);
-                    Color dustColor = Main.dayTime ? Color.Orange : Color.CornflowerBlue;
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(5, 15), 0, dustColor, 2f);
+                    Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 15f);
+
+                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemDiamond, velocity, 0, dustColor, 2f);
                     dust.noGravity = true;
+                }
+
+                // flash burst
+                for (int i = 0; i < 20; i++)
+                {
+                    Vector2 velocity = Main.rand.NextVector2Circular(8f, 8f);
+                    Dust flash = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, velocity, 0, Color.White, 2.5f);
+                    flash.noGravity = true;
                 }
             }
 
-            // Full-length collision along beam
             if (canDamage)
             {
                 foreach (NPC npc in Main.npc)
@@ -180,6 +184,7 @@ namespace Neutronium.Content.Items.Weapons
                                 Knockback = Projectile.knockBack,
                                 HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X)
                             };
+
                             npc.StrikeNPC(hitInfo);
                             OnHitNPC(npc, hitInfo, Projectile.damage);
                         }
@@ -188,16 +193,9 @@ namespace Neutronium.Content.Items.Weapons
             }
 
             time += attackSpeed;
-
-            // Remove projectile immediately after attack
-            if (doneAttack && time > attackTime + 2)
-            {
-                Projectile.Kill();
-            }
         }
 
         public override bool? CanHitNPC(NPC target) => false;
-        public override bool CanHitPlayer(Player target) => false;
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
@@ -225,31 +223,53 @@ namespace Neutronium.Content.Items.Weapons
                     modPlayer.celestialDamageStack = 0.2f;
             }
 
-            // Dust effect
+            Color dustColor = Main.dayTime ? Color.Orange : Color.Cyan;
+
             for (int i = 0; i < 15; i++)
             {
                 Vector2 dustPos = target.Center + Main.rand.NextVector2Circular(50, 50);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IchorTorch, Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10), 0, Main.dayTime ? Color.Orange : Color.Cyan, 2f);
+                Vector2 velocity = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3, 10);
+
+                Dust dust = Dust.NewDustPerfect(dustPos, DustID.GemDiamond, velocity, 0, dustColor, 2f);
                 dust.noGravity = true;
             }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
+            if (beamFX == 0f) return false;
+
             Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
+
+            float beamLength = Vector2.Distance(BeamStart, BeamEnd);
+
+            float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
+
             Color beamColor = drawColor with { A = 0 };
 
+            // outer glow
             Main.EntitySpriteDraw(
                 beam,
                 BeamStart - Main.screenPosition,
                 null,
-                beamColor,
+                beamColor * 0.35f,
                 Direction.ToRotation() + MathHelper.PiOver2,
                 new Vector2(beam.Width / 2, beam.Height),
-                new Vector2(0.07f, Vector2.Distance(BeamStart, BeamEnd) / 1000f) * Projectile.scale,
+                new Vector2(0.12f, beamLength / 1000f) * Projectile.scale,
                 SpriteEffects.None,
-                0
-            );
+                0);
+
+            // inner core
+            Main.EntitySpriteDraw(
+                beam,
+                BeamStart - Main.screenPosition,
+                null,
+                beamColor * opacity,
+                Direction.ToRotation() + MathHelper.PiOver2,
+                new Vector2(beam.Width / 2, beam.Height),
+                new Vector2(0.06f, beamLength / 1000f) * Projectile.scale,
+                SpriteEffects.None,
+                0);
 
             return false;
         }
