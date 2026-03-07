@@ -199,8 +199,6 @@ namespace Neutronium.Content.Items.Weapons
             // Beam collision
             if (canDamage)
             {
-                Player player = Main.player[Projectile.owner];
-
                 foreach (NPC npc in Main.npc)
                 {
                     if (npc.active && !npc.immortal && npc.lifeMax > 1 && !npc.isLikeATownNPC)
@@ -210,24 +208,25 @@ namespace Neutronium.Content.Items.Weapons
 
                         if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(), BeamStart, BeamEnd, beamWidth, ref collisionPoint))
                         {
-                            int hitDirection = Math.Sign(npc.Center.X - Projectile.Center.X);
-
-                            // Let Terraria calculate crits properly
-                            NPC.HitModifiers modifiers = new NPC.HitModifiers();
-                            NPC.HitInfo hit = modifiers.ToHitInfo(Projectile.damage, player.GetCritChance(DamageClass.Magic), Projectile.knockBack, hitDirection);
-
-                            npc.StrikeNPC(hit);
+                            NPC.HitInfo hitInfo = new NPC.HitInfo()
+                            {
+                                Damage = Projectile.damage,
+                                Knockback = Projectile.knockBack,
+                                HitDirection = Math.Sign(npc.Center.X - Projectile.Center.X),
+                                Crit = Main.rand.NextFloat() < Main.player[Projectile.owner].GetCritChance(DamageClass.Magic) / 100f
+                            };
+                            npc.StrikeNPC(hitInfo);
 
                             // Lifesteal during day
+                            Player player = Main.player[Projectile.owner];
                             if (Main.dayTime)
                             {
-                                int heal = hit.Damage / 6;
+                                int heal = hitInfo.Damage / 6;
                                 if (heal > 0)
                                 {
                                     player.statLife += heal;
                                     if (player.statLife > player.statLifeMax2)
                                         player.statLife = player.statLifeMax2;
-
                                     player.HealEffect(heal);
                                 }
                             }
