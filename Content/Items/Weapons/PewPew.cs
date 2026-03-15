@@ -4,6 +4,8 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Neutronium.Content.Items.Placeables;
+using Neutronium.Content.Tiles;
 
 namespace Neutronium.Content.Items.Weapons;
 
