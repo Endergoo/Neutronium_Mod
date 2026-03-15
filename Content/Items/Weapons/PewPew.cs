@@ -68,4 +68,13 @@ public class PewPew : ModItem, ILocalizedModType
 
         return false;
     }
+
+    public override void AddRecipes()
+        {
+            CreateRecipe()
+            PewPew.AddIngredient(ModContent.ItemType<CondensedNeutronium>(), 5);
+            PewPew.AddIngredient(ItemID.ChlorophyteShotbow) 
+            PewPew.AddTile(TileID.MythrilAnvil)
+            PewPew.Register();
+        }
 }
