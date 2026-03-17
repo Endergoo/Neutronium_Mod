@@ -58,7 +58,7 @@ namespace Neutronium.Content.Items.Armor
         {
             Recipe SchwarschildHelmet = CreateRecipe();
             SchwarschildHelmet.AddIngredient(ModContent.ItemType<CondensedNeutronium>(), 10);
-            SchwarschildHelmet.AddTile(TileID.MythrilAnvil);
+            SchwarschildHelmet.AddTile(TileID.LunarCraftingStation);
             SchwarschildHelmet.Register();
         }
     }

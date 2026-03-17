@@ -38,7 +38,7 @@ namespace Neutronium.Content.Items.Placeables
         {
             Recipe CondensedNeutronium = CreateRecipe();
             CondensedNeutronium.AddIngredient<NeutroniumOre>(4);
-            CondensedNeutronium.AddTile(TileID.AdamantiteForge);
+            CondensedNeutronium.AddTile(TileID.LunarCraftingStation);
             CondensedNeutronium.Register();
         }
     }

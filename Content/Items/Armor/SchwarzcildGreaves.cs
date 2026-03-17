@@ -41,7 +41,7 @@ namespace Neutronium.Content.Items.Armor
         {
             Recipe CondensedNeutron = CreateRecipe();
             CondensedNeutron.AddIngredient(ModContent.ItemType<CondensedNeutronium>(), 7);
-            CondensedNeutron.AddTile(TileID.AdamantiteForge);
+            CondensedNeutron.AddTile(TileID.LunarCraftingStation);
             CondensedNeutron.Register();
         }
     }

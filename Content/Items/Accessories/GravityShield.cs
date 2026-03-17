@@ -36,7 +36,7 @@ namespace Neutronium.Content.Items.Accessories
             SchwarschildChestplate.AddIngredient(ModContent.TileType<CondensedNeutroniumBar>(), 12);
             SchwarschildChestplate.AddIngredient(ItemID.Ectoplasm, 12);
             SchwarschildChestplate.AddIngredient(ItemID.FragmentSolar, 10);
-            SchwarschildChestplate.AddTile(TileID.AdamantiteForge);
+            SchwarschildChestplate.AddTile(TileID.LunarCraftingStation);
             SchwarschildChestplate.Register();
         }
     }
