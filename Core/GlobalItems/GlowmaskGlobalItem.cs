@@ -20,8 +20,8 @@ namespace Neutronium.Core.GlobalItems
                 spriteBatch.Draw(
                     glowTex,
                     new Vector2(
-                        item.position.X - Main.screenPosition.X,
-                        item.position.Y - Main.screenPosition.Y),
+                        item.position.X - Main.screenPosition.X + item.width / 2f,
+                        item.position.Y - Main.screenPosition.Y + item.height / 2f),
                     null,
                     Color.White,
                     rotation,
