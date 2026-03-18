@@ -1,16 +1,16 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Neutronium.Core.Utils;
 using Neutronium.Content.Projectiles;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Neutronium.Content.Items.Weapons
 {
-    public class CrykalsChoir : ModItem
+    public class CrykalsChoir : ModItem, IGlowmaskItem
     {
         private int time = 0;
         private int swingCount = 0;
@@ -19,6 +19,10 @@ namespace Neutronium.Content.Items.Weapons
         private bool canHit => (completion >= 0.35f && completion <= 0.8f);
         private bool trailSpawned = false;
         private bool playSound = true;
+
+        // IGlowmaskItem implementation — used by GlowmaskGlobalItem for in-hand glow
+        public Texture2D GlowTexture =>
+            ModContent.Request<Texture2D>("Neutronium/Content/Items/Weapons/CrykalsChoirGlow").Value;
 
         public override void SetDefaults()
         {
@@ -50,7 +54,6 @@ namespace Neutronium.Content.Items.Weapons
             Vector2 mPos = Main.MouseWorld;
             int dir = -Math.Sign(player.Center.X - mPos.X);
 
-            // Swing arc angles — tweak these to change how wide the arc is
             float startRot = MathHelper.ToRadians(-110f) * dir * (swingCount % 2 == 0 ? 1 : -1);
             float endRot   = MathHelper.ToRadians(-110f) * dir * (swingCount % 2 == 0 ? -1 : 1);
             float minRot   = MathHelper.ToRadians(-150f) * dir * (swingCount % 2 == 0 ? 1 : -1);
@@ -59,16 +62,14 @@ namespace Neutronium.Content.Items.Weapons
 
             if (completion <= cutoff)
             {
-                // Wind-up phase
                 float lerp = Utils.GetLerpValue(0f, cutoff, completion, true);
-                float eased = EaseInOut(lerp, 2f);
+                float eased = EaseInOut(lerp);
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation()
                     + MathHelper.Lerp(startRot, minRot, eased);
                 player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
             }
             else
             {
-                // Swing phase — play sound and spawn trail once
                 if (playSound)
                 {
                     SoundEngine.PlaySound(SoundID.Item1, player.Center);
@@ -87,13 +88,12 @@ namespace Neutronium.Content.Items.Weapons
                 }
 
                 float lerp = Utils.GetLerpValue(cutoff, cutoff2, completion, true);
-                float eased = EaseInOut(lerp, 3f);
+                float eased = EaseInOut(lerp);
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation()
                     + MathHelper.Lerp(minRot, endRot, eased);
                 player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
             }
 
-            // Blade tip position (240 = sword reach, tweak to match your sprite)
             float extraRot = (dir == 1 ? -MathHelper.PiOver4 : MathHelper.ToRadians(225f));
             bladeHitboxPos = player.Center + (player.itemRotation + extraRot).ToRotationVector2() * 60f;
 
@@ -125,22 +125,27 @@ namespace Neutronium.Content.Items.Weapons
             bool hitCheck = Collision.CheckAABBvLineCollision(
                 target.Hitbox.TopLeft(), target.Hitbox.Size(),
                 player.Center - shootDir * 30f,
-                player.Center + shootDir * 100f, // tweak to your sword's reach
+                player.Center + shootDir * 100f,
                 Item.width * 3f, ref _);
             return (canHit && hitCheck) ? null : false;
         }
 
-        // Simple ease-in-out replacement for CalamityUtils.EaseInOutExp
-        private static float EaseInOut(float t, float exp)
-        {
-            // Ignores exp, uses sine curve — perfectly smooth entry and exit
-            return (float)(-(Math.Cos(Math.PI * t) - 1f) / 2f);
-        }
-
+        // Drawn when item is on the ground — glow ignores world lighting
         public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
         {
-            Item.DrawItemGlowmaskSingleFrame(spriteBatch, rotation, 
-                ModContent.Request<Texture2D>("Neutronium/Content/Items/Weapons/CrykalsChoirGlow").Value);
+            Item.DrawItemGlowmaskSingleFrame(spriteBatch, rotation, GlowTexture);
+        }
+
+        // Drawn when item is in the inventory/hotbar
+        public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            spriteBatch.Draw(GlowTexture, position, frame, Color.White, 0f, origin, scale, SpriteEffects.None, 0f);
+        }
+
+        // Sine-curve ease — perfectly smooth in and out
+        private static float EaseInOut(float t)
+        {
+            return (float)(-(Math.Cos(Math.PI * t) - 1f) / 2f);
         }
     }
 }
