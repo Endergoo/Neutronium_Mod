@@ -131,7 +131,7 @@ namespace Neutronium.Content.Items.Weapons
         }
 
         // Drawn when item is on the ground — glow ignores world lighting
-       public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
         {
             Texture2D glowTex = GlowTexture;
 
@@ -139,7 +139,7 @@ namespace Neutronium.Content.Items.Weapons
                 glowTex,
                 new Vector2(
                     Item.position.X - Main.screenPosition.X + Item.width / 2f,
-                    Item.position.Y - Main.screenPosition.Y + Item.height / 2f),
+                    Item.position.Y - Main.screenPosition.Y + Item.height / 2f - Item.height / 2f), // tweak the last offset
                 null,
                 Color.White,
                 rotation,
@@ -148,7 +148,7 @@ namespace Neutronium.Content.Items.Weapons
                 SpriteEffects.None,
                 0f);
         }
-        
+
         // Drawn when item is in the inventory/hotbar
         public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
