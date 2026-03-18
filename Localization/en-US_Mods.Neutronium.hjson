@@ -129,6 +129,11 @@ Items: {
 		DisplayName: Book of Celestials
 		Tooltip: During the day, gain 15% lifesteal. During the night, gain +75% critical hit chance.
 	}
+
+	CrykalsChoir: {
+		Tooltip: ""
+		DisplayName: Crykals Choir
+	}
 }
 
 Projectiles: {
@@ -163,6 +168,7 @@ Projectiles: {
 	BHLProjectile.DisplayName: B H L Projectile
 	MoonlitStilettoProjectile.DisplayName: Moonlit Stiletto Projectile
 	CelestialBeam.DisplayName: Celestial Beam
+	CrykalsChoirTrail.DisplayName: Crykals Choir Trail
 }
 
 DarkFogUnitBuff: {
