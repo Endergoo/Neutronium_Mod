@@ -134,15 +134,16 @@ namespace Neutronium.Content.Items.Weapons
        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
         {
             Texture2D glowTex = GlowTexture;
+
             spriteBatch.Draw(
                 glowTex,
                 new Vector2(
-                    Item.position.X - Main.screenPosition.X + Item.width / 2f,
-                    Item.position.Y - Main.screenPosition.Y + Item.height / 2f),
+                    Item.position.X - Main.screenPosition.X,
+                    Item.position.Y - Main.screenPosition.Y),
                 null,
                 Color.White,
                 rotation,
-                new Vector2(glowTex.Width / 2f, glowTex.Height / 2f),  // must match base item draw origin
+                Vector2.Zero,   // top-left origin matches vanilla world item draw
                 scale,
                 SpriteEffects.None,
                 0f);
