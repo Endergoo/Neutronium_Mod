@@ -10,7 +10,7 @@ using Neutronium.Content.Projectiles;
 
 namespace Neutronium.Content.Items.Weapons
 {
-    public class CrykalsChoir : ModItem, IGlowmaskItem
+    public class CrykalsChoir : ModItem, GlowmaskItem
     {
         private int time = 0;
         private int swingCount = 0;
@@ -20,7 +20,7 @@ namespace Neutronium.Content.Items.Weapons
         private bool trailSpawned = false;
         private bool playSound = true;
 
-        // IGlowmaskItem implementation — used by GlowmaskGlobalItem for in-hand glow
+        // GlowmaskItem implementation — used by GlowmaskGlobalItem for in-hand glow
         public Texture2D GlowTexture =>
             ModContent.Request<Texture2D>("Neutronium/Content/Items/Weapons/CrykalsChoirGlow").Value;
 
