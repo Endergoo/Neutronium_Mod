@@ -5,6 +5,7 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Neutronium.Content.Projectiles;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -133,6 +134,12 @@ namespace Neutronium.Content.Items.Weapons
         {
             // Ignores exp, uses sine curve — perfectly smooth entry and exit
             return (float)(-(Math.Cos(Math.PI * t) - 1f) / 2f);
+        }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            Item.DrawItemGlowmaskSingleFrame(spriteBatch, rotation, 
+                ModContent.Request<Texture2D>("Neutronium/Content/Items/Weapons/CrykalsChoirGlow").Value);
         }
     }
 }
