@@ -9,10 +9,9 @@ namespace Neutronium.Content.Items.Weapons
 {
     public class CrykalsChoir : ModItem
     {
-        // Swing tracking
-        private int swingTime;
-        private bool trailSpawned;
-        private Vector2 bladeTip;
+        private int swingTime;           // counts ticks of the current swing
+        private bool trailSpawned;       // spawn trail once per swing
+        private Vector2 bladeTip;        // tip of the sword for hitbox/trail
 
         public override void SetDefaults()
         {
@@ -31,6 +30,7 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void UseAnimation(Player player)
         {
+            // reset swing at the start
             swingTime = 0;
             trailSpawned = false;
         }
@@ -38,46 +38,50 @@ namespace Neutronium.Content.Items.Weapons
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
             swingTime++;
-            float completion = swingTime / (float)Item.useAnimation; // 0 → 1
+            float completion = swingTime / (float)Item.useAnimation;
 
-            int dir = player.direction; // left/right
+            // 1️⃣ Get current mouse position
+            Vector2 mPos = Main.MouseWorld;
 
-            // Start and end angles for swing (adjust as needed)
-            float startRot = MathHelper.ToRadians(-90) * dir;
-            float endRot = MathHelper.ToRadians(90) * dir;
+            // 2️⃣ Update player direction to face mouse
+            int dir = -Math.Sign(player.Center.X - mPos.X);
+            player.direction = dir;
 
-            // Smooth rotation
-            player.itemRotation = MathHelper.Lerp(startRot, endRot, completion);
+            // 3️⃣ Calculate vector toward mouse
+            Vector2 mouseDir = player.Center.DirectionTo(mPos);
 
-            // Correct player arm positions
+            // 4️⃣ Smooth swing rotation relative to mouse
+            float startRot = MathHelper.ToRadians(-110) * dir;
+            float endRot = MathHelper.ToRadians(110) * dir;
+            player.itemRotation = mouseDir.ToRotation() + MathHelper.Lerp(startRot, endRot, completion);
+
+            // 5️⃣ Correct player arm positions
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, player.itemRotation);
             player.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, player.itemRotation);
 
-            // Sword position
+            // 6️⃣ Sword is drawn at player center
             player.itemLocation = player.Center;
 
-            // Blade tip for trail and hitbox
+            // 7️⃣ Blade tip position for trail and hitbox
             bladeTip = player.Center + player.itemRotation.ToRotationVector2() * 60f;
 
-            // Spawn trail mid-swing once
+            // 8️⃣ Spawn trail once mid-swing
             if (!trailSpawned && completion >= 0.25f)
             {
                 Projectile.NewProjectile(player.GetSource_ItemUse(Item), bladeTip, Vector2.Zero,
                     ModContent.ProjectileType<CrykalsChoirTrail>(), 0, 0f, player.whoAmI);
                 trailSpawned = true;
-            }
 
-            // Optional: play swoosh sound once
-            if (completion >= 0.1f && !trailSpawned) // reuse trailSpawned as flag
-            {
+                // optional swoosh sound
                 SoundEngine.PlaySound(SoundID.Item1, player.Center);
             }
         }
 
         public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
         {
-            float size = 40f; // width/height of hitbox
-            hitbox = new Rectangle((int)(bladeTip.X - size / 2), (int)(bladeTip.Y - size / 2), (int)size, (int)size);
+            float size = 40f;
+            hitbox = new Rectangle((int)(bladeTip.X - size / 2), (int)(bladeTip.Y - size / 2),
+                                    (int)size, (int)size);
         }
     }
 }
