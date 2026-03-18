@@ -13,7 +13,8 @@ namespace Neutronium.Core.DrawLayers
             new AfterParent(PlayerDrawLayers.HeldItem);
 
         public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) =>
-            drawInfo.drawPlayer.itemAnimation > 0;
+            drawInfo.drawPlayer.itemAnimation > 0 &&
+            drawInfo.drawPlayer.HeldItem?.ModItem is IGlowmaskItem;
 
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
@@ -26,7 +27,19 @@ namespace Neutronium.Core.DrawLayers
             if (glowTex == null)
                 return;
 
-            Vector2 position = player.itemLocation - Main.screenPosition;
+            // Copy exactly how vanilla draws the held item sprite
+            SpriteEffects effects = player.direction == -1
+                ? SpriteEffects.FlipHorizontally
+                : SpriteEffects.None;
+
+            // This is the origin vanilla uses for swing-style items
+            Vector2 origin = new Vector2(
+                player.direction == 1 ? 0f : glowTex.Width,
+                glowTex.Height);
+
+            Vector2 position = new Vector2(
+                (int)(player.itemLocation.X - Main.screenPosition.X),
+                (int)(player.itemLocation.Y - Main.screenPosition.Y));
 
             DrawData drawData = new DrawData(
                 glowTex,
@@ -34,9 +47,9 @@ namespace Neutronium.Core.DrawLayers
                 null,
                 Color.White,
                 player.itemRotation,
-                new Vector2(0f, glowTex.Height),
+                origin,
                 player.HeldItem.scale,
-                player.direction == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
+                effects,
                 0);
 
             drawInfo.DrawDataCache.Add(drawData);
