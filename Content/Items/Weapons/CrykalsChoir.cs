@@ -1,9 +1,8 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria;
-using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Audio;
 using Neutronium.Content.Projectiles;
 
 namespace Neutronium.Content.Items.Weapons
@@ -11,11 +10,9 @@ namespace Neutronium.Content.Items.Weapons
     public class CrykalsChoir : ModItem
     {
         // Swing tracking
-        private int swingTime = 0;
-        private float swingCompletion = 0f;
+        private int swingTime;
+        private bool trailSpawned;
         private Vector2 bladeTip;
-        private bool trailSpawned = false;
-        private bool swooshPlayed = false;
 
         public override void SetDefaults()
         {
@@ -30,55 +27,56 @@ namespace Neutronium.Content.Items.Weapons
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Yellow;
             Item.UseSound = SoundID.Item1;
-
-            // Don't set Item.shoot — trail is spawned manually
         }
 
         public override void UseAnimation(Player player)
         {
             swingTime = 0;
             trailSpawned = false;
-            swooshPlayed = false;
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
             swingTime++;
-            swingCompletion = swingTime / (float)Item.useAnimation;
+            float completion = swingTime / (float)Item.useAnimation; // 0 → 1
 
-            int dir = player.direction;
+            int dir = player.direction; // left/right
 
-            // Calculate swing rotation (start to end angle)
+            // Start and end angles for swing (adjust as needed)
             float startRot = MathHelper.ToRadians(-90) * dir;
             float endRot = MathHelper.ToRadians(90) * dir;
-            player.itemRotation = MathHelper.Lerp(startRot, endRot, swingCompletion);
 
-            // Correct arm position
+            // Smooth rotation
+            player.itemRotation = MathHelper.Lerp(startRot, endRot, completion);
+
+            // Correct player arm positions
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, player.itemRotation);
             player.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, player.itemRotation);
 
-            // Blade tip position for hitbox and trail
+            // Sword position
+            player.itemLocation = player.Center;
+
+            // Blade tip for trail and hitbox
             bladeTip = player.Center + player.itemRotation.ToRotationVector2() * 60f;
 
-            // Spawn trail once per swing
-            if (!trailSpawned && swingCompletion >= 0.25f)
+            // Spawn trail mid-swing once
+            if (!trailSpawned && completion >= 0.25f)
             {
-                Projectile.NewProjectile(player.GetSource_ItemUse(Item), bladeTip, Vector2.Zero, ModContent.ProjectileType<CrykalsChoirTrail>(), 0, 0f, player.whoAmI);
+                Projectile.NewProjectile(player.GetSource_ItemUse(Item), bladeTip, Vector2.Zero,
+                    ModContent.ProjectileType<CrykalsChoirTrail>(), 0, 0f, player.whoAmI);
                 trailSpawned = true;
             }
 
-            // Play swoosh sound once
-            if (!swooshPlayed && swingCompletion >= 0.1f)
+            // Optional: play swoosh sound once
+            if (completion >= 0.1f && !trailSpawned) // reuse trailSpawned as flag
             {
                 SoundEngine.PlaySound(SoundID.Item1, player.Center);
-                swooshPlayed = true;
             }
         }
 
         public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
         {
-            // Use blade tip for hitbox
-            float size = 40f; // adjust to taste
+            float size = 40f; // width/height of hitbox
             hitbox = new Rectangle((int)(bladeTip.X - size / 2), (int)(bladeTip.Y - size / 2), (int)size, (int)size);
         }
     }
