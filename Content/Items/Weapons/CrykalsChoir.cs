@@ -134,12 +134,18 @@ namespace Neutronium.Content.Items.Weapons
         public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
         {
             Texture2D glowTex = GlowTexture;
+            Texture2D baseTex = Terraria.GameContent.TextureAssets.Item[Item.type].Value;
+
+            // Calculates offset automatically based on size difference between item hitbox and texture
+            Vector2 offset = new Vector2(
+                (baseTex.Width - Item.width) / 2f,
+                (baseTex.Height - Item.height) / 2f);
 
             spriteBatch.Draw(
                 glowTex,
                 new Vector2(
-                    Item.position.X - Main.screenPosition.X + Item.width / 2f,
-                    Item.position.Y - Main.screenPosition.Y + Item.height / 2f - 35f), // tweak the last offset
+                    Item.position.X - Main.screenPosition.X + offset.X,
+                    Item.position.Y - Main.screenPosition.Y + offset.Y),
                 null,
                 Color.White,
                 rotation,
