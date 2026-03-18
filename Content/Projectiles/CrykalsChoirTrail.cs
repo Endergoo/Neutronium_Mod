@@ -7,6 +7,8 @@ namespace Neutronium.Content.Projectiles
 {
     public class CrykalsChoirTrail : ModProjectile
     {
+        public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
+        
         private const int TrailLength = 8; // how many old positions to store
 
         public override void SetDefaults()
