@@ -59,7 +59,7 @@ namespace Neutronium.Content.Items.Weapons
             {
                 // Wind-up phase
                 float lerp = Utils.GetLerpValue(0f, cutoff, completion, true);
-                float eased = EaseInOut(lerp, 4f);
+                float eased = EaseInOut(lerp, 2f);
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation()
                     + MathHelper.Lerp(startRot, minRot, eased);
                 player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
@@ -85,7 +85,7 @@ namespace Neutronium.Content.Items.Weapons
                 }
 
                 float lerp = Utils.GetLerpValue(cutoff, cutoff2, completion, true);
-                float eased = EaseInOut(lerp, 6f);
+                float eased = EaseInOut(lerp, 3f);
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation()
                     + MathHelper.Lerp(minRot, endRot, eased);
                 player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
