@@ -41,7 +41,6 @@ namespace Neutronium.Content.Items.Weapons
         {
             swingCount++;
             time = 0;
-            trailSpawned = false;
             playSound = true;
             bladeHitboxPos = player.Center;
         }
