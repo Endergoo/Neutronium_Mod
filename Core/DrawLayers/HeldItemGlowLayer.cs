@@ -12,6 +12,9 @@ namespace Neutronium.Core.DrawLayers
         public override Position GetDefaultPosition() =>
             new AfterParent(PlayerDrawLayers.HeldItem);
 
+        public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) =>
+            drawInfo.drawPlayer.itemAnimation > 0;
+
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
             Player player = drawInfo.drawPlayer;
@@ -23,8 +26,7 @@ namespace Neutronium.Core.DrawLayers
             if (glowTex == null)
                 return;
 
-            Vector2 position = player.itemLocation - Main.screenPosition
-                + new Vector2(player.HeldItem.width / 2f, player.HeldItem.height / 2f);
+            Vector2 position = player.itemLocation - Main.screenPosition;
 
             DrawData drawData = new DrawData(
                 glowTex,
@@ -32,7 +34,7 @@ namespace Neutronium.Core.DrawLayers
                 null,
                 Color.White,
                 player.itemRotation,
-                glowTex.Size() / 2f,
+                new Vector2(0f, glowTex.Height),
                 player.HeldItem.scale,
                 player.direction == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                 0);
