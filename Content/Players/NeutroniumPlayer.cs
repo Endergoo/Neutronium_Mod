@@ -1,7 +1,13 @@
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
+using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.CameraModifiers;
 using Terraria.DataStructures;
+using Neutronium.Content.Projectiles;
 
 
 namespace Neutronium.Content.Players
