@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Graphics.CameraModifiers;
 using Terraria.DataStructures;
+using Neutronium.Content.Projectiles;
 
 namespace Neutronium.Content.Items.Weapons
 {
