@@ -138,17 +138,17 @@ namespace Neutronium.Content.Items.Weapons
             spriteBatch.Draw(
                 glowTex,
                 new Vector2(
-                    Item.position.X - Main.screenPosition.X,
-                    Item.position.Y - Main.screenPosition.Y),
+                    Item.position.X - Main.screenPosition.X + Item.width / 2f,
+                    Item.position.Y - Main.screenPosition.Y + Item.height / 2f),
                 null,
                 Color.White,
                 rotation,
-                Vector2.Zero,   // top-left origin matches vanilla world item draw
+                new Vector2(glowTex.Width / 2f, glowTex.Height / 2f),
                 scale,
                 SpriteEffects.None,
                 0f);
         }
-
+        
         // Drawn when item is in the inventory/hotbar
         public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
