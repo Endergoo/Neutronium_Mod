@@ -7,12 +7,7 @@ namespace Neutronium.Content.Projectiles
 {
     public class CrykalsChoirTrail : ModProjectile
     {
-        public override void SetStaticDefaults()
-        {
-            // Set trail cache length and mode here
-            ProjectileID.Sets.TrailCacheLength[Type] = 8; // store previous positions
-            ProjectileID.Sets.TrailingMode[Type] = 2; // additive-like trail
-        }
+        private const int TrailLength = 8; // how many old positions to store
 
         public override void SetDefaults()
         {
@@ -26,6 +21,9 @@ namespace Neutronium.Content.Projectiles
             Projectile.timeLeft = 10; // short-lived
             Projectile.ownerHitCheck = true; // important for melee
             Projectile.usesLocalNPCImmunity = true;
+
+            // Initialize oldPos array manually
+            Projectile.oldPos = new Vector2[TrailLength];
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -33,10 +31,12 @@ namespace Neutronium.Content.Projectiles
             Texture2D texture = Terraria.GameContent.TextureAssets.Item[Projectile.type].Value;
             Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
 
+            // Draw the trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + drawOrigin;
-                Color color = Color.Cyan * ((float)(Projectile.oldPos.Length - i) / Projectile.oldPos.Length);
+                float alpha = (float)(Projectile.oldPos.Length - i) / Projectile.oldPos.Length;
+                Color color = Color.Cyan * alpha;
                 Main.spriteBatch.Draw(texture, drawPos, null, color, Projectile.rotation, drawOrigin, 1f, SpriteEffects.None, 0f);
             }
 
@@ -48,6 +48,13 @@ namespace Neutronium.Content.Projectiles
             Player player = Main.player[Projectile.owner];
             Projectile.Center = player.MountedCenter;
             Projectile.rotation = player.itemRotation;
+
+            // Shift the old positions
+            for (int i = Projectile.oldPos.Length - 1; i > 0; i--)
+            {
+                Projectile.oldPos[i] = Projectile.oldPos[i - 1];
+            }
+            Projectile.oldPos[0] = Projectile.Center;
         }
     }
 }
