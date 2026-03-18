@@ -20,7 +20,7 @@ namespace Neutronium.Content.Items.Weapons
         private bool trailSpawned = false;
         private bool playSound = true;
 
-        // GlowmaskItem implementation — used by GlowmaskGlobalItem for in-hand glow
+        //  IGlowmaskItem implementation — used by GlowmaskGlobalItem for in-hand glow
         public Texture2D GlowTexture =>
             ModContent.Request<Texture2D>("Neutronium/Content/Items/Weapons/CrykalsChoirGlow").Value;
 
