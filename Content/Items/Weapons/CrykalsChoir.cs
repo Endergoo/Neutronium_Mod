@@ -68,31 +68,6 @@ namespace Neutronium.Content.Items.Weapons
                     + MathHelper.Lerp(startRot, minRot, eased);
                 player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
             }
-            else
-            {
-                if (playSound)
-                {
-                    SoundEngine.PlaySound(SoundID.Item1, player.Center);
-                    playSound = false;
-                }
-
-                if (!trailSpawned && completion >= 0.4f)
-                {
-                    Projectile.NewProjectile(
-                        player.GetSource_ItemUse(Item),
-                        bladeHitboxPos,
-                        Vector2.Zero,
-                        ModContent.ProjectileType<CrykalsChoirTrail>(),
-                        0, 0f, player.whoAmI);
-                    trailSpawned = true;
-                }
-
-                float lerp = Utils.GetLerpValue(cutoff, cutoff2, completion, true);
-                float eased = EaseInOut(lerp);
-                player.itemRotation = player.Center.DirectionTo(mPos).ToRotation()
-                    + MathHelper.Lerp(minRot, endRot, eased);
-                player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
-            }
 
             float extraRot = (dir == 1 ? -MathHelper.PiOver4 : MathHelper.ToRadians(225f));
             bladeHitboxPos = player.Center + (player.itemRotation + extraRot).ToRotationVector2() * 60f;
@@ -139,7 +114,7 @@ namespace Neutronium.Content.Items.Weapons
                 glowTex,
                 new Vector2(
                     Item.position.X - Main.screenPosition.X + Item.width / 2f,
-                    Item.position.Y - Main.screenPosition.Y + Item.height / 2f - Item.height / 2f), // tweak the last offset
+                    Item.position.Y - Main.screenPosition.Y + Item.height / 2f - 70f), // tweak the last offset
                 null,
                 Color.White,
                 rotation,
