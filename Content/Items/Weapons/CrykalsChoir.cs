@@ -26,8 +26,8 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void SetDefaults()
         {
-            Item.width = 40;
-            Item.height = 40;
+            Item.width = 140;
+            Item.height = 140;
             Item.damage = 80;
             Item.DamageType = DamageClass.Melee;
             Item.useAnimation = Item.useTime = 20;
