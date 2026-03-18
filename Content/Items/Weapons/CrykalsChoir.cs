@@ -102,7 +102,11 @@ namespace Neutronium.Content.Items.Weapons
         public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
         {
             Texture2D glow = ModContent.Request<Texture2D>("Neutronium/Content/Items/Weapons/CrykalsChoir_Glow").Value;
-            Item.DrawItemGlowmaskSingleFrame(spriteBatch, rotation, glow);
+
+            // Draw at the item's position
+            Vector2 drawPos = Item.Center - Main.screenPosition;
+            Vector2 origin = glow.Size() * 0.5f; // center of texture
+            spriteBatch.Draw(glow, drawPos, null, Color.White, rotation, origin, scale, SpriteEffects.None, 0f);
         }
     }
 }
