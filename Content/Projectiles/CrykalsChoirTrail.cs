@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 
 namespace Neutronium.Content.Projectiles
 {
-    public class CrykalSwordTrail : ModProjectile
+    public class CrykalsChoirTrail : ModProjectile
     {
         public override void SetDefaults()
         {
