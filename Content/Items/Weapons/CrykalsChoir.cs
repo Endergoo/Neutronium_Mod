@@ -82,7 +82,7 @@ namespace Neutronium.Content.Items.Weapons
             }
 
                 Vector2 shootDir2 = player.Center.DirectionTo(Main.MouseWorld);
-                ladeHitboxPos = player.Center + shootDir2 * 110f;
+                bladeHitboxPos = player.Center + shootDir2 * 110f;
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full,
                 player.itemRotation + MathHelper.ToRadians(-130f) * dir);
