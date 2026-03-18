@@ -82,7 +82,7 @@ namespace Neutronium.Content.Items.Weapons
             }
 
             float extraRot = (dir == 1 ? -MathHelper.PiOver4 : MathHelper.ToRadians(225f));
-            bladeHitboxPos = player.Center + (player.itemRotation + extraRot).ToRotationVector2() * 110f;
+            bladeHitboxPos = player.Center + (player.itemRotation + extraRot).ToRotationVector2() * 120f;
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full,
                 player.itemRotation + MathHelper.ToRadians(-130f) * dir);
@@ -104,8 +104,8 @@ namespace Neutronium.Content.Items.Weapons
 
             // Much smaller — just enough for CanHitNPC to work, not so big it hits offscreen tiles
             hitbox = new Rectangle(
-                (int)(bladeHitboxPos.X - 60f),
-                (int)(bladeHitboxPos.Y - 60f),
+                (int)(bladeHitboxPos.X - 120f),
+                (int)(bladeHitboxPos.Y - 120f),
                 120,
                 120);
         }
