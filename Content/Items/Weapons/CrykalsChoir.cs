@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Neutronium.Core.Utils;
 using Neutronium.Content.Projectiles;
 using Microsoft.Xna.Framework.Graphics;
 
