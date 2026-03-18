@@ -30,18 +30,19 @@ namespace Neutronium.Content.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("Neutronium/Content/Projectiles/CrykalsChoirTrail").Value;
-            
+            Texture2D texture = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                
+
                 Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition;
                 float alpha = (float)(Projectile.oldPos.Length - i) / Projectile.oldPos.Length;
-                Color color = Color.Cyan * alpha;
-                
+                float scale = MathHelper.Lerp(1.5f, 0.1f, (float)i / Projectile.oldPos.Length);
+                Color color = Color.Cyan * alpha * 0.6f;
+
                 Main.spriteBatch.Draw(texture, drawPos, null, color, Projectile.rotation,
-                    texture.Size() / 2f, 1f, SpriteEffects.None, 0f);
+                    texture.Size() / 2f, scale, SpriteEffects.None, 0f);
             }
             return false;
         }
