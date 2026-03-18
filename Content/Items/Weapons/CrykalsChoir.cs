@@ -17,7 +17,6 @@ namespace Neutronium.Content.Items.Weapons
         private Vector2 bladeHitboxPos;
         private float completion = 0f;
         private bool canHit => (completion >= 0.35f && completion <= 0.8f);
-        private bool trailSpawned = false;
         private bool playSound = true;
 
         //  IGlowmaskItem implementation — used by GlowmaskGlobalItem for in-hand glow
@@ -74,17 +73,6 @@ namespace Neutronium.Content.Items.Weapons
                 {
                     SoundEngine.PlaySound(SoundID.Item1, player.Center);
                     playSound = false;
-                }
-
-                if (!trailSpawned && completion >= 0.4f)
-                {
-                    Projectile.NewProjectile(
-                        player.GetSource_ItemUse(Item),
-                        bladeHitboxPos,
-                        Vector2.Zero,
-                        ModContent.ProjectileType<CrykalsChoirTrail>(),
-                        0, 0f, player.whoAmI);
-                    trailSpawned = true;
                 }
 
                 float lerp = Utils.GetLerpValue(cutoff, cutoff2, completion, true);
