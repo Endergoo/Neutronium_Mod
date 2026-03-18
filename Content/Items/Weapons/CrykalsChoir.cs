@@ -1,12 +1,7 @@
-using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria;
-using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.Graphics.CameraModifiers;
-using Terraria.DataStructures;
 using Neutronium.Content.Projectiles;
 
 namespace Neutronium.Content.Items.Weapons
@@ -26,12 +21,19 @@ namespace Neutronium.Content.Items.Weapons
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Yellow;
             Item.UseSound = SoundID.Item1;
-
             Item.autoReuse = true;
 
-            // This spawns the trail projectile on swing
-            Item.shoot = ModContent.ProjectileType<CrykalsChoirTrail>();
-            Item.shootSpeed = 0f; // no actual movement
+            // Do NOT set Item.shoot here for melee trails
+        }
+
+        public override bool Shoot(Player player, Terraria.DataStructures.EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            // Spawn the trail projectile at the player's center
+            if (player.itemAnimation == Item.useAnimation - 1) // only spawn once per swing
+            {
+                Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CrykalsChoirTrail>(), 0, 0f, player.whoAmI);
+            }
+            return false; // prevents shooting a normal projectile
         }
     }
 }
