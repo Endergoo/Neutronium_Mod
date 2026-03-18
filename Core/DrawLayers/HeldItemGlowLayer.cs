@@ -16,7 +16,6 @@ namespace Neutronium.Core.DrawLayers
         {
             Player player = drawInfo.drawPlayer;
 
-            // Only draw if player is holding an item with a glowmask
             if (player.HeldItem?.ModItem is not IGlowmaskItem glowItem)
                 return;
 
@@ -24,13 +23,14 @@ namespace Neutronium.Core.DrawLayers
             if (glowTex == null)
                 return;
 
-            Vector2 position = drawInfo.itemLocation - Main.screenPosition;
+            Vector2 position = player.itemLocation - Main.screenPosition
+                + new Vector2(player.HeldItem.width / 2f, player.HeldItem.height / 2f);
 
             DrawData drawData = new DrawData(
                 glowTex,
                 position,
                 null,
-                Color.White,           // full brightness, ignores lighting
+                Color.White,
                 player.itemRotation,
                 glowTex.Size() / 2f,
                 player.HeldItem.scale,
