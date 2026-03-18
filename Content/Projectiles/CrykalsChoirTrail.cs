@@ -30,33 +30,43 @@ namespace Neutronium.Content.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = Terraria.GameContent.TextureAssets.Item[Projectile.type].Value;
-            Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
-
-            // Draw the trail
+            Texture2D texture = ModContent.Request<Texture2D>("Neutronium/Content/Projectiles/CrykalsChoirTrail").Value;
+            
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
-                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + drawOrigin;
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                
+                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition;
                 float alpha = (float)(Projectile.oldPos.Length - i) / Projectile.oldPos.Length;
                 Color color = Color.Cyan * alpha;
-                Main.spriteBatch.Draw(texture, drawPos, null, color, Projectile.rotation, drawOrigin, 1f, SpriteEffects.None, 0f);
+                
+                Main.spriteBatch.Draw(texture, drawPos, null, color, Projectile.rotation,
+                    texture.Size() / 2f, 1f, SpriteEffects.None, 0f);
             }
-
-            return false; // don't draw the invisible projectile itself
+            return false;
         }
 
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
-            Projectile.Center = player.MountedCenter;
+            
+            // Kill the trail when swing is done
+            if (player.itemAnimation <= 0)
+            {
+                Projectile.Kill();
+                return;
+            }
+
+            // Track blade tip instead of player center
+            Projectile.Center = player.itemLocation;
             Projectile.rotation = player.itemRotation;
 
-            // Shift the old positions
             for (int i = Projectile.oldPos.Length - 1; i > 0; i--)
-            {
                 Projectile.oldPos[i] = Projectile.oldPos[i - 1];
-            }
+            
             Projectile.oldPos[0] = Projectile.Center;
+            Projectile.friendly = false; // trail itself shouldn't hit anything
+            Projectile.timeLeft = 2; // keep alive while swinging
         }
     }
 }

@@ -111,17 +111,16 @@ namespace Neutronium.Content.Items.Weapons
         {
             if (!canHit)
             {
-                // Tiny 1x1 hitbox far offscreen during wind-up and follow-through
                 hitbox = new Rectangle(-10000, -10000, 1, 1);
                 return;
             }
 
-            float scale = 8f;
-            Vector2 newSize = new Vector2(hitbox.Width, hitbox.Height) * scale;
+            // Much smaller — just enough for CanHitNPC to work, not so big it hits offscreen tiles
             hitbox = new Rectangle(
-                (int)(bladeHitboxPos.X - newSize.X / 2f),
-                (int)(bladeHitboxPos.Y - newSize.Y / 2f),
-                (int)newSize.X, (int)newSize.Y);
+                (int)(bladeHitboxPos.X - 60f),
+                (int)(bladeHitboxPos.Y - 60f),
+                120,
+                120);
         }
 
         public override bool? CanHitNPC(Player player, NPC target)
