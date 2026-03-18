@@ -82,7 +82,7 @@ namespace Neutronium.Content.Items.Weapons
             }
 
             float extraRot = (dir == 1 ? -MathHelper.PiOver4 : MathHelper.ToRadians(225f));
-            bladeHitboxPos = player.Center + (player.itemRotation + extraRot).ToRotationVector2() * 60f;
+            bladeHitboxPos = player.Center + (player.itemRotation + extraRot).ToRotationVector2() * 110f;
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full,
                 player.itemRotation + MathHelper.ToRadians(-130f) * dir);
@@ -117,8 +117,8 @@ namespace Neutronium.Content.Items.Weapons
             float _ = float.NaN;
             bool hitCheck = Collision.CheckAABBvLineCollision(
                 target.Hitbox.TopLeft(), target.Hitbox.Size(),
-                player.Center - shootDir * 2f,
-                player.Center + shootDir * 200f,
+                player.Center - shootDir * 20f,
+                player.Center + shootDir * 110f,
                 Item.width * 3f, ref _);
             return (canHit && hitCheck) ? null : false;
         }
