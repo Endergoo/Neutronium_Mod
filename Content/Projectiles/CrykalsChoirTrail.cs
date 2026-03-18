@@ -1,62 +1,85 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
+using Terraria.ID;
 using Terraria.ModLoader;
+using Neutronium.Content.Projectiles;
 
-namespace Neutronium.Content.Projectiles
+namespace Neutronium.Content.Items.Weapons
 {
-    public class CrykalsChoirTrail : ModProjectile
+    public class CrykalsChoir : ModItem
     {
-        public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
-        
-        private const int TrailLength = 8; // how many old positions to store
+        // Swing tracking
+        private int swingTime = 0;
+        private float swingCompletion = 0f;
+        private Vector2 bladeTip;
+        private bool trailSpawned = false;
+        private bool swooshPlayed = false;
 
         public override void SetDefaults()
         {
-            Projectile.width = 40;
-            Projectile.height = 40;
-            Projectile.friendly = true;
-            Projectile.penetrate = -1;
-            Projectile.tileCollide = false;
-            Projectile.ignoreWater = true;
-            Projectile.alpha = 255; // invisible projectile itself
-            Projectile.timeLeft = 10; // short-lived
-            Projectile.ownerHitCheck = true; // important for melee
-            Projectile.usesLocalNPCImmunity = true;
+            Item.width = 40;
+            Item.height = 40;
+            Item.damage = 80;
+            Item.DamageType = DamageClass.Melee;
+            Item.useAnimation = Item.useTime = 20;
+            Item.useStyle = ItemUseStyleID.Swing;
+            Item.knockBack = 6;
+            Item.autoReuse = true;
+            Item.value = Item.buyPrice(silver: 50);
+            Item.rare = ItemRarityID.Yellow;
+            Item.UseSound = SoundID.Item1;
 
-            // Initialize oldPos array manually
-            Projectile.oldPos = new Vector2[TrailLength];
+            // Don't set Item.shoot — trail is spawned manually
         }
 
-        public override bool PreDraw(ref Color lightColor)
+        public override void UseAnimation(Player player)
         {
-            Texture2D texture = Terraria.GameContent.TextureAssets.Item[Projectile.type].Value;
-            Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
-
-            // Draw the trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + drawOrigin;
-                float alpha = (float)(Projectile.oldPos.Length - i) / Projectile.oldPos.Length;
-                Color color = Color.Cyan * alpha;
-                Main.spriteBatch.Draw(texture, drawPos, null, color, Projectile.rotation, drawOrigin, 1f, SpriteEffects.None, 0f);
-            }
-
-            return false; // don't draw the invisible projectile itself
+            swingTime = 0;
+            trailSpawned = false;
+            swooshPlayed = false;
         }
 
-        public override void AI()
+        public override void MeleeEffects(Player player, Rectangle hitbox)
         {
-            Player player = Main.player[Projectile.owner];
-            Projectile.Center = player.MountedCenter;
-            Projectile.rotation = player.itemRotation;
+            swingTime++;
+            swingCompletion = swingTime / (float)Item.useAnimation;
 
-            // Shift the old positions
-            for (int i = Projectile.oldPos.Length - 1; i > 0; i--)
+            int dir = player.direction;
+
+            // Calculate swing rotation (start to end angle)
+            float startRot = MathHelper.ToRadians(-90) * dir;
+            float endRot = MathHelper.ToRadians(90) * dir;
+            player.itemRotation = MathHelper.Lerp(startRot, endRot, swingCompletion);
+
+            // Correct arm position
+            player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, player.itemRotation);
+            player.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, player.itemRotation);
+
+            // Blade tip position for hitbox and trail
+            bladeTip = player.Center + player.itemRotation.ToRotationVector2() * 60f;
+
+            // Spawn trail once per swing
+            if (!trailSpawned && swingCompletion >= 0.25f)
             {
-                Projectile.oldPos[i] = Projectile.oldPos[i - 1];
+                Projectile.NewProjectile(player.GetSource_ItemUse(Item), bladeTip, Vector2.Zero, ModContent.ProjectileType<CrykalsChoirTrail>(), 0, 0f, player.whoAmI);
+                trailSpawned = true;
             }
-            Projectile.oldPos[0] = Projectile.Center;
+
+            // Play swoosh sound once
+            if (!swooshPlayed && swingCompletion >= 0.1f)
+            {
+                SoundEngine.PlaySound(SoundID.Item1, player.Center);
+                swooshPlayed = true;
+            }
+        }
+
+        public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
+        {
+            // Use blade tip for hitbox
+            float size = 40f; // adjust to taste
+            hitbox = new Rectangle((int)(bladeTip.X - size / 2), (int)(bladeTip.Y - size / 2), (int)size, (int)size);
         }
     }
 }
