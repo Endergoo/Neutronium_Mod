@@ -139,7 +139,7 @@ namespace Neutronium.Content.Items.Weapons
                 glowTex,
                 new Vector2(
                     Item.position.X - Main.screenPosition.X + Item.width / 2f,
-                    Item.position.Y - Main.screenPosition.Y + Item.height / 2f - 70f), // tweak the last offset
+                    Item.position.Y - Main.screenPosition.Y + Item.height / 2f - 35f), // tweak the last offset
                 null,
                 Color.White,
                 rotation,
