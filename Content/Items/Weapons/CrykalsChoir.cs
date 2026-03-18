@@ -44,39 +44,43 @@ namespace Neutronium.Content.Items.Weapons
             swingTime++;
             float completion = swingTime / (float)Item.useAnimation;
 
-            // 1️⃣ Get current mouse position
-            Vector2 mPos = Main.MouseWorld;
+            // Smoothstep easing: 0→1, accelerates then decelerates
+            float smoothT = completion * completion * (3f - 2f * completion);
 
-            // 2️⃣ Update player direction to face mouse
-            int dir = -Math.Sign(player.Center.X - mPos.X);
+            // Mouse relative to player
+            Vector2 toMouse = Main.MouseWorld - player.Center;
+            float mouseAngle = toMouse.ToRotation();
+
+            // Update player direction to face mouse
+            int dir = -Math.Sign(player.Center.X - Main.MouseWorld.X);
             player.direction = dir;
 
-            // 3️⃣ Calculate vector toward mouse
-            Vector2 mouseDir = player.Center.DirectionTo(mPos);
+            // Swing arc relative to pivot
+            float swingArc = MathHelper.ToRadians(180f); // total swing in degrees
+            float startOffset = -swingArc / 2 * dir;
+            float endOffset = swingArc / 2 * dir;
 
-            // 4️⃣ Smooth swing rotation relative to mouse
-            float startRot = MathHelper.ToRadians(-110) * dir;
-            float endRot = MathHelper.ToRadians(110) * dir;
-            player.itemRotation = mouseDir.ToRotation() + MathHelper.Lerp(startRot, endRot, completion);
+            // Smooth rotation along the arc
+            player.itemRotation = mouseAngle + MathHelper.Lerp(startOffset, endOffset, smoothT);
 
-            // 5️⃣ Correct player arm positions
+            // Arms follow the sword
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, player.itemRotation);
             player.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, player.itemRotation);
 
-            // 6️⃣ Sword is drawn at player center
+            // Draw sword at player center
             player.itemLocation = player.Center;
 
-            // 7️⃣ Blade tip position for trail and hitbox
+            // Blade tip position for trail/hitbox
             bladeTip = player.Center + player.itemRotation.ToRotationVector2() * 60f;
 
-            // 8️⃣ Spawn trail once mid-swing
+            // Spawn trail mid-swing once
             if (!trailSpawned && completion >= 0.25f)
             {
                 Projectile.NewProjectile(player.GetSource_ItemUse(Item), bladeTip, Vector2.Zero,
                     ModContent.ProjectileType<CrykalsChoirTrail>(), 0, 0f, player.whoAmI);
                 trailSpawned = true;
 
-                // optional swoosh sound
+                // Optional swoosh sound
                 SoundEngine.PlaySound(SoundID.Item1, player.Center);
             }
         }
