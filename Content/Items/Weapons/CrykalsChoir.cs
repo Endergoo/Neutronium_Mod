@@ -109,6 +109,12 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
         {
+            if (!canHit)
+            {
+                noHitbox = true;
+                return;
+            }
+
             float scale = 8f;
             Vector2 newSize = new Vector2(hitbox.Width, hitbox.Height) * scale;
             hitbox = new Rectangle(
