@@ -131,10 +131,8 @@ namespace Neutronium.Content.Items.Weapons
         // Simple ease-in-out replacement for CalamityUtils.EaseInOutExp
         private static float EaseInOut(float t, float exp)
         {
-            if (t < 0.5f)
-                return (float)(Math.Pow(t * 2f, exp) / 2f);
-            else
-                return (float)(1f - Math.Pow((1f - t) * 2f, exp) / 2f);
+            // Ignores exp, uses sine curve — perfectly smooth entry and exit
+            return (float)(-(Math.Cos(Math.PI * t) - 1f) / 2f);
         }
     }
 }
