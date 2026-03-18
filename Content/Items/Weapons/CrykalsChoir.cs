@@ -10,7 +10,7 @@ using Neutronium.Content.Projectiles;
 
 namespace Neutronium.Content.Items.Weapons
 {
-    public class CrykalsChoir : ModItem, GlowmaskItem
+    public class CrykalsChoir : ModItem, IGlowmaskItem
     {
         private int time = 0;
         private int swingCount = 0;

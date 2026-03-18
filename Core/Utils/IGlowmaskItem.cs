@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Neutronium.Core.Utils
 {
-    public interface GlowmaskItem
+    public interface IGlowmaskItem
     {
         Texture2D GlowTexture { get; }
     }
