@@ -107,11 +107,12 @@ namespace Neutronium.Content.Items.Weapons
             time++;
         }
 
-        public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
+       public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
         {
             if (!canHit)
             {
-                noHitbox = true;
+                // Tiny 1x1 hitbox far offscreen during wind-up and follow-through
+                hitbox = new Rectangle(-10000, -10000, 1, 1);
                 return;
             }
 
