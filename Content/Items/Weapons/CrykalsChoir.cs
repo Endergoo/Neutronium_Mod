@@ -81,8 +81,8 @@ namespace Neutronium.Content.Items.Weapons
                 player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
             }
 
-            float extraRot = (dir == 1 ? -MathHelper.PiOver4 : MathHelper.ToRadians(225f));
-            bladeHitboxPos = player.Center + (player.itemRotation + extraRot).ToRotationVector2() * 120f;
+                Vector2 shootDir2 = player.Center.DirectionTo(Main.MouseWorld);
+                ladeHitboxPos = player.Center + shootDir2 * 110f;
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full,
                 player.itemRotation + MathHelper.ToRadians(-130f) * dir);
@@ -119,7 +119,8 @@ namespace Neutronium.Content.Items.Weapons
                 target.Hitbox.TopLeft(), target.Hitbox.Size(),
                 player.Center - shootDir * 20f,
                 player.Center + shootDir * 110f,
-                Item.width * 3f, ref _);
+                40f,
+                ref _);
             return (canHit && hitCheck) ? null : false;
         }
 
