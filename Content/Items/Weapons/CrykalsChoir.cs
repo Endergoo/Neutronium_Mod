@@ -124,8 +124,8 @@ namespace Neutronium.Content.Items.Weapons
             float _ = float.NaN;
             bool hitCheck = Collision.CheckAABBvLineCollision(
                 target.Hitbox.TopLeft(), target.Hitbox.Size(),
-                player.Center - shootDir * 30f,
-                player.Center + shootDir * 100f,
+                player.Center - shootDir * 2f,
+                player.Center + shootDir * 150f,
                 Item.width * 3f, ref _);
             return (canHit && hitCheck) ? null : false;
         }
