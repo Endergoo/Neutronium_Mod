@@ -5,11 +5,13 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using Neutronium.Content.Particles;
 
 namespace Neutronium.Content.Projectiles
 {
     public class CrykalsChoirProj : ModProjectile
     {
+        // Base projectile texture must exist, but it's invisible
         public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
         public ref float Time => ref Projectile.ai[0];
         public Color mainColor = Color.Purple;
@@ -36,24 +38,19 @@ namespace Neutronium.Content.Projectiles
 
         public override void AI()
         {
-            Player player = Main.player[Projectile.owner];
-            mainColor = Color.Lerp(Color.Purple, Color.Cyan, (float)Math.Sin(Time * 0.05f) * 0.5f + 0.5f);
+            // Smooth slow gyration
+            float sine = (float)Math.Sin(Time * 0.2f * Projectile.scale);
+            Projectile.rotation = sine * 0.15f;
 
-            // --- Smooth, slow gyration ---
-            float sine = (float)Math.Sin(Time * 0.25f * Projectile.scale);
-            Projectile.rotation = sine * 0.2f;
-
-            // --- Early curved motion ---
+            // Early curved motion
             if (Time < 20)
             {
-                Projectile.extraUpdates = 1; // smoother path
+                Projectile.extraUpdates = 1;
                 Projectile.velocity = Projectile.velocity.RotatedBy(0.03f * Projectile.direction);
             }
             else
             {
                 Projectile.extraUpdates = 0;
-
-                // Gentle homing
                 NPC target = FindClosestNPC(600f);
                 if (target != null)
                 {
@@ -62,7 +59,7 @@ namespace Neutronium.Content.Projectiles
                 }
             }
 
-            // --- Color-shifting particles ---
+            // Soft star sparks
             if (Time % 2 == 0)
             {
                 Dust dust = Dust.NewDustDirect(
@@ -101,11 +98,11 @@ namespace Neutronium.Content.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("Neutronium/Content/Projectiles/SmoothCircle").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            // --- Multi-layered, smooth bloom trail ---
+            // --- Layered bloom trail ---
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
@@ -113,17 +110,22 @@ namespace Neutronium.Content.Projectiles
                 float scale = Projectile.scale * progress * 0.8f;
                 Color color = mainColor * progress * 0.5f;
 
-                // Vertical bloom
-                Main.spriteBatch.Draw(texture, pos, null, color, Projectile.rotation, origin, scale, SpriteEffects.None, 0f);
-                // Horizontal stretch
-                Main.spriteBatch.Draw(texture, pos, null, color, Projectile.rotation, origin, new Vector2(scale, scale * 0.25f), SpriteEffects.None, 0f);
+                // Draw 3 rotated layers per old position
+                for (int j = 0; j < 3; j++)
+                {
+                    float rotationOffset = MathHelper.TwoPi / 3 * j + Projectile.rotation;
+                    Main.spriteBatch.Draw(texture, pos, null, color, rotationOffset, origin, scale, SpriteEffects.None, 0f);
+                }
             }
 
             // --- Main projectile draw ---
-            Main.spriteBatch.Draw(texture, drawPos, null, Color.White, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(texture, drawPos, null, Color.White, Projectile.rotation, origin, new Vector2(Projectile.scale, Projectile.scale * 0.25f), SpriteEffects.None, 0f);
+            for (int j = 0; j < 3; j++)
+            {
+                float rotationOffset = MathHelper.TwoPi / 3 * j + Projectile.rotation;
+                Main.spriteBatch.Draw(texture, drawPos, null, mainColor, rotationOffset, origin, Projectile.scale, SpriteEffects.None, 0f);
+            }
 
-            return false;
+            return false; // Skip default draw
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
