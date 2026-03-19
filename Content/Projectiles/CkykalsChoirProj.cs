@@ -115,6 +115,18 @@ namespace Neutronium.Content.Projectiles
                     SpriteEffects.None,
                     0f
                 );
+
+                 Main.spriteBatch.Draw(
+                texture,
+                pos,
+                null,
+                Color.Purple * 0.7f,
+                Projectile.rotation,
+                tex.Size() / 2f,
+                new Vector2(1f, 0.2f) * scale, // wide width, short height
+                SpriteEffects.None,
+                0f
+            );
             }
 
             // draw main projectile

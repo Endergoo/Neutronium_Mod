@@ -169,6 +169,7 @@ Projectiles: {
 	MoonlitStilettoProjectile.DisplayName: Moonlit Stiletto Projectile
 	CelestialBeam.DisplayName: Celestial Beam
 	CrykalsChoirTrail.DisplayName: Crykals Choir Trail
+	CrykalsChoirProj.DisplayName: Crykals Choir Proj
 }
 
 DarkFogUnitBuff: {
