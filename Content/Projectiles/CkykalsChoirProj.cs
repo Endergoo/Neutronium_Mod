@@ -57,7 +57,7 @@ namespace Neutronium.Content.Projectiles
             if (Time < 20)
             {
                 Projectile.extraUpdates = 1;
-                Projectile.velocity = Projectile.velocity.RotatedBy(0.03f * Projectile.direction);
+                Projectile.velocity = Projectile.velocity.RotatedBy(0.01f * Projectile.direction);
             }
             else
             {
@@ -65,7 +65,7 @@ namespace Neutronium.Content.Projectiles
                 NPC target = FindClosestNPC(600f);
                 if (target != null)
                 {
-                    Vector2 desired = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 12f;
+                    Vector2 desired = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 20f;
                     Projectile.velocity = Vector2.Lerp(Projectile.velocity, desired, 0.05f);
                 }
             }
