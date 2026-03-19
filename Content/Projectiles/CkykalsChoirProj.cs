@@ -10,6 +10,7 @@ namespace Neutronium.Content.Projectiles
 {
     public class CrykalsChoirProj : ModProjectile
     {
+        public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj"
         public ref float Time => ref Projectile.ai[0];
 
         public override void SetStaticDefaults()
@@ -94,19 +95,20 @@ namespace Neutronium.Content.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = TextureAssets.Projectile[Type].Value;
+            Texture2D texture = TextureAssets.Extra[98].Value; // glowing circle
 
-            // Draw trail
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float scale = Projectile.scale * (1f - i / (float)Projectile.oldPos.Length);
 
                 Main.spriteBatch.Draw(
                     texture,
-                    drawPos,
+                    pos,
                     null,
-                    Color.Purple * 0.5f,
+                    Color.Purple * 0.6f,
                     Projectile.rotation,
                     texture.Size() / 2f,
                     scale,
@@ -115,9 +117,22 @@ namespace Neutronium.Content.Projectiles
                 );
             }
 
-            return true;
-        }
+            // draw main projectile
+            Main.spriteBatch.Draw(
+                texture,
+                drawPos,
+                null,
+                Color.White,
+                Projectile.rotation,
+                texture.Size() / 2f,
+                Projectile.scale,
+                SpriteEffects.None,
+                0f
+            );
 
+            return false;
+        }
+        
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             // Simple debuff (replace later if you want custom)
