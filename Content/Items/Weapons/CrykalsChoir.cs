@@ -85,6 +85,7 @@ namespace Neutronium.Content.Items.Weapons
                     for (int i = 0; i < projCount; i++)
                     {
                         float angleOffset = (i - (projCount - 1) / 2f) * spreadAngle;
+                        float randomOffset = Main.rand.NextFloat(-0.1f, 0.1f);
                         Vector2 spreadVelocity = baseDir.RotatedBy(angleOffset);
 
                         Projectile.NewProjectile(
