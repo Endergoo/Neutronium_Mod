@@ -45,6 +45,11 @@ namespace Neutronium.Content.Projectiles
 
         public override void AI()
         {
+            if (Time == 0)
+            {
+                Projectile.ai[1] = Main.rand.Next(10, 40);
+                Projectile.ai[2] = Main.rand.NextFloat(18f, 28f);
+            }
 
             // Color cycling
             float colorProgress = (Time % 60) / 60f;
@@ -55,17 +60,7 @@ namespace Neutronium.Content.Projectiles
             float sine = (float)Math.Sin(Time * 0.2f);
             Projectile.rotation = 0.25f * sine;
 
-            if (Time == 0)
-            Projectile.ai[1] = Main.rand.Next(10, 40); // random between 10 and 40 ticks
-
-            float colorProgress = (Time % 60) / 60f;
-            int colorIndex = (int)(Time / 60) % (colors.Length - 1);
-            mainColor = Color.Lerp(colors[colorIndex], colors[colorIndex + 1], colorProgress);
-
-            float sine = (float)Math.Sin(Time * 0.2f);
-            Projectile.rotation = 0.25f * sine;
-
-            if (Time < Projectile.ai[1]) // use stored random value
+            if (Time < Projectile.ai[1])
             {
                 Projectile.extraUpdates = 1;
                 Projectile.velocity = Projectile.velocity.RotatedBy(0.01f * Projectile.direction);
@@ -77,9 +72,8 @@ namespace Neutronium.Content.Projectiles
                 if (target != null)
                 {
                     float inertia = MathHelper.Clamp(30 - Time, 15, 30);
-                    float homingVelocity = 25f;
                     Vector2 homeDirection = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitY);
-                    Projectile.velocity = (Projectile.velocity * inertia + homeDirection * homingVelocity) / (inertia + 1f);
+                    Projectile.velocity = (Projectile.velocity * inertia + homeDirection * Projectile.ai[2]) / (inertia + 1f);
                 }
             }
 
