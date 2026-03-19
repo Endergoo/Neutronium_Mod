@@ -10,7 +10,7 @@ namespace Neutronium.Content.Projectiles
 {
     public class CrykalsChoirProj : ModProjectile
     {
-        public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj"
+        public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
         public ref float Time => ref Projectile.ai[0];
 
         public override void SetStaticDefaults()
@@ -132,7 +132,7 @@ namespace Neutronium.Content.Projectiles
 
             return false;
         }
-        
+
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             // Simple debuff (replace later if you want custom)
