@@ -78,17 +78,25 @@ namespace Neutronium.Content.Items.Weapons
 
                 if (completion >= 0.6f && spawnProj)
                 {
-                    Vector2 shootDir = player.Center.DirectionTo(Main.MouseWorld) * 10f;
+                    int projCount = 3;
+                    float spreadAngle = 0.15f;
+                    Vector2 baseDir = player.Center.DirectionTo(Main.MouseWorld) * 10f;
 
-                    Projectile.NewProjectile(
-                        player.GetSource_ItemUse(Item),
-                        player.Center,
-                        shootDir,
-                        ModContent.ProjectileType<CrykalsChoirProj>(),
-                        Item.damage,
-                        Item.knockBack,
-                        player.whoAmI
-                    );
+                    for (int i = 0; i < projCount; i++)
+                    {
+                        float angleOffset = (i - (projCount - 1) / 2f) * spreadAngle;
+                        Vector2 spreadVelocity = baseDir.RotatedBy(angleOffset);
+
+                        Projectile.NewProjectile(
+                            player.GetSource_ItemUse(Item),
+                            player.Center,
+                            spreadVelocity,
+                            ModContent.ProjectileType<CrykalsChoirProj>(),
+                            Item.damage,
+                            Item.knockBack,
+                            player.whoAmI
+                        );
+                    }
 
                     spawnProj = false;
                 }
