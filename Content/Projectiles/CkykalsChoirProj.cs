@@ -10,9 +10,18 @@ namespace Neutronium.Content.Projectiles
 {
     public class CrykalsChoirProj : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_0"; // InvisibleProj placeholder
+        public override string Texture => "Terraria/Images/Projectile_0";
         public ref float Time => ref Projectile.ai[0];
+
         public Color mainColor = Color.Purple;
+
+        public Color[] colors = new Color[]
+        {
+            Color.Purple,
+            Color.Cyan,
+            Color.HotPink,
+            Color.Purple
+        };
 
         public override void SetStaticDefaults()
         {
@@ -29,14 +38,18 @@ namespace Neutronium.Content.Projectiles
             Projectile.timeLeft = 180;
             Projectile.tileCollide = false;
             Projectile.DamageType = DamageClass.Melee;
-
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
         }
 
         public override void AI()
         {
-            // Smooth sine rotation for gyration
+            // Color cycling
+            float colorProgress = (Time % 60) / 60f;
+            int colorIndex = (int)(Time / 60) % (colors.Length - 1);
+            mainColor = Color.Lerp(colors[colorIndex], colors[colorIndex + 1], colorProgress);
+
+            // Smooth sine rotation
             float sine = (float)Math.Sin(Time * 0.2f);
             Projectile.rotation = 0.25f * sine;
 
@@ -57,7 +70,7 @@ namespace Neutronium.Content.Projectiles
                 }
             }
 
-            // Particle sparks (like StarofOrder rays)
+            // Particle sparks
             if (Time % 2 == 0)
             {
                 Dust dust = Dust.NewDustDirect(
@@ -100,15 +113,14 @@ namespace Neutronium.Content.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            // Additive-style color (A = 0 = additive blending in SpriteBatch default)
             Color drawColor = mainColor with { A = 0 };
 
-            // Lightweight trail
+            // Trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float progress = 1f - i / (float)Projectile.oldPos.Length;
-                float scale = Projectile.scale * 0.2f * progress;
+                float scale = Projectile.scale * progress * 0.16f;
                 Color trailColor = drawColor * progress * 0.4f;
 
                 bool roted = true;
@@ -119,14 +131,14 @@ namespace Neutronium.Content.Projectiles
                         trailColor,
                         (roted ? 0 : MathHelper.PiOver2) + Projectile.rotation,
                         origin,
-                        new Vector2(1 - 0.12f * j, 1 + 0.75f * j) * scale,
+                        new Vector2(1 - 0.12f * j, 1 + 0.75f * j) * scale * Main.rand.NextFloat(0.8f, 1.1f),
                         SpriteEffects.None, 0f
                     );
                     if (roted && j == 4) { j = -1; roted = false; }
                 }
             }
 
-            // Main star draw — small scale like StarofOrder
+            // Main star
             bool mainRoted = true;
             for (int j = 0; j < 5; j++)
             {
