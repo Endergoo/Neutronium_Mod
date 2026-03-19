@@ -12,10 +12,11 @@ namespace Neutronium.Content.Projectiles
     {
         public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
         public ref float Time => ref Projectile.ai[0];
+        public Color mainColor = Color.Purple;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Type] = 12;
             ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
@@ -35,18 +36,21 @@ namespace Neutronium.Content.Projectiles
 
         public override void AI()
         {
-            // Slight sine wobble
-            float sine = (float)Math.Sin(Time * 0.2f);
+            // --- Smooth sine rotation ---
+            float sine = (float)Math.Sin(Time * 0.55f * Projectile.scale);
             Projectile.rotation = sine * 0.3f;
 
-            // Phase 1: curved movement
+            // --- Early curved movement ---
             if (Time < 20)
             {
+                Projectile.extraUpdates = 1; // smooth path
                 Projectile.velocity = Projectile.velocity.RotatedBy(0.03f * Projectile.direction);
             }
-            // Phase 2: homing
             else
             {
+                Projectile.extraUpdates = 0;
+
+                // Simple homing
                 NPC target = FindClosestNPC(600f);
                 if (target != null)
                 {
@@ -55,7 +59,7 @@ namespace Neutronium.Content.Projectiles
                 }
             }
 
-            // Simple dust trail
+            // --- Particle sparks ---
             if (Main.rand.NextBool(2))
             {
                 Dust dust = Dust.NewDustDirect(
@@ -66,17 +70,17 @@ namespace Neutronium.Content.Projectiles
                 );
                 dust.noGravity = true;
                 dust.velocity *= 0.3f;
+                dust.scale = 0.8f + Main.rand.NextFloat() * 0.4f;
+                dust.color = mainColor * 0.75f;
             }
 
             Time++;
         }
 
-        // Simple homing helper
         private NPC FindClosestNPC(float maxDetectDistance)
         {
             NPC closest = null;
             float sqrMaxDist = maxDetectDistance * maxDetectDistance;
-
             foreach (NPC npc in Main.npc)
             {
                 if (npc.CanBeChasedBy(this))
@@ -89,81 +93,36 @@ namespace Neutronium.Content.Projectiles
                     }
                 }
             }
-
             return closest;
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Extra[98].Value; // glowing circle
-
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() / 2f;
 
-            // Draw trail (vertical + horizontal)
+            // --- Layered trail ---
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float scale = Projectile.scale * (1f - i / (float)Projectile.oldPos.Length);
 
-                // Vertical trail
-                Main.spriteBatch.Draw(
-                    texture,
-                    pos,
-                    null,
-                    Color.Purple * 0.6f,
-                    Projectile.rotation,
-                    texture.Size() / 2f,
-                    scale,
-                    SpriteEffects.None,
-                    0f
-                );
-
-                // Horizontal trail
-                Main.spriteBatch.Draw(
-                    texture,
-                    pos,
-                    null,
-                    Color.Purple * 0.6f,
-                    Projectile.rotation,
-                    texture.Size() / 2f,
-                    new Vector2(scale * 1f, scale * 0.2f), // stretch horizontally
-                    SpriteEffects.None,
-                    0f
-                );
+                // vertical bloom
+                Main.spriteBatch.Draw(texture, pos, null, mainColor * 0.5f, Projectile.rotation, origin, scale, SpriteEffects.None, 0f);
+                // horizontal stretch
+                Main.spriteBatch.Draw(texture, pos, null, mainColor * 0.5f, Projectile.rotation, origin, new Vector2(scale, scale * 0.25f), SpriteEffects.None, 0f);
             }
 
-            // Draw main projectile (vertical)
-            Main.spriteBatch.Draw(
-                texture,
-                drawPos,
-                null,
-                Color.White,
-                Projectile.rotation,
-                texture.Size() / 2f,
-                Projectile.scale,
-                SpriteEffects.None,
-                0f
-            );
+            // --- Main projectile draw ---
+            Main.spriteBatch.Draw(texture, drawPos, null, Color.White, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(texture, drawPos, null, Color.White, Projectile.rotation, origin, new Vector2(Projectile.scale, Projectile.scale * 0.25f), SpriteEffects.None, 0f);
 
-            // Draw main projectile (horizontal)
-            Main.spriteBatch.Draw(
-                texture,
-                drawPos,
-                null,
-                Color.White,
-                Projectile.rotation,
-                texture.Size() / 2f,
-                new Vector2(Projectile.scale * 1f, Projectile.scale * 0.2f), // horizontal stretch
-                SpriteEffects.None,
-                0f
-            );
-
-            return false; // skip default draw
+            return false;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Simple debuff (replace later if you want custom)
             target.AddBuff(BuffID.OnFire, 120);
         }
 
