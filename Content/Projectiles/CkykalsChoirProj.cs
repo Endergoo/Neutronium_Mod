@@ -100,63 +100,48 @@ namespace Neutronium.Content.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            Color drawColor = mainColor * 0.7f;
+            // Additive-style color (A = 0 = additive blending in SpriteBatch default)
+            Color drawColor = mainColor with { A = 0 };
 
-            // --- Layered bloom trail (old positions) ---
+            // Lightweight trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float progress = 1f - i / (float)Projectile.oldPos.Length;
-                float scale = Projectile.scale * progress * 0.8f;
-                Color color = drawColor * progress * 0.5f;
+                float scale = Projectile.scale * 0.2f * progress;
+                Color trailColor = drawColor * progress * 0.4f;
 
                 bool roted = true;
                 for (int j = 0; j < 5; j++)
                 {
                     Main.spriteBatch.Draw(
-                        texture,
-                        pos,
-                        null,
-                        color,
+                        texture, pos, null,
+                        trailColor,
                         (roted ? 0 : MathHelper.PiOver2) + Projectile.rotation,
                         origin,
-                        new Vector2(1 - 0.12f * j, 1 + 0.75f * j) * scale * Main.rand.NextFloat(0.8f, 1.1f),
-                        SpriteEffects.None,
-                        0f
+                        new Vector2(1 - 0.12f * j, 1 + 0.75f * j) * scale,
+                        SpriteEffects.None, 0f
                     );
-
-                    if (roted && j == 4)
-                    {
-                        j = -1;
-                        roted = false;
-                    }
+                    if (roted && j == 4) { j = -1; roted = false; }
                 }
             }
 
-            // --- Main projectile draw ---
+            // Main star draw — small scale like StarofOrder
             bool mainRoted = true;
             for (int j = 0; j < 5; j++)
             {
                 Main.spriteBatch.Draw(
-                    texture,
-                    drawPos,
-                    null,
+                    texture, drawPos, null,
                     drawColor,
                     (mainRoted ? 0 : MathHelper.PiOver2) + Projectile.rotation,
                     origin,
-                    new Vector2(1 - 0.12f * j, 1 + 0.75f * j) * Projectile.scale * Main.rand.NextFloat(0.8f, 1.1f),
-                    SpriteEffects.None,
-                    0f
+                    new Vector2(1 - 0.12f * j, 1 + 0.75f * j) * Projectile.scale * 0.2f * Main.rand.NextFloat(0.8f, 1.1f),
+                    SpriteEffects.None, 0f
                 );
-
-                if (mainRoted && j == 4)
-                {
-                    j = -1;
-                    mainRoted = false;
-                }
+                if (mainRoted && j == 4) { j = -1; mainRoted = false; }
             }
 
-            return false; // skip default draw
+            return false;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
