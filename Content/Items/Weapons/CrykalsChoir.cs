@@ -109,16 +109,28 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool? CanHitNPC(Player player, NPC target)
         {
-            Vector2 mPos = Main.MouseWorld;
-            Vector2 shootDir = player.Center.DirectionTo(mPos);
-            float _ = float.NaN;
-            bool hitCheck = Collision.CheckAABBvLineCollision(
-                target.Hitbox.TopLeft(), target.Hitbox.Size(),
-                player.Center - shootDir * 20f,
-                player.Center + shootDir * 110f,
-                40f,
-                ref _);
-            return (canHit && hitCheck) ? null : false;
+            if (!canHit)
+                return false;
+
+            // Use actual sword rotation instead of mouse direction
+            Vector2 bladeDir = player.itemRotation.ToRotationVector2();
+
+            float _ = 0f;
+
+            // Start slightly behind player, extend forward along blade
+            Vector2 start = player.Center - bladeDir * 20f;
+            Vector2 end = player.Center + bladeDir * 120f;
+
+            bool hit = Collision.CheckAABBvLineCollision(
+                target.Hitbox.TopLeft(),
+                target.Hitbox.Size(),
+                start,
+                end,
+                80f, // THICKNESS — increase this for reliability
+                ref _
+            );
+
+            return hit ? null : false;
         }
 
         public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
