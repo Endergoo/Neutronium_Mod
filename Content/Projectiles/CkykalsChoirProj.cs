@@ -10,8 +10,7 @@ namespace Neutronium.Content.Projectiles
 {
     public class CrykalsChoirProj : ModProjectile
     {
-        // Base projectile texture must exist, but it's invisible
-        public override string Texture => "Neutronium/Content/Projectiles/InvisibleProj";
+        public override string Texture => "Terraria/Images/Projectile_0"; // InvisibleProj placeholder
         public ref float Time => ref Projectile.ai[0];
         public Color mainColor = Color.Purple;
 
@@ -37,9 +36,9 @@ namespace Neutronium.Content.Projectiles
 
         public override void AI()
         {
-            // Smooth slow gyration
-            float sine = (float)Math.Sin(Time * 0.2f * Projectile.scale);
-            Projectile.rotation = sine * 0.15f;
+            // Smooth sine rotation for gyration
+            float sine = (float)Math.Sin(Time * 0.2f);
+            Projectile.rotation = 0.25f * sine;
 
             // Early curved motion
             if (Time < 20)
@@ -58,7 +57,7 @@ namespace Neutronium.Content.Projectiles
                 }
             }
 
-            // Soft star sparks
+            // Particle sparks (like StarofOrder rays)
             if (Time % 2 == 0)
             {
                 Dust dust = Dust.NewDustDirect(
@@ -101,30 +100,63 @@ namespace Neutronium.Content.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            // --- Layered bloom trail ---
+            Color drawColor = mainColor * 0.7f;
+
+            // --- Layered bloom trail (old positions) ---
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float progress = 1f - i / (float)Projectile.oldPos.Length;
                 float scale = Projectile.scale * progress * 0.8f;
-                Color color = mainColor * progress * 0.5f;
+                Color color = drawColor * progress * 0.5f;
 
-                // Draw 3 rotated layers per old position
-                for (int j = 0; j < 3; j++)
+                bool roted = true;
+                for (int j = 0; j < 5; j++)
                 {
-                    float rotationOffset = MathHelper.TwoPi / 3 * j + Projectile.rotation;
-                    Main.spriteBatch.Draw(texture, pos, null, color, rotationOffset, origin, scale, SpriteEffects.None, 0f);
+                    Main.spriteBatch.Draw(
+                        texture,
+                        pos,
+                        null,
+                        color,
+                        (roted ? 0 : MathHelper.PiOver2) + Projectile.rotation,
+                        origin,
+                        new Vector2(1 - 0.12f * j, 1 + 0.75f * j) * scale * Main.rand.NextFloat(0.8f, 1.1f),
+                        SpriteEffects.None,
+                        0f
+                    );
+
+                    if (roted && j == 4)
+                    {
+                        j = -1;
+                        roted = false;
+                    }
                 }
             }
 
             // --- Main projectile draw ---
-            for (int j = 0; j < 3; j++)
+            bool mainRoted = true;
+            for (int j = 0; j < 5; j++)
             {
-                float rotationOffset = MathHelper.TwoPi / 3 * j + Projectile.rotation;
-                Main.spriteBatch.Draw(texture, drawPos, null, mainColor, rotationOffset, origin, Projectile.scale, SpriteEffects.None, 0f);
+                Main.spriteBatch.Draw(
+                    texture,
+                    drawPos,
+                    null,
+                    drawColor,
+                    (mainRoted ? 0 : MathHelper.PiOver2) + Projectile.rotation,
+                    origin,
+                    new Vector2(1 - 0.12f * j, 1 + 0.75f * j) * Projectile.scale * Main.rand.NextFloat(0.8f, 1.1f),
+                    SpriteEffects.None,
+                    0f
+                );
+
+                if (mainRoted && j == 4)
+                {
+                    j = -1;
+                    mainRoted = false;
+                }
             }
 
-            return false; // Skip default draw
+            return false; // skip default draw
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
