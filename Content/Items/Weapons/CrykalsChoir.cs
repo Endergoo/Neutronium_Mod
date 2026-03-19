@@ -13,7 +13,7 @@ namespace Neutronium.Content.Items.Weapons
     {
         private int time = 0;
         private int swingCount = 0;
-        private Vector2 bladeHitboxPos;
+        private Vector2 bladeTipPos;
         private float completion = 0f;
         private bool canHit => (completion >= 0.35f && completion <= 0.8f);
         private bool playSound = true;
@@ -40,13 +40,12 @@ namespace Neutronium.Content.Items.Weapons
             swingCount++;
             time = 0;
             playSound = true;
-            bladeHitboxPos = player.Center;
+            bladeTipPos = player.Center;
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
             completion = (float)time / (Item.useAnimation / player.GetAttackSpeed(DamageClass.Melee));
-
             Vector2 mPos = Main.MouseWorld;
             int dir = -Math.Sign(player.Center.X - mPos.X);
 
@@ -56,13 +55,14 @@ namespace Neutronium.Content.Items.Weapons
             float cutoff  = 0.2f;
             float cutoff2 = 0.95f;
 
+            float lerp = completion <= cutoff
+                ? Utils.GetLerpValue(0f, cutoff, completion, true)
+                : Utils.GetLerpValue(cutoff, cutoff2, completion, true);
+            float eased = EaseInOut(lerp);
+
             if (completion <= cutoff)
             {
-                float lerp = Utils.GetLerpValue(0f, cutoff, completion, true);
-                float eased = EaseInOut(lerp);
-                player.itemRotation = player.Center.DirectionTo(mPos).ToRotation()
-                    + MathHelper.Lerp(startRot, minRot, eased);
-                player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
+                player.itemRotation = player.Center.DirectionTo(mPos).ToRotation() + MathHelper.Lerp(startRot, minRot, eased);
             }
             else
             {
@@ -71,17 +71,13 @@ namespace Neutronium.Content.Items.Weapons
                     SoundEngine.PlaySound(SoundID.Item1, player.Center);
                     playSound = false;
                 }
-
-                float lerp = Utils.GetLerpValue(cutoff, cutoff2, completion, true);
-                float eased = EaseInOut(lerp);
-                player.itemRotation = player.Center.DirectionTo(mPos).ToRotation()
-                    + MathHelper.Lerp(minRot, endRot, eased);
-                player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
+                player.itemRotation = player.Center.DirectionTo(mPos).ToRotation() + MathHelper.Lerp(minRot, endRot, eased);
             }
 
-            // extraRot corrects for Terraria's sprite offset — aligns hitbox with visible blade
+            player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
+
             float extraRot = (dir == 1 ? -MathHelper.PiOver4 : MathHelper.ToRadians(225f));
-            bladeHitboxPos = player.Center + (player.itemRotation + extraRot).ToRotationVector2() * 180f;
+            bladeTipPos = player.Center + (player.itemRotation + extraRot).ToRotationVector2() * 180f;
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full,
                 player.itemRotation + MathHelper.ToRadians(-130f) * dir);
@@ -93,21 +89,25 @@ namespace Neutronium.Content.Items.Weapons
             time++;
         }
 
+        // --- ORDERBRINGER-STYLE HITBOX ---
         public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
         {
             if (!canHit)
             {
-                hitbox = new Rectangle(-10000, -10000, 1, 1);
+                hitbox = new Rectangle(-10000, -10000, 1, 1); // effectively disable hitbox
                 return;
             }
 
-            float scale = 8f;
-            Vector2 newSize = new Vector2(hitbox.Width, hitbox.Height) * scale;
+            // Create a long, thin rectangle along the blade
+            Vector2 swingDir = (bladeTipPos - player.Center).SafeNormalize(Vector2.UnitX);
+            Vector2 size = new Vector2(80f, 40f); // width (along swing) x height
+            Vector2 center = player.Center + swingDir * 120f; // move center along blade path
+
             hitbox = new Rectangle(
-                (int)(bladeHitboxPos.X - newSize.X / 2f),
-                (int)(bladeHitboxPos.Y - newSize.Y / 2f),
-                (int)newSize.X,
-                (int)newSize.Y);
+                (int)(center.X - size.X / 2f),
+                (int)(center.Y - size.Y / 2f),
+                (int)size.X,
+                (int)size.Y);
         }
 
         public override bool? CanHitNPC(Player player, NPC target)
@@ -115,12 +115,15 @@ namespace Neutronium.Content.Items.Weapons
             Vector2 mPos = Main.MouseWorld;
             Vector2 shootDir = player.Center.DirectionTo(mPos);
             float _ = float.NaN;
+
+            // Check collision along the blade path
             bool hitCheck = Collision.CheckAABBvLineCollision(
                 target.Hitbox.TopLeft(), target.Hitbox.Size(),
                 player.Center - shootDir * 30f,
-                player.Center + shootDir * 180f,
+                bladeTipPos,
                 Item.width * 3f,
                 ref _);
+
             return (canHit && hitCheck) ? null : false;
         }
 
