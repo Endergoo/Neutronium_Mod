@@ -17,9 +17,11 @@ namespace Neutronium.Content.Projectiles
 
         public Color[] colors = new Color[]
         {
+            Color.Purple
             Color.Cyan,
             Color.HotPink,
             Color.Purple
+            Color.HotPink,
         };
 
         public override void SetStaticDefaults()
@@ -61,11 +63,13 @@ namespace Neutronium.Content.Projectiles
             else
             {
                 Projectile.extraUpdates = 0;
-                NPC target = FindClosestNPC(600f);
+                NPC target = FindClosestNPC(900f);
                 if (target != null)
                 {
-                    Vector2 desired = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 20f;
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desired, 0.05f);
+                    float inertia = MathHelper.Clamp(30 - Time, 15, 30);
+                    float homingVelocity = 25f;
+                    Vector2 homeDirection = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitY);
+                    Projectile.velocity = (Projectile.velocity * inertia + homeDirection * homingVelocity) / (inertia + 1f);
                 }
             }
 
