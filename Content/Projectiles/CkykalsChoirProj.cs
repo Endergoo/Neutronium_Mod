@@ -17,7 +17,6 @@ namespace Neutronium.Content.Projectiles
 
         public Color[] colors = new Color[]
         {
-            Color.Purple,
             Color.Cyan,
             Color.HotPink,
             Color.Purple
@@ -57,7 +56,8 @@ namespace Neutronium.Content.Projectiles
             if (Time < 20)
             {
                 Projectile.extraUpdates = 1;
-                Projectile.velocity = Projectile.velocity.RotatedBy(0.01f * Projectile.direction);
+                Projectile.velocity = Projectile.velocity.RotatedBy(0f * Projectile.direction);
+                Projectile.velocity *= 0.95f; // slows down each tick
             }
             else
             {
