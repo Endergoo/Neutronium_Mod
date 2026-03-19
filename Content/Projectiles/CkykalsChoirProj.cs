@@ -95,54 +95,50 @@ namespace Neutronium.Content.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = TextureAssets.Extra[98].Value; // glowing circle
+            Texture2D tex = ModContent.Request<Texture2D>("Terraria/Images/Projectile_88").Value;
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float scale = Projectile.scale;
 
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float scale = Projectile.scale * (1f - i / (float)Projectile.oldPos.Length);
-
-                Main.spriteBatch.Draw(
-                    texture,
-                    pos,
-                    null,
-                    Color.Purple * 0.6f,
-                    Projectile.rotation,
-                    texture.Size() / 2f,
-                    scale,
-                    SpriteEffects.None,
-                    0f
-                );
-
-                 Main.spriteBatch.Draw(
-                texture,
-                pos,
+            // Main vertical line
+            Main.spriteBatch.Draw(
+                tex,
+                drawPos,
                 null,
                 Color.Purple * 0.7f,
                 Projectile.rotation,
-                texture.Size() / 2f,
+                tex.Size() / 2f,
+                new Vector2(0.2f, 1f) * scale, // narrow width, tall height
+                SpriteEffects.None,
+                0f
+            );
+
+            // Horizontal line
+            Main.spriteBatch.Draw(
+                tex,
+                drawPos,
+                null,
+                Color.Purple * 0.7f,
+                Projectile.rotation,
+                tex.Size() / 2f,
                 new Vector2(1f, 0.2f) * scale, // wide width, short height
                 SpriteEffects.None,
                 0f
             );
+
+            // Optional: add small glow or trail with alpha
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                float trailScale = scale * (1f - i / (float)Projectile.oldPos.Length);
+
+                // Vertical trail
+                Main.spriteBatch.Draw(tex, pos, null, Color.Purple * 0.4f, Projectile.rotation, tex.Size() / 2f, new Vector2(0.2f, 1f) * trailScale, SpriteEffects.None, 0f);
+                // Horizontal trail
+                Main.spriteBatch.Draw(tex, pos, null, Color.Purple * 0.4f, Projectile.rotation, tex.Size() / 2f, new Vector2(1f, 0.2f) * trailScale, SpriteEffects.None, 0f);
             }
 
-            // draw main projectile
-            Main.spriteBatch.Draw(
-                texture,
-                drawPos,
-                null,
-                Color.White,
-                Projectile.rotation,
-                texture.Size() / 2f,
-                Projectile.scale,
-                SpriteEffects.None,
-                0f
-            );
-
-            return false;
+            return false; // skip default draw
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
