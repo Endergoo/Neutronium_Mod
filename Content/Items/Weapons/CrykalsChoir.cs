@@ -17,6 +17,7 @@ namespace Neutronium.Content.Items.Weapons
         private float completion = 0f;
         private bool canHit => (completion >= 0.35f && completion <= 0.8f);
         private bool playSound = true;
+        private bool spawnProj = true;
 
         public Texture2D GlowTexture =>
             ModContent.Request<Texture2D>("Neutronium/Content/Items/Weapons/CrykalsChoirGlow").Value;
@@ -41,6 +42,7 @@ namespace Neutronium.Content.Items.Weapons
             time = 0;
             playSound = true;
             bladeTipPos = player.Center;
+            spawnProj = true;
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
@@ -72,6 +74,23 @@ namespace Neutronium.Content.Items.Weapons
                     playSound = false;
                 }
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation() + MathHelper.Lerp(minRot, endRot, eased);
+
+                if (completion >= 0.6f && spawnProj)
+                {
+                    Vector2 shootDir = player.Center.DirectionTo(Main.MouseWorld) * 10f;
+
+                    Projectile.NewProjectile(
+                        player.GetSource_ItemUse(Item),
+                        player.Center,
+                        shootDir,
+                        ModContent.ProjectileType<CrykalsChoirProj>(),
+                        Item.damage,
+                        Item.knockBack,
+                        player.whoAmI
+                    );
+
+                    spawnProj = false;
+                }
             }
 
             player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
