@@ -79,8 +79,9 @@ namespace Neutronium.Content.Items.Weapons
                 player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
             }
 
-            Vector2 shootDir2 = player.Center.DirectionTo(Main.MouseWorld);
-            bladeHitboxPos = player.Center + shootDir2 * 110f;
+            // Track blade tip along actual sword rotation
+            Vector2 bladeDir = player.itemRotation.ToRotationVector2();
+            bladeHitboxPos = player.Center + bladeDir * 180f;
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full,
                 player.itemRotation + MathHelper.ToRadians(-130f) * dir);
@@ -101,10 +102,10 @@ namespace Neutronium.Content.Items.Weapons
             }
 
             hitbox = new Rectangle(
-                (int)(bladeHitboxPos.X - 120f),
-                (int)(bladeHitboxPos.Y - 120f),
-                240,  // was 120, needs to be 2x the offset
-                240);
+                (int)(bladeHitboxPos.X - 150f),
+                (int)(bladeHitboxPos.Y - 150f),
+                300,
+                300);
         }
 
         public override bool? CanHitNPC(Player player, NPC target)
@@ -112,23 +113,16 @@ namespace Neutronium.Content.Items.Weapons
             if (!canHit)
                 return false;
 
-            // Use actual sword rotation instead of mouse direction
             Vector2 bladeDir = player.itemRotation.ToRotationVector2();
-
             float _ = 0f;
-
-            // Start slightly behind player, extend forward along blade
-            Vector2 start = player.Center - bladeDir * 20f;
-            Vector2 end = player.Center + bladeDir * 120f;
 
             bool hit = Collision.CheckAABBvLineCollision(
                 target.Hitbox.TopLeft(),
                 target.Hitbox.Size(),
-                start,
-                end,
-                80f, // THICKNESS — increase this for reliability
-                ref _
-            );
+                player.Center - bladeDir * 20f,   // slightly behind player
+                player.Center + bladeDir * 180f,  // full blade length
+                60f,                               // blade thickness
+                ref _);
 
             return hit ? null : false;
         }
