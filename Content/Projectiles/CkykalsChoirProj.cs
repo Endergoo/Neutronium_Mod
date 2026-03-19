@@ -36,31 +36,34 @@ namespace Neutronium.Content.Projectiles
 
         public override void AI()
         {
-            // --- Smooth sine rotation ---
-            float sine = (float)Math.Sin(Time * 0.55f * Projectile.scale);
-            Projectile.rotation = sine * 0.3f;
+            Player player = Main.player[Projectile.owner];
+            mainColor = Color.Lerp(Color.Purple, Color.Cyan, (float)Math.Sin(Time * 0.05f) * 0.5f + 0.5f);
 
-            // --- Early curved movement ---
+            // --- Smooth, slow gyration ---
+            float sine = (float)Math.Sin(Time * 0.25f * Projectile.scale);
+            Projectile.rotation = sine * 0.2f;
+
+            // --- Early curved motion ---
             if (Time < 20)
             {
-                Projectile.extraUpdates = 1; // smooth path
+                Projectile.extraUpdates = 1; // smoother path
                 Projectile.velocity = Projectile.velocity.RotatedBy(0.03f * Projectile.direction);
             }
             else
             {
                 Projectile.extraUpdates = 0;
 
-                // Simple homing
+                // Gentle homing
                 NPC target = FindClosestNPC(600f);
                 if (target != null)
                 {
                     Vector2 desired = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 12f;
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desired, 0.08f);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desired, 0.05f);
                 }
             }
 
-            // --- Particle sparks ---
-            if (Main.rand.NextBool(2))
+            // --- Color-shifting particles ---
+            if (Time % 2 == 0)
             {
                 Dust dust = Dust.NewDustDirect(
                     Projectile.position,
@@ -69,9 +72,9 @@ namespace Neutronium.Content.Projectiles
                     DustID.GemAmethyst
                 );
                 dust.noGravity = true;
-                dust.velocity *= 0.3f;
-                dust.scale = 0.8f + Main.rand.NextFloat() * 0.4f;
-                dust.color = mainColor * 0.75f;
+                dust.scale = 0.6f + Main.rand.NextFloat() * 0.4f;
+                dust.color = mainColor * 0.7f;
+                dust.velocity *= 0.2f;
             }
 
             Time++;
@@ -98,20 +101,22 @@ namespace Neutronium.Content.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = TextureAssets.Extra[98].Value; // glowing circle
+            Texture2D texture = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomCircle").Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            // --- Layered trail ---
+            // --- Multi-layered, smooth bloom trail ---
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float scale = Projectile.scale * (1f - i / (float)Projectile.oldPos.Length);
+                float progress = 1f - i / (float)Projectile.oldPos.Length;
+                float scale = Projectile.scale * progress * 0.8f;
+                Color color = mainColor * progress * 0.5f;
 
-                // vertical bloom
-                Main.spriteBatch.Draw(texture, pos, null, mainColor * 0.5f, Projectile.rotation, origin, scale, SpriteEffects.None, 0f);
-                // horizontal stretch
-                Main.spriteBatch.Draw(texture, pos, null, mainColor * 0.5f, Projectile.rotation, origin, new Vector2(scale, scale * 0.25f), SpriteEffects.None, 0f);
+                // Vertical bloom
+                Main.spriteBatch.Draw(texture, pos, null, color, Projectile.rotation, origin, scale, SpriteEffects.None, 0f);
+                // Horizontal stretch
+                Main.spriteBatch.Draw(texture, pos, null, color, Projectile.rotation, origin, new Vector2(scale, scale * 0.25f), SpriteEffects.None, 0f);
             }
 
             // --- Main projectile draw ---
@@ -128,12 +133,17 @@ namespace Neutronium.Content.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            for (int i = 0; i < 6; i++)
+            int points = 6;
+            float radians = MathHelper.TwoPi / points;
+            Vector2 spinningPoint = Vector2.Normalize(new Vector2(-1f, -1f).RotatedBy(Projectile.rotation));
+            for (int k = 0; k < points; k++)
             {
-                Vector2 velocity = Main.rand.NextVector2Circular(3f, 3f);
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.GemAmethyst, velocity);
+                Vector2 velocity = spinningPoint.RotatedBy(radians * k).RotatedBy(-0.45f);
+                Dust dust = Dust.NewDustPerfect(Projectile.Center + velocity * 2, DustID.GemAmethyst, velocity * 6);
+                dust.scale = 1.5f + Main.rand.NextFloat() * 0.5f;
                 dust.noGravity = true;
-                dust.scale = 1.5f;
+                dust.color = mainColor;
+                dust.fadeIn = 0.5f;
             }
         }
     }
