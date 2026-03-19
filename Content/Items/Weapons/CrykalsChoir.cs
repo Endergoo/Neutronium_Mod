@@ -6,7 +6,6 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Neutronium.Core.Utils;
-using Neutronium.Content.Projectiles;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -19,7 +18,6 @@ namespace Neutronium.Content.Items.Weapons
         private bool canHit => (completion >= 0.35f && completion <= 0.8f);
         private bool playSound = true;
 
-        //  IGlowmaskItem implementation — used by GlowmaskGlobalItem for in-hand glow
         public Texture2D GlowTexture =>
             ModContent.Request<Texture2D>("Neutronium/Content/Items/Weapons/CrykalsChoirGlow").Value;
 
@@ -81,8 +79,8 @@ namespace Neutronium.Content.Items.Weapons
                 player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
             }
 
-                Vector2 shootDir2 = player.Center.DirectionTo(Main.MouseWorld);
-                bladeHitboxPos = player.Center + shootDir2 * 110f;
+            Vector2 shootDir2 = player.Center.DirectionTo(Main.MouseWorld);
+            bladeHitboxPos = player.Center + shootDir2 * 110f;
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full,
                 player.itemRotation + MathHelper.ToRadians(-130f) * dir);
@@ -94,7 +92,7 @@ namespace Neutronium.Content.Items.Weapons
             time++;
         }
 
-       public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
+        public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
         {
             if (!canHit)
             {
@@ -102,12 +100,11 @@ namespace Neutronium.Content.Items.Weapons
                 return;
             }
 
-            // Much smaller — just enough for CanHitNPC to work, not so big it hits offscreen tiles
             hitbox = new Rectangle(
                 (int)(bladeHitboxPos.X - 120f),
                 (int)(bladeHitboxPos.Y - 120f),
-                120,
-                120);
+                240,  // was 120, needs to be 2x the offset
+                240);
         }
 
         public override bool? CanHitNPC(Player player, NPC target)
@@ -124,13 +121,11 @@ namespace Neutronium.Content.Items.Weapons
             return (canHit && hitCheck) ? null : false;
         }
 
-        // Drawn when item is in the inventory/hotbar
         public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
             spriteBatch.Draw(GlowTexture, position, frame, Color.White, 0f, origin, scale, SpriteEffects.None, 0f);
         }
 
-        // Sine-curve ease — perfectly smooth in and out
         private static float EaseInOut(float t)
         {
             return (float)(-(Math.Cos(Math.PI * t) - 1f) / 2f);
