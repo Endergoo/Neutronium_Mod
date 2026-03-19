@@ -89,19 +89,20 @@ namespace Neutronium.Content.Items.Weapons
             time++;
         }
 
-        // --- ORDERBRINGER-STYLE HITBOX ---
         public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
         {
             if (!canHit)
             {
-                hitbox = new Rectangle(-10000, -10000, 1, 1); // effectively disable hitbox
+                hitbox = new Rectangle(-10000, -10000, 1, 1); // disable when swing not active
                 return;
             }
 
-            // Create a long, thin rectangle along the blade
+            // Adjusted for larger 140x140 sprite
             Vector2 swingDir = (bladeTipPos - player.Center).SafeNormalize(Vector2.UnitX);
-            Vector2 size = new Vector2(80f, 40f); // width (along swing) x height
-            Vector2 center = player.Center + swingDir * 120f; // move center along blade path
+
+            // Length along the swing, width across the blade
+            Vector2 size = new Vector2(100f, 60f); // increased from 80x40 to 100x60
+            Vector2 center = player.Center + swingDir * 140f; // move center along blade path
 
             hitbox = new Rectangle(
                 (int)(center.X - size.X / 2f),
@@ -116,12 +117,12 @@ namespace Neutronium.Content.Items.Weapons
             Vector2 shootDir = player.Center.DirectionTo(mPos);
             float _ = float.NaN;
 
-            // Check collision along the blade path
+            // Extend the line to match larger sprite
             bool hitCheck = Collision.CheckAABBvLineCollision(
                 target.Hitbox.TopLeft(), target.Hitbox.Size(),
-                player.Center - shootDir * 30f,
-                bladeTipPos,
-                Item.width * 3f,
+                player.Center - shootDir * 40f, // slightly farther back
+                bladeTipPos + shootDir * 20f,   // extend tip along swing
+                Item.width * 3.5f,              // slightly wider for bigger sprite
                 ref _);
 
             return (canHit && hitCheck) ? null : false;
