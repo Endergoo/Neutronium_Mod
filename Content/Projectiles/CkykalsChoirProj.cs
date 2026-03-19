@@ -52,7 +52,7 @@ namespace Neutronium.Content.Projectiles
             float sine = (float)Math.Sin(Time * 0.2f);
             Projectile.rotation = 0.25f * sine;
 
-            if (Time < 40)
+            if (Time < 60)
             {
                 Projectile.extraUpdates = 1;
                 Projectile.velocity = Projectile.velocity.RotatedBy(0f * Projectile.direction);
