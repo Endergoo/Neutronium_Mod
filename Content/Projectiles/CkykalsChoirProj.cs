@@ -20,7 +20,7 @@ namespace Neutronium.Content.Projectiles
             Color.Purple,
             Color.Cyan,
             Color.HotPink,
-            Color.Purple
+            Color.Purple,
             Color.HotPink,
         };
 
