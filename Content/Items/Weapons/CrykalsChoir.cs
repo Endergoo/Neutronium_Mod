@@ -79,9 +79,9 @@ namespace Neutronium.Content.Items.Weapons
                 player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
             }
 
-            // Track blade tip along actual sword rotation
-            Vector2 bladeDir = player.itemRotation.ToRotationVector2();
-            bladeHitboxPos = player.Center + bladeDir * 180f;
+            // extraRot corrects for Terraria's sprite offset — aligns hitbox with visible blade
+            float extraRot = (dir == 1 ? -MathHelper.PiOver4 : MathHelper.ToRadians(225f));
+            bladeHitboxPos = player.Center + (player.itemRotation + extraRot).ToRotationVector2() * 180f;
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full,
                 player.itemRotation + MathHelper.ToRadians(-130f) * dir);
@@ -101,30 +101,27 @@ namespace Neutronium.Content.Items.Weapons
                 return;
             }
 
+            float scale = 8f;
+            Vector2 newSize = new Vector2(hitbox.Width, hitbox.Height) * scale;
             hitbox = new Rectangle(
-                (int)(bladeHitboxPos.X - 150f),
-                (int)(bladeHitboxPos.Y - 150f),
-                300,
-                300);
+                (int)(bladeHitboxPos.X - newSize.X / 2f),
+                (int)(bladeHitboxPos.Y - newSize.Y / 2f),
+                (int)newSize.X,
+                (int)newSize.Y);
         }
 
         public override bool? CanHitNPC(Player player, NPC target)
         {
-            if (!canHit)
-                return false;
-
-            Vector2 bladeDir = player.itemRotation.ToRotationVector2();
-            float _ = 0f;
-
-            bool hit = Collision.CheckAABBvLineCollision(
-                target.Hitbox.TopLeft(),
-                target.Hitbox.Size(),
-                player.Center - bladeDir * 20f,   // slightly behind player
-                player.Center + bladeDir * 180f,  // full blade length
-                60f,                               // blade thickness
+            Vector2 mPos = Main.MouseWorld;
+            Vector2 shootDir = player.Center.DirectionTo(mPos);
+            float _ = float.NaN;
+            bool hitCheck = Collision.CheckAABBvLineCollision(
+                target.Hitbox.TopLeft(), target.Hitbox.Size(),
+                player.Center - shootDir * 30f,
+                player.Center + shootDir * 180f,
+                Item.width * 3f,
                 ref _);
-
-            return hit ? null : false;
+            return (canHit && hitCheck) ? null : false;
         }
 
         public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
