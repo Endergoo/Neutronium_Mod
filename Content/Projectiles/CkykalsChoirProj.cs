@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
-using Neutronium.Content.Particles;
 
 namespace Neutronium.Content.Projectiles
 {
