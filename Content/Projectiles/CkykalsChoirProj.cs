@@ -45,6 +45,7 @@ namespace Neutronium.Content.Projectiles
 
         public override void AI()
         {
+
             // Color cycling
             float colorProgress = (Time % 60) / 60f;
             int colorIndex = (int)(Time / 60) % (colors.Length - 1);
@@ -54,10 +55,20 @@ namespace Neutronium.Content.Projectiles
             float sine = (float)Math.Sin(Time * 0.2f);
             Projectile.rotation = 0.25f * sine;
 
-            if (Time < 20)
+            if (Time == 0)
+            Projectile.ai[1] = Main.rand.Next(10, 40); // random between 10 and 40 ticks
+
+            float colorProgress = (Time % 60) / 60f;
+            int colorIndex = (int)(Time / 60) % (colors.Length - 1);
+            mainColor = Color.Lerp(colors[colorIndex], colors[colorIndex + 1], colorProgress);
+
+            float sine = (float)Math.Sin(Time * 0.2f);
+            Projectile.rotation = 0.25f * sine;
+
+            if (Time < Projectile.ai[1]) // use stored random value
             {
                 Projectile.extraUpdates = 1;
-                Projectile.velocity = Projectile.velocity.RotatedBy(0f * Projectile.direction);
+                Projectile.velocity = Projectile.velocity.RotatedBy(0.01f * Projectile.direction);
             }
             else
             {
