@@ -17,7 +17,7 @@ namespace Neutronium.Content.Projectiles
 
         public Color[] colors = new Color[]
         {
-            Color.Purple
+            Color.Purple,
             Color.Cyan,
             Color.HotPink,
             Color.Purple
