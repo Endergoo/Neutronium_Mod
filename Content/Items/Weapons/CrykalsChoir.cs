@@ -49,6 +49,7 @@ namespace Neutronium.Content.Items.Weapons
         public override void MeleeEffects(Player player, Rectangle hitbox)
         {
             completion = (float)time / (Item.useAnimation / player.GetAttackSpeed(DamageClass.Melee));
+            Vector2 mPos = Main.MouseWorld;
             int dir = -Math.Sign(player.Center.X - mPos.X);
 
             float startRot = MathHelper.ToRadians(-110f) * dir * (swingCount % 2 == 0 ? 1 : -1);
@@ -68,7 +69,7 @@ namespace Neutronium.Content.Items.Weapons
             }
             else
             {
-               if (playSound)
+                if (playSound)
                 {
                     SoundEngine.PlaySound(SoundID.Item1, player.Center);
                     playSound = false;
@@ -92,6 +93,7 @@ namespace Neutronium.Content.Items.Weapons
                         dust.color = Color.Purple with { A = 0 };
                         dust.fadeIn = Main.rand.NextFloat(0.5f, 1f);
                     }
+                }
                 }
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation() + MathHelper.Lerp(minRot, endRot, eased);
 
