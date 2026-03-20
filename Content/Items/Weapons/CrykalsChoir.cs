@@ -80,7 +80,7 @@ namespace Neutronium.Content.Items.Weapons
                 {
                     int projCount = 2;
                     float spreadAngle = 0.20f;
-                    Vector2 baseDir = player.Center.DirectionTo(Main.MouseWorld) * 10f;
+                    Vector2 baseDir = player.Center.DirectionTo(Main.MouseWorld) * 18f;
 
                     for (int i = 0; i < projCount; i++)
                     {
