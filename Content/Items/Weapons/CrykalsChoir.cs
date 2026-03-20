@@ -163,13 +163,31 @@ namespace Neutronium.Content.Items.Weapons
             spriteBatch.Draw(GlowTexture, position, frame, Color.White, 0f, origin, scale, SpriteEffects.None, 0f);
         }
 
-          public override void ModifyTooltips(List<TooltipLine> list)
+        public override void ModifyTooltips(List<TooltipLine> list)
         {
-            foreach (TooltipLine line in list)
+            Player owner = Main.LocalPlayer;
+            if (owner is null)
+                return;
+
+            float rate = Main.GlobalTimeWrappedHourly * 7;
+            List<Color> eColors = new List<Color>()
             {
-                if (line.Mod == "Terraria" && line.Name == "ItemName")
-                    NeutronTouched.Draw(Item, line);
-            }
+                Color.Purple,
+                Color.MediumPurple,
+                Color.Cyan,
+                Color.HotPink,
+                Color.MediumPurple,
+                Color.Purple
+            };
+
+            int colorIndex = (int)(rate / 2 % eColors.Count);
+            Color currentColor = eColors[colorIndex];
+            Color nextColor = eColors[(colorIndex + 1) % eColors.Count];
+            Color finalColor = Color.Lerp(currentColor, nextColor, rate % 2f > 1f ? 1f : rate % 1f);
+
+            TooltipLine line = list.FirstOrDefault(x => x.Mod == "Terraria" && x.Name == "ItemName");
+            if (line != null)
+                line.OverrideColor = Color.Lerp(finalColor, Color.White, 0.3f);
         }
 
         private static float EaseInOut(float t)
