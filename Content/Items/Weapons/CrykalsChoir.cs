@@ -73,6 +73,28 @@ namespace Neutronium.Content.Items.Weapons
                 {
                     SoundEngine.PlaySound(SoundID.Item1, player.Center);
                     playSound = false;
+
+                    Vector2 mPos = Main.MouseWorld;
+                    Vector2 shootDir = player.Center.DirectionTo(mPos);
+                    int dir = -Math.Sign(player.Center.X - mPos.X);
+
+                    int dustCount = 25;
+                    for (int i = 0; i < dustCount; i++)
+                    {
+                        float angle = MathHelper.Lerp(-0.5f, 0.5f, i / (float)dustCount);
+                        float speed = Main.rand.NextFloat(4f, 10f);
+                        Vector2 dustVel = shootDir.RotatedBy(angle * (dir * (swingCount % 2 == 0 ? 1 : -1))) * speed;
+
+                        Dust dust = Dust.NewDustPerfect(
+                            player.Center + dustVel * 2f,
+                            DustID.GemAmethyst,
+                            dustVel
+                        );
+                        dust.noGravity = true;
+                        dust.scale = Main.rand.NextFloat(0.9f, 1.6f);
+                        dust.color = Color.Purple with { A = 0 };
+                        dust.fadeIn = Main.rand.NextFloat(0.5f, 1f);
+                    }
                 }
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation() + MathHelper.Lerp(minRot, endRot, eased);
 
