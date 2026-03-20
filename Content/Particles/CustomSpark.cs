@@ -1,3 +1,4 @@
+/*
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,7 +8,7 @@ using Neutronium.Content.Projectiles;
 
 namespace Neutronium.Content.Particles
 {
-    public class CustomSpark : Particles
+    public class CustomSpark : Particle
     {
         public Color InitialColor;
         public bool AffectedByGravity;
@@ -105,3 +106,4 @@ namespace Neutronium.Content.Particles
         }
     }
 }
+*/
