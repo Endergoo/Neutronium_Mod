@@ -99,6 +99,7 @@ namespace Neutronium.Content.Items.Weapons
                         );
                     }
 
+                    SoundEngine.PlaySound(SoundID.Item9, player.Center);
                     spawnProj = false;
                 }
             }
