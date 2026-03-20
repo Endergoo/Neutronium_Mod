@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Neutronium.Core.Utils;
 using Neutronium.Content.Projectiles;
 using Neutronium.Content.Rarities;
+using System.Collections.Generic;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -161,6 +162,14 @@ namespace Neutronium.Content.Items.Weapons
         {
             spriteBatch.Draw(GlowTexture, position, frame, Color.White, 0f, origin, scale, SpriteEffects.None, 0f);
         }
+        
+          public override void ModifyTooltips(List<TooltipLine> list)
+        {
+            foreach (TooltipLine line in list)
+            {
+                if (line.Mod == "Terraria" && line.Name == "ItemName")
+                    NeutronTouched.Draw(Item, line);
+            }
 
         private static float EaseInOut(float t)
         {
