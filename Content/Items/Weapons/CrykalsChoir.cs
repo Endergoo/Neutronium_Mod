@@ -122,7 +122,6 @@ namespace Neutronium.Content.Items.Weapons
 
                     spawnProj = false;
                 }
-            }
 
             player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
 
