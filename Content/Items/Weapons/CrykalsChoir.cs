@@ -78,8 +78,8 @@ namespace Neutronium.Content.Items.Weapons
 
                 if (completion >= 0.6f && spawnProj)
                 {
-                    int projCount = 3;
-                    float spreadAngle = 0.15f;
+                    int projCount = 2;
+                    float spreadAngle = 0.20f;
                     Vector2 baseDir = player.Center.DirectionTo(Main.MouseWorld) * 10f;
 
                     for (int i = 0; i < projCount; i++)
