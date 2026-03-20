@@ -7,7 +7,7 @@ using Neutronium.Content.Projectiles;
 
 namespace Neutronium.Content.Particles
 {
-    public class CustomSpark : Particle
+    public class CustomSpark : Particles
     {
         public Color InitialColor;
         public bool AffectedByGravity;
