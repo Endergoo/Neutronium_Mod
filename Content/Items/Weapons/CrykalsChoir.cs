@@ -72,7 +72,7 @@ namespace Neutronium.Content.Items.Weapons
                 if (playSound)
                 {
                     SoundStyle swing = new("Neutronium/Content/Sounds/Items/Swoosh");
-                    SoundEngine.PlaySound(swing with { Pitch = Main.rand.NextFloat(-0.1f, -0.3f), Volume = 0.75f }, player.Center);
+                    SoundEngine.PlaySound(swing with { Pitch = Main.rand.NextFloat(-0.3f, -0.6f), Volume = 0.75f }, player.Center);
                     playSound = false;
                 }
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation() + MathHelper.Lerp(minRot, endRot, eased);
