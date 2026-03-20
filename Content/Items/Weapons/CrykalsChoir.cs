@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Neutronium.Core.Utils;
 using Neutronium.Content.Projectiles;
+using Neutronium.Content.Rarities;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -35,6 +36,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.autoReuse = true;
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Yellow;
+            Item.rare = ModContent.RarityType<NeutronTouched>();
         }
 
         public override void UseAnimation(Player player)
@@ -128,12 +130,9 @@ namespace Neutronium.Content.Items.Weapons
                 return;
             }
 
-            // Adjusted for larger 140x140 sprite
             Vector2 swingDir = (bladeTipPos - player.Center).SafeNormalize(Vector2.UnitX);
-
-            // Length along the swing, width across the blade
-            Vector2 size = new Vector2(100f, 60f); // increased from 80x40 to 100x60
-            Vector2 center = player.Center + swingDir * 140f; // move center along blade path
+            Vector2 size = new Vector2(100f, 60f);
+            Vector2 center = player.Center + swingDir * 140f;
 
             hitbox = new Rectangle(
                 (int)(center.X - size.X / 2f),
@@ -148,12 +147,11 @@ namespace Neutronium.Content.Items.Weapons
             Vector2 shootDir = player.Center.DirectionTo(mPos);
             float _ = float.NaN;
 
-            // Extend the line to match larger sprite
             bool hitCheck = Collision.CheckAABBvLineCollision(
                 target.Hitbox.TopLeft(), target.Hitbox.Size(),
-                player.Center - shootDir * 40f, // slightly farther back
-                bladeTipPos + shootDir * 20f,   // extend tip along swing
-                Item.width * 3.5f,              // slightly wider for bigger sprite
+                player.Center - shootDir * 40f, 
+                bladeTipPos + shootDir * 20f,   
+                Item.width * 3.5f,              
                 ref _);
 
             return (canHit && hitCheck) ? null : false;
