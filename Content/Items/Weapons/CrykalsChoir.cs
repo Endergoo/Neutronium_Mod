@@ -9,6 +9,7 @@ using Neutronium.Core.Utils;
 using Neutronium.Content.Projectiles;
 using Neutronium.Content.Rarities;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Neutronium.Content.Items.Weapons
 {
