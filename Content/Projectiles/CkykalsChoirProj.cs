@@ -93,6 +93,7 @@ namespace Neutronium.Content.Projectiles
             }
 
             Time++;
+            Lighting.AddLight(Projectile.Center, mainColor.ToVector3() * 0.5f);
         }
 
         private NPC FindClosestNPC(float maxDetectDistance)
