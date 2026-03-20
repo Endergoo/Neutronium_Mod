@@ -7,7 +7,6 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Neutronium.Core.Utils;
 using Neutronium.Content.Projectiles;
-using Neutronium.Content.Sounds.Items;
 
 namespace Neutronium.Content.Items.Weapons
 {
