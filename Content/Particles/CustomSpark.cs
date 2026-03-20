@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
-using Neutronium.Content.projectiles;
+using Neutronium.Content.Projectiles;
 
 namespace Neutronium.Content.Particles
 {
