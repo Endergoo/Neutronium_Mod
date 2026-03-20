@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Neutronium.Core.Utils;
 using Neutronium.Content.Projectiles;
+using Neutronium.Content.Sounds.Items;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -71,7 +72,8 @@ namespace Neutronium.Content.Items.Weapons
             {
                 if (playSound)
                 {
-                    SoundEngine.PlaySound(SoundID.Item60, player.Center);
+                    SoundStyle swing = new("Neutonium/Sounds/Item/Swoosh");
+                    SoundEngine.PlaySound(swing with { Pitch = Main.rand.NextFloat(0.1f, 0.3f), Volume = 1f }, player.Center);
                     playSound = false;
                 }
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation() + MathHelper.Lerp(minRot, endRot, eased);
@@ -99,6 +101,7 @@ namespace Neutronium.Content.Items.Weapons
                         );
                     }
 
+                    SoundEngine.PlaySound(SoundID.Item60, player.Center);
                     spawnProj = false;
                 }
             }
