@@ -48,7 +48,7 @@ namespace Neutronium.Content.Projectiles
             if (Time == 0)
             {
                 Projectile.ai[1] = Main.rand.Next(10, 40);
-                Projectile.ai[2] = Main.rand.NextFloat(20f, 21f);
+                Projectile.ai[2] = Main.rand.NextFloat(20f, 20f);
             }
 
             // Color cycling
