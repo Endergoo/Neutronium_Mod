@@ -71,9 +71,6 @@ namespace Neutronium.Content.Items.Weapons
             {
                 if (playSound)
                 {
-                    SoundEngine.PlaySound(SoundID.Item1, player.Center);
-                    playSound = false;
-
                     Vector2 shootDir = player.Center.DirectionTo(mPos);
                     int dustCount = 25;
                     for (int i = 0; i < dustCount; i++)
@@ -83,15 +80,16 @@ namespace Neutronium.Content.Items.Weapons
                         Vector2 dustVel = shootDir.RotatedBy(angle * (dir * (swingCount % 2 == 0 ? 1 : -1))) * speed;
 
                         Dust dust = Dust.NewDustPerfect(
-                            player.Center + dustVel * 2f,
+                            bladeTipPos + Main.rand.NextVector2Circular(20f, 20f), // spawn along blade
                             DustID.GemAmethyst,
-                            dustVel
+                            -dustVel * 0.5f // velocity going backward relative to swing
                         );
                         dust.noGravity = true;
                         dust.scale = Main.rand.NextFloat(0.9f, 1.6f);
                         dust.color = Color.Purple with { A = 0 };
                         dust.fadeIn = Main.rand.NextFloat(0.5f, 1f);
                     }
+                }
                 }
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation() + MathHelper.Lerp(minRot, endRot, eased);
 
@@ -120,7 +118,6 @@ namespace Neutronium.Content.Items.Weapons
 
                     spawnProj = false;
                 }
-            }
 
             player.itemRotation += MathHelper.Pi * (dir == 1 ? 0 : 1) + MathHelper.PiOver4 * dir;
 
