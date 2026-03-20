@@ -71,7 +71,7 @@ namespace Neutronium.Content.Items.Weapons
             {
                 if (playSound)
                 {
-                    SoundStyle swing = new("Neutonium/Sounds/Item/Swoosh");
+                    SoundStyle swing = new("Neutronium/Sounds/Item/Swoosh");
                     SoundEngine.PlaySound(swing with { Pitch = Main.rand.NextFloat(0.1f, 0.3f), Volume = 1f }, player.Center);
                     playSound = false;
                 }
