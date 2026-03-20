@@ -71,7 +71,7 @@ namespace Neutronium.Content.Items.Weapons
             {
                 if (playSound)
                 {
-                    SoundEngine.PlaySound(SoundID.Item1, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item60, player.Center);
                     playSound = false;
                 }
                 player.itemRotation = player.Center.DirectionTo(mPos).ToRotation() + MathHelper.Lerp(minRot, endRot, eased);
@@ -99,7 +99,6 @@ namespace Neutronium.Content.Items.Weapons
                         );
                     }
 
-                    SoundEngine.PlaySound(SoundID.Item9, player.Center);
                     spawnProj = false;
                 }
             }
