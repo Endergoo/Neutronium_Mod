@@ -16,9 +16,27 @@ namespace Neutronium.Content.Rarities
         public static Color BloomClr = new Color(80, 0, 120, 0);
         public static Color TextClr = new Color(180, 50, 255, 50);
 
+        private static float lastFlashTime = 0f;
+        private static bool isFlashing = false;
+
         public static void Draw(Item item, SpriteBatch spriteBatch, string text, int X, int Y, Color textColor, Color lightColor, float rotation,
         Vector2 origin, Vector2 baseScale, float time, DynamicSpriteFont font)
         {
+            // Flash trigger
+            float flashDuration = 0.2f;
+            if (Main.GameUpdateCount - lastFlashTime > flashDuration * 60)
+            {
+                if (Main.rand.NextFloat() < 0.005f)
+                {
+                    isFlashing = true;
+                    lastFlashTime = Main.GameUpdateCount;
+                }
+                else
+                {
+                    isFlashing = false;
+                }
+            }
+
             var fontSize = font.MeasureString(text);
 
             textColor.A = 0;
@@ -31,15 +49,31 @@ namespace Neutronium.Content.Rarities
                     spriteBatch, font, text,
                     new Vector2(X, Y) + new Vector2(pulsing, 0f).RotatedBy(f + time * 2f % MathHelper.TwoPi),
                     textColor * 0.5f, rotation, origin, baseScale);
+
+                // Shake the glow when flashing
+                if (isFlashing)
+                    origin += Main.rand.NextVector2Circular(2f, 1.2f);
+            }
+
+            // Change color when flashing to electric purple/white
+            if (isFlashing)
+            {
+                textColor = new Color(220, 100, 255, 50);
+                lightColor = new Color(255, 100, 255, 50);
             }
 
             textColor.A = 255;
 
+            // Base position with shake when flashing
+            Vector2 basePos = new Vector2(X, Y);
+            if (isFlashing)
+                basePos += Main.rand.NextVector2Circular(3f, 10f);
+
             // Shadow
-            ChatManager.DrawColorCodedStringShadow(spriteBatch, font, text, new Vector2(X, Y), textColor * 2f, rotation, origin, baseScale);
+            ChatManager.DrawColorCodedStringShadow(spriteBatch, font, text, basePos, textColor * 2f, rotation, origin, baseScale);
 
             // Dark outline
-            ChatManager.DrawColorCodedString(spriteBatch, font, text, new Vector2(X, Y), new Color(40, 0, 60), rotation, origin, baseScale);
+            ChatManager.DrawColorCodedString(spriteBatch, font, text, basePos, new Color(40, 0, 60), rotation, origin, baseScale);
 
             // Shine sweep
             float shineWidth = 40f;
@@ -53,7 +87,7 @@ namespace Neutronium.Content.Rarities
                 string c = text[i].ToString();
                 Vector2 charSize = font.MeasureString(c);
 
-                Vector2 charPos = new Vector2(X, Y) + new Vector2(charOffsetX, 0f);
+                Vector2 charPos = basePos + new Vector2(charOffsetX, 0f);
 
                 float centerX = charPos.X + (charSize.X * baseScale.X) / 2f + 10.5f;
                 float dist = Math.Abs(centerX - (X + shinePos - shineWidth * 0.15f));
@@ -61,7 +95,11 @@ namespace Neutronium.Content.Rarities
 
                 if (intensity > 0f)
                 {
-                    Color shineColor = new Color(220, 150, 255) * intensity * 1.5f;
+                    // Shine turns white/bright when flashing, purple otherwise
+                    Color shineColor = isFlashing
+                        ? new Color(255, 200, 255) * intensity * 2f
+                        : new Color(220, 150, 255) * intensity * 1.5f;
+
                     ChatManager.DrawColorCodedString(
                         spriteBatch, font, c, charPos, shineColor, rotation, origin, baseScale);
                 }
