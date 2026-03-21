@@ -24,7 +24,6 @@ namespace Neutronium.Content.Buffs.DoT
             {
                 npc.SimpleStrikeNPC(
                     damage: 20,
-                    knockback: 0,
                     damageType: DamageClass.Melee,
                     noPlayerInteraction: true
                 );
