@@ -38,6 +38,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.autoReuse = true;
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Yellow;
+            list.RemoveAll(x => x.Mod == "Terraria" && x.Name == "Speed");
             Item.rare = ModContent.RarityType<NeutronTouched>();
         }
 
