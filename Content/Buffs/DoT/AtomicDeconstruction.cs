@@ -9,10 +9,9 @@ namespace Neutronium.Content.Buffs.DoT
     {
         public override void SetStaticDefaults()
         {
-            Main.buffNoSave[Type] = true;
             Main.debuff[Type] = true;
-            Main.buffNoTimeDisplay[Type] = false;
             Main.pvpBuff[Type] = true;
+            Main.buffNoSave[Type] = true;
             BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
         }
 
