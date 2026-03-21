@@ -5,7 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
-using Neutronium.Content.Buffs.Dot;
+using Neutronium.Content.Buffs.DoT;
 
 namespace Neutronium.Content.Projectiles
 {

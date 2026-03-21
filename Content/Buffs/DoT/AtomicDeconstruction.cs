@@ -3,7 +3,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Neutronium.Content.Buffs.Dot;
+namespace Neutronium.Content.Buffs.DoT
 {
     public class AtomicDeconstruction : ModBuff
     {
