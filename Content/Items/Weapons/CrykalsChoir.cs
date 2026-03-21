@@ -166,9 +166,10 @@ namespace Neutronium.Content.Items.Weapons
 
         public override void ModifyTooltips(List<TooltipLine> list)
         {
+            Player player = Main.LocalPlayer;
             TooltipLine damageLine = list.FirstOrDefault(x => x.Mod == "Terraria" && x.Name == "Damage");
             if (damageLine != null)
-                damageLine.Text = $"{Item.damage} melee damage";
+                damageLine.Text = $"{player.GetWeaponDamage(Item)} melee damage";
         }
 
         public override bool PreDrawTooltipLine(DrawableTooltipLine line, ref int yOffset)
