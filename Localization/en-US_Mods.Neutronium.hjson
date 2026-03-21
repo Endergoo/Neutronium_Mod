@@ -203,4 +203,9 @@ Buffs: {
 		DisplayName: Strand Of Laniakea Debuff Advanced
 		Description: Mods.Neutronium.Buffs.StrandOfLaniakeaDebuffAdvanced.Description
 	}
+
+	AtomicDeconstruction: {
+		DisplayName: Atomic Deconstruction
+		Description: Mods.Neutronium.Buffs.AtomicDeconstruction.Description
+	}
 }

@@ -9,7 +9,9 @@ namespace Neutronium.Content.Buffs.DoT
     {
         public override void SetStaticDefaults()
         {
+            Main.buffNoSave[Type] = true;
             Main.debuff[Type] = true;
+            Main.buffNoTimeDisplay[Type] = false;
             Main.pvpBuff[Type] = true;
             BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
         }
@@ -22,7 +24,7 @@ namespace Neutronium.Content.Buffs.DoT
             // Damage over time — every 30 ticks (0.5 seconds)
            if (npc.buffTime[buffIndex] % 30 == 0)
             {
-                npc.SimpleStrikeNPC(20, 0, false, 0f, DamageClass.Melee, true);
+                npc.SimpleStrikeNPC(20, 0, false, 0f, DamageClass.Default, true);
             }
 
             // Purple aura particles
