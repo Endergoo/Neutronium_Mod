@@ -31,7 +31,6 @@ namespace Neutronium.Content.Items.Weapons
             Item.width = 140;
             Item.height = 140;
             Item.damage = 400;
-            Item.noMelee = true;
             Item.DamageType = DamageClass.Melee;
             Item.useAnimation = Item.useTime = 20;
             Item.useStyle = ItemUseStyleID.Swing;
