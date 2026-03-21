@@ -20,13 +20,9 @@ namespace Neutronium.Content.Buffs.DoT
             npc.defense -= 15;
 
             // Damage over time — every 30 ticks (0.5 seconds)
-            if (npc.buffTime[buffIndex] % 30 == 0)
+           if (npc.buffTime[buffIndex] % 30 == 0)
             {
-                npc.SimpleStrikeNPC(
-                    damage: 20,
-                    damageType: DamageClass.Melee,
-                    noPlayerInteraction: true
-                );
+                npc.SimpleStrikeNPC(20, 0, false, 0f, DamageClass.Melee, true);
             }
 
             // Purple aura particles
