@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using Neutronium.Content.Buffs.Dot;
 
 namespace Neutronium.Content.Projectiles
 {
@@ -166,7 +167,7 @@ namespace Neutronium.Content.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(BuffID.OnFire, 120);
+            target.AddBuff(ModContent.BuffType<AtomicDeconstruction>(), 180);
         }
 
         public override void OnKill(int timeLeft)
