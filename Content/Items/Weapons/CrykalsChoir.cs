@@ -38,7 +38,6 @@ namespace Neutronium.Content.Items.Weapons
             Item.autoReuse = true;
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Yellow;
-            list.RemoveAll(x => x.Mod == "Terraria" && x.Name == "Speed");
             Item.rare = ModContent.RarityType<NeutronTouched>();
         }
 
@@ -163,6 +162,13 @@ namespace Neutronium.Content.Items.Weapons
         public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
             spriteBatch.Draw(GlowTexture, position, frame, Color.White, 0f, origin, scale, SpriteEffects.None, 0f);
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> list)
+        {
+            TooltipLine damageLine = list.FirstOrDefault(x => x.Mod == "Terraria" && x.Name == "Damage");
+            if (damageLine != null)
+                damageLine.Text = $"{Item.damage} melee damage";
         }
 
         public override bool PreDrawTooltipLine(DrawableTooltipLine line, ref int yOffset)
