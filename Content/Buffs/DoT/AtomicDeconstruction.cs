@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Neutronium.Content.Buffs.DoT;
 
 namespace Neutronium.Content.Buffs.DoT
 {
@@ -24,7 +25,7 @@ namespace Neutronium.Content.Buffs.DoT
             // Damage over time — every 30 ticks (0.5 seconds)
            if (npc.buffTime[buffIndex] % 30 == 0)
             {
-                npc.SimpleStrikeNPC(20, 0, false, 0f, DamageClass.Default, true);
+                npc.SimpleStrikeNPC(150, 0, false, 0f, DamageClass.Default, true);
             }
 
             // Purple aura particles
