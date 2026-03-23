@@ -18,7 +18,7 @@ namespace Neutronium.Content.Buffs.DoT
         public override void Update(NPC npc, ref int buffIndex)
         {
             // Defense reduction
-            npc.defense -= 15;
+            npc.defense = Math.Max(0, npc.defense - 15);
 
             // Damage over time — every 30 ticks (0.5 seconds)
            if (npc.buffTime[buffIndex] % 30 == 0)
