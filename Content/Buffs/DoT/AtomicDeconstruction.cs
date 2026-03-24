@@ -19,13 +19,13 @@ namespace Neutronium.Content.Buffs.DoT
 
         public override void Update(NPC npc, ref int buffIndex)
         {
-            // Defense reduction
-            npc.defense = Math.Max(0, npc.defense - 15);
+            // DR
+            npc.defense = (int)(npc.defense * 0.8f);
 
             // Damage over time — every 30 ticks (0.5 seconds)
            if (npc.buffTime[buffIndex] % 15 == 0)
             {
-                npc.SimpleStrikeNPC(150, 0, false, 0f, DamageClass.Default, true);
+                npc.SimpleStrikeNPC(75, 0, false, 0f, DamageClass.Default, true);
             }
 
             // Purple aura particles
