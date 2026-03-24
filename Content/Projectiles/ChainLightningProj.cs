@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -8,34 +9,37 @@ namespace Neutronium.Content.Projectiles
 {
     public class ChainLightningProj : ModProjectile
     {
-       public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.CultistBossLightningOrbArc;
+        public override string Texture => "Terraria/Images/Projectile_0";
 
-        // ai[0] = how many times it has chained
-        // ai[1] = last NPC it hit (to avoid chaining back)
         public ref float ChainCount => ref Projectile.ai[0];
         public ref float LastHitNPC => ref Projectile.ai[1];
 
         private const int MaxChains = 3;
-        private const float ChainRange = 250f;
+        private const float ChainRange = 300f;
+        private const float MaxRange = 350f;
+
+        // Stores the zigzag points for drawing
+        private static List<Vector2> zigzagPoints = new List<Vector2>();
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Type] = 20;
             ProjectileID.Sets.TrailingMode[Type] = 0;
         }
 
         public override void SetDefaults()
         {
-            Projectile.width = 10;
-            Projectile.height = 10;
+            Projectile.width = 6;
+            Projectile.height = 6;
             Projectile.friendly = true;
             Projectile.hostile = false;
             Projectile.penetrate = 1;
-            Projectile.timeLeft = 30; // short range — dies quickly
+            Projectile.timeLeft = 25; // short range
             Projectile.tileCollide = true;
             Projectile.DamageType = DamageClass.Ranged;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 5;
+            Projectile.extraUpdates = 2; // moves faster with more updates
         }
 
         public override void AI()
@@ -43,7 +47,14 @@ namespace Neutronium.Content.Projectiles
             Projectile.rotation = Projectile.velocity.ToRotation();
 
             // Blue/white electric glow
-            Lighting.AddLight(Projectile.Center, 0.2f, 0.4f, 1f);
+            Lighting.AddLight(Projectile.Center, 0.2f, 0.5f, 1f);
+
+            // Zigzag motion — more aggressive than before
+            Projectile.velocity += Main.rand.NextVector2Circular(2f, 2f);
+
+            // Cap speed so it doesn't go too fast
+            if (Projectile.velocity.Length() > 20f)
+                Projectile.velocity = Projectile.velocity.SafeNormalize(Vector2.Zero) * 20f;
 
             // Electric spark dust trail
             if (Main.rand.NextBool(2))
@@ -55,40 +66,44 @@ namespace Neutronium.Content.Projectiles
                     DustID.Electric
                 );
                 dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(0.5f, 1f);
-                dust.color = new Color(150, 200, 255) with { A = 0 };
-                dust.velocity *= 0.3f;
+                dust.scale = Main.rand.NextFloat(0.6f, 1.2f);
+                dust.color = new Color(100, 200, 255) with { A = 0 };
+                dust.velocity *= 0.2f;
             }
 
-            // Slight zigzag motion
-            if (Main.rand.NextBool(2))
-                Projectile.velocity += Main.rand.NextVector2Circular(1.5f, 1.5f);
+            // If no enemy hit yet, check if one is close enough to home toward
+            if (ChainCount == 0)
+            {
+                NPC target = FindClosestNPC(MaxRange);
+                if (target != null)
+                {
+                    Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 20f, 0.15f);
+                }
+            }
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             // Spark burst on hit
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 12; i++)
             {
-                Dust dust = Dust.NewDustDirect(
-                    target.position,
-                    target.width,
-                    target.height,
-                    DustID.Electric
+                Dust dust = Dust.NewDustPerfect(
+                    target.Center + Main.rand.NextVector2Circular(target.width / 2f, target.height / 2f),
+                    DustID.Electric,
+                    Main.rand.NextVector2Circular(5f, 5f)
                 );
                 dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(0.8f, 1.5f);
-                dust.color = new Color(150, 200, 255) with { A = 0 };
-                dust.velocity = Main.rand.NextVector2Circular(4f, 4f);
+                dust.scale = Main.rand.NextFloat(0.8f, 1.6f);
+                dust.color = new Color(100, 200, 255) with { A = 0 };
             }
 
-            // Chain to next enemy if we haven't hit max chains
+            // Chain to next enemy
             if (ChainCount < MaxChains)
             {
                 NPC nextTarget = FindNextTarget(target);
                 if (nextTarget != null)
                 {
-                    // Spawn a new chain lightning projectile toward the next target
                     Vector2 direction = (nextTarget.Center - target.Center).SafeNormalize(Vector2.Zero);
                     Projectile chain = Projectile.NewProjectileDirect(
                         Projectile.GetSource_FromThis(),
@@ -99,23 +114,39 @@ namespace Neutronium.Content.Projectiles
                         Projectile.knockBack,
                         Projectile.owner
                     );
-                    chain.ai[0] = ChainCount + 1; // increment chain count
-                    chain.ai[1] = target.whoAmI;  // remember last hit NPC
+                    chain.ai[0] = ChainCount + 1;
+                    chain.ai[1] = target.whoAmI;
+                    chain.timeLeft = 20;
                 }
             }
+        }
+
+        private NPC FindClosestNPC(float maxRange)
+        {
+            NPC closest = null;
+            float closestDist = maxRange * maxRange;
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                if (!npc.CanBeChasedBy()) continue;
+                float dist = Vector2.DistanceSquared(Projectile.Center, npc.Center);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closest = npc;
+                }
+            }
+            return closest;
         }
 
         private NPC FindNextTarget(NPC lastHit)
         {
             NPC closest = null;
             float closestDist = ChainRange * ChainRange;
-
             foreach (NPC npc in Main.ActiveNPCs)
             {
                 if (!npc.CanBeChasedBy()) continue;
-                if (npc.whoAmI == lastHit.whoAmI) continue; // don't chain back
-                if (npc.whoAmI == (int)LastHitNPC) continue; // don't chain to previous
-
+                if (npc.whoAmI == lastHit.whoAmI) continue;
+                if (npc.whoAmI == (int)LastHitNPC) continue;
                 float dist = Vector2.DistanceSquared(lastHit.Center, npc.Center);
                 if (dist < closestDist)
                 {
@@ -123,13 +154,38 @@ namespace Neutronium.Content.Projectiles
                     closest = npc;
                 }
             }
-
             return closest;
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            return true;
+            Texture2D texture = ModContent.Request<Texture2D>("Neutronium/Content/Particles/SmoothCircle").Value;
+            Vector2 origin = texture.Size() / 2f;
+            Color drawColor = new Color(100, 220, 255) with { A = 0 };
+
+            // Draw the trail as a thick glowing line
+            for (int i = 0; i < Projectile.oldPos.Length - 1; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+
+                float progress = 1f - i / (float)Projectile.oldPos.Length;
+                Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                Color trailColor = drawColor * progress * 0.8f;
+
+                // Wide flat bolt shape
+                Main.spriteBatch.Draw(texture, pos, null, trailColor, Projectile.oldRot[i],
+                    origin, new Vector2(0.4f, 2f) * progress * 0.25f, SpriteEffects.None, 0f);
+
+                // Bright core
+                Main.spriteBatch.Draw(texture, pos, null, Color.White with { A = 0 } * progress * 0.5f,
+                    Projectile.oldRot[i], origin, new Vector2(0.2f, 1f) * progress * 0.2f, SpriteEffects.None, 0f);
+            }
+
+            // Bright tip
+            Main.spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null,
+                drawColor, Projectile.rotation, origin, 0.3f, SpriteEffects.None, 0f);
+
+            return false;
         }
     }
 }

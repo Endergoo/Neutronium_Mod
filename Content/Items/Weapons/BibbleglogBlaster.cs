@@ -19,8 +19,8 @@ namespace Neutronium.Content.Items.Weapons
             Item.DamageType = DamageClass.Magic;
             Item.width = 38;
             Item.height = 30;
-            Item.useTime = 25;
-            Item.useAnimation = 25;
+            Item.useTime = 3;
+            Item.useAnimation = 3;
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 3;
             Item.value = Item.buyPrice(gold: 2);
