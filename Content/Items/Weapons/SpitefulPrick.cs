@@ -16,7 +16,7 @@ namespace Neutronium.Content.Items.Weapons
         {
             Item.width = 62;
             Item.height = 28;
-            Item.damage = 20;
+            Item.damage = 13;
             Item.DamageType = DamageClass.Ranged;
             Item.useAnimation = Item.useTime = 25;
             Item.useStyle = ItemUseStyleID.Shoot;
