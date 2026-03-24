@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using Neutronium.Content.Buffs;
+using Neutronium.Content.Buffs.DoT;
+
 
 namespace Neutronium.Common
 {
