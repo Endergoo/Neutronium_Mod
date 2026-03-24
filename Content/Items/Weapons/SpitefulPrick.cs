@@ -28,7 +28,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Green;
             Item.UseSound = SoundID.Item11;
-            Item.shoot = ModContent.ProjectileType<StingerProj>();
+            Item.shoot = ModContent.ProjectileType<StingerProjectile>();
         }
 
          public override void AddRecipes()
