@@ -21,7 +21,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 3f;
             Item.autoReuse = false;
-            Item.shoot = ProjectileID.Stinger
+            Item.shoot = ProjectileID.Stinger;
             Item.shootSpeed = 14f;
             Item.noMelee = true;
             Item.value = Item.buyPrice(silver: 50);
