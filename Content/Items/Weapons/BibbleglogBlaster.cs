@@ -25,7 +25,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.knockBack = 3;
             Item.value = Item.buyPrice(gold: 2);
             Item.rare = ItemRarityID.Pink;
-            Item.UseSound = SoundID.Item9; 
+            Item.UseSound = SoundID.Item122; 
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<ChainLightningProj>();
             Item.shootSpeed = 18f;
