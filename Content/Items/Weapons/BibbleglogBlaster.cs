@@ -26,7 +26,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.rare = ItemRarityID.Pink;
             Item.UseSound = SoundID.Item9; 
             Item.autoReuse = true;
-            Item.shoot = ModContent.ProjectileType<BibbleGlogBlasterProjectile>();
+            Item.shoot = ModContent.ProjectileType<BibbleglogBlasterProjectile>();
             Item.shootSpeed = 12f;
             Item.mana = 10; 
         }

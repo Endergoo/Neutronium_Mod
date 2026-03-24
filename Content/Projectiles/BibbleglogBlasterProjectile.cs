@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 
 namespace Neutronium.Content.Projectiles
 {
-    public class BibbleGlogBlasterProjectile : ModProjectile
+    public class BibbleglogBlasterProjectile : ModProjectile
     {
         public override void SetDefaults()
         {
