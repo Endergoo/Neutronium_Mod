@@ -16,7 +16,7 @@ namespace Neutronium.Content.Items.Weapons
         {
             Item.width = 62;
             Item.height = 28;
-            Item.damage = 45;
+            Item.damage = 20;
             Item.DamageType = DamageClass.Ranged;
             Item.useAnimation = Item.useTime = 25;
             Item.useStyle = ItemUseStyleID.Shoot;
@@ -29,6 +29,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.rare = ItemRarityID.Green;
             Item.UseSound = SoundID.Item11;
             Item.shoot = ModContent.ProjectileType<StingerProjectile>();
+            Item.useAmmo = ItemID.Stinger;
         }
 
          public override void AddRecipes()
