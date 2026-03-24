@@ -15,7 +15,7 @@ namespace Neutronium.Content.Projectiles
             Projectile.height = 14;
             Projectile.friendly = true;
             Projectile.hostile = false;
-            Projectile.penetrate = 1;
+            Projectile.penetrate = 2;
             Projectile.timeLeft = 300;
             Projectile.tileCollide = true;
             Projectile.DamageType = DamageClass.Ranged;
@@ -23,7 +23,7 @@ namespace Neutronium.Content.Projectiles
 
         public override void AI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
