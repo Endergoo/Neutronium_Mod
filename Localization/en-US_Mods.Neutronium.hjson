@@ -139,6 +139,11 @@ Items: {
 		Tooltip: ""
 		DisplayName: Spiteful Prick
 	}
+
+	StingerAmmo: {
+		Tooltip: ""
+		DisplayName: Stinger Ammo
+	}
 }
 
 Projectiles: {
