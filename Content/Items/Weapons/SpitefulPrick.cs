@@ -9,7 +9,7 @@ using Neutronium.Content.Projectiles;
 
 namespace Neutronium.Content.Items.Weapons
 {
-    public class StingerGun : ModItem
+    public class SpitefulPrick : ModItem
     {
         public override void SetDefaults()
         {
@@ -27,7 +27,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Green;
             Item.UseSound = SoundID.Item11;
-            Item.useAmmo = AmmoID.Arrow; // uses arrows as ammo, swap to AmmoID.Bullet if preferred
+            Item.useAmmo = ItemID.Stinger;
         }
 
          public override void AddRecipes()
