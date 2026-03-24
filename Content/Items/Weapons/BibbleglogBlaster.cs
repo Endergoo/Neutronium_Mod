@@ -32,11 +32,16 @@ namespace Neutronium.Content.Items.Weapons
             Item.mana = 10; 
         }
 
+        public override Vector2? HoldoutOffset()
+        {
+            return new Vector2(-10f, 0f);
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient(ItemID.RainbowRod)
-                .AddIngredient(ItemID.RodofDiscord)
+                .AddIngredient(ItemID.GoldBar, 12)
+                .AddIngredient(ItemID.HallowedBar, 10)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
         }
