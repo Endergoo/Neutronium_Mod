@@ -40,11 +40,10 @@ namespace Neutronium.Content.Items.Weapons
          public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient(ItemID.Stinger, 10)
-                .AddIngredient(ItemID.JungleSpores, 12)
-                .AddIngredient(ItemID.Vine, 2)
-                .AddTile(TileID.Anvils)
-                Register();
+                .AddIngredient(ItemID.Stinger, 10) 
+                .AddIngredient(ItemID.JungleSpores, 12) 
+                .AddTile(TileID.Anvils) 
+                .Register();
         }
     }
 }
