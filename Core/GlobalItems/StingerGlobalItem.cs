@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
-using Neutronium.Core.Utils;
+using Terraria.ID;
 
 public class StingerGlobalItem : GlobalItem
 {
