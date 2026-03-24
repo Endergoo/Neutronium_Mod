@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Audio;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -25,7 +26,6 @@ namespace Neutronium.Content.Items.Weapons
             Item.knockBack = 3;
             Item.value = Item.buyPrice(gold: 2);
             Item.rare = ItemRarityID.Pink;
-            Item.UseSound = SoundID.Item122; 
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<ChainLightningProj>();
             Item.shootSpeed = 18f;
@@ -39,7 +39,13 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Vector2 muzzleOffset = Vector2.Normalize(velocity) * 55f + new Vector2(0f, -8f);
+            SoundEngine.PlaySound(new SoundStyle("Terraria/Sounds/Thunder") with 
+            { 
+                Variants = new int[] { 0, 1, 2, 3, 4, 5, 6 },
+                SoundLimitBehavior = SoundLimitBehavior.ReplaceOldest
+            }, player.Center);
+
+            Vector2 muzzleOffset = Vector2.Normalize(velocity) * 60f + new Vector2(0f, -8f);
             position += muzzleOffset;
 
             Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<ChainLightningProj>(), damage, knockback, player.whoAmI);
