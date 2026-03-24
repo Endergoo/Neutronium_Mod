@@ -28,7 +28,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Green;
             Item.UseSound = SoundID.Item11;
-            Item.useAmmo = ModContent.ItemType<StingerAmmo>();
+            Item.useAmmo = ItemID.Stinger;
         }
 
          public override void AddRecipes()
