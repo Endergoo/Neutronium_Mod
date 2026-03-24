@@ -15,7 +15,7 @@ namespace Neutronium.Content.Items.Weapons
         public override void SetDefaults()
         {
             Item.damage = 60;
-            Item.scale = 1.5f;
+            Item.scale = 1.75f;
             Item.DamageType = DamageClass.Magic;
             Item.width = 38;
             Item.height = 30;
@@ -25,7 +25,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.knockBack = 3;
             Item.value = Item.buyPrice(gold: 2);
             Item.rare = ItemRarityID.Pink;
-            Item.UseSound = SoundID.Item122; 
+            Item.UseSound = SoundID.Item122 with { Volume = 0.5f };
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<ChainLightningProj>();
             Item.shootSpeed = 18f;
