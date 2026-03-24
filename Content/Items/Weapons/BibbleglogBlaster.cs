@@ -39,7 +39,7 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Vector2 muzzleOffset = Vector2.Normalize(velocity) * 50f + new Vector2(0f, -8f);
+            Vector2 muzzleOffset = Vector2.Normalize(velocity) * 55f + new Vector2(0f, -8f);
             position += muzzleOffset;
 
             Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<ChainLightningProj>(), damage, knockback, player.whoAmI);
