@@ -157,33 +157,27 @@ namespace Neutronium.Content.Projectiles
             return closest;
         }
 
-        public override bool PreDraw(ref Color lightColor)
+       public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("Neutronium/Content/Particles/SmoothCircle").Value;
-            Vector2 origin = texture.Size() / 2f;
             Color drawColor = new Color(100, 220, 255) with { A = 0 };
+            Color coreColor = Color.White with { A = 0 };
 
-            // Draw the trail as a thick glowing line
             for (int i = 0; i < Projectile.oldPos.Length - 1; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                if (Projectile.oldPos[i + 1] == Vector2.Zero) continue;
 
                 float progress = 1f - i / (float)Projectile.oldPos.Length;
-                Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Color trailColor = drawColor * progress * 0.8f;
 
-                // Wide flat bolt shape
-                Main.spriteBatch.Draw(texture, pos, null, trailColor, Projectile.oldRot[i],
-                    origin, new Vector2(0.4f, 2f) * progress * 0.25f, SpriteEffects.None, 0f);
+                Vector2 start = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                Vector2 end = Projectile.oldPos[i + 1] + Projectile.Size / 2f - Main.screenPosition;
 
-                // Bright core
-                Main.spriteBatch.Draw(texture, pos, null, Color.White with { A = 0 } * progress * 0.5f,
-                    Projectile.oldRot[i], origin, new Vector2(0.2f, 1f) * progress * 0.2f, SpriteEffects.None, 0f);
+                // Draw thick outer glow line
+                Utils.DrawLine(Main.spriteBatch, start, end, drawColor * progress * 0.8f, drawColor * progress * 0.4f, 4f);
+
+                // Draw bright white core line
+                Utils.DrawLine(Main.spriteBatch, start, end, coreColor * progress, coreColor * progress * 0.5f, 1.5f);
             }
-
-            // Bright tip
-            Main.spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null,
-                drawColor, Projectile.rotation, origin, 0.3f, SpriteEffects.None, 0f);
 
             return false;
         }
