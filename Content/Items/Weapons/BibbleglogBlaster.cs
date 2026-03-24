@@ -43,6 +43,7 @@ namespace Neutronium.Content.Items.Weapons
             { 
                 Variants = new int[] { 0, 1, 2, 3, 4, 5, 6 },
                 SoundLimitBehavior = SoundLimitBehavior.ReplaceOldest
+                Volume = 0.3f
             }, player.Center);
 
             Vector2 muzzleOffset = Vector2.Normalize(velocity) * 60f + new Vector2(0f, -8f);
