@@ -15,7 +15,7 @@ namespace Neutronium.Common
             if (npc.HasBuff(ModContent.BuffType<AtomicDeconstruction>()))
             {
                 Texture2D icon = ModContent.Request<Texture2D>("Neutronium/Content/Buffs/DoT/AtomicDeconstruction").Value;
-                Vector2 drawPos = npc.Top - screenPos - new Vector2(icon.Width  * 0.5f / 2f, icon.Height +  * 0.5f / 4f);
+                Vector2 drawPos = npc.Top - screenPos - new Vector2(icon.Width * 0.5f / 2f, icon.Height * 0.5f / 4f);
                 spriteBatch.Draw(icon, drawPos, null, Color.White, 0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0f);
             }
         }
