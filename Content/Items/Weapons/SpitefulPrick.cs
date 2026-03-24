@@ -32,11 +32,30 @@ namespace Neutronium.Content.Items.Weapons
             Item.useAmmo = ItemID.Stinger;
         }
 
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<StingerProjectile>(), damage, knockback, player.whoAmI);
+
+            for (int i = 0; i < player.inventory.Length; i++)
+            {
+                if (player.inventory[i].type == ItemID.Stinger)
+                {
+                    player.inventory[i].stack--;
+                    if (player.inventory[i].stack <= 0)
+                        player.inventory[i].TurnToAir();
+                    break;
+                }
+            }
+
+            return false;
+        }
+
          public override void AddRecipes()
         {
             CreateRecipe()
                 .AddIngredient(ItemID.Stinger, 10) 
                 .AddIngredient(ItemID.JungleSpores, 12) 
+                .AddIngredient(ItemID.Vine, 2) 
                 .AddTile(TileID.Anvils) 
                 .Register();
         }

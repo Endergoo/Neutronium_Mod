@@ -136,7 +136,11 @@ Items: {
 	}
 
 	SpitefulPrick: {
-		Tooltip: "Shoots out stingers just like those pricks in the jungle. \nUses stingers as ammo."
+		Tooltip:
+			'''
+			Shoots out stingers just like those pricks in the jungle. 
+			Uses stingers as ammo.
+			'''
 		DisplayName: Spiteful Prick
 	}
 
