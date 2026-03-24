@@ -6,6 +6,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Neutronium.Content.Projectiles;
+using Neutronium.Content.Items.Ammo;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -27,7 +28,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Green;
             Item.UseSound = SoundID.Item11;
-            Item.useAmmo = ItemID.Stinger;
+            Item.useAmmo = ModContent.ItemType<StingerAmmo>();
         }
 
          public override void AddRecipes()

@@ -134,6 +134,11 @@ Items: {
 		DisplayName: Crykal's Choir
 		Tooltip: Shoots out 2 homing stars that apply atomic deconstruction on hit.
 	}
+
+	SpitefulPrick: {
+		Tooltip: ""
+		DisplayName: Spiteful Prick
+	}
 }
 
 Projectiles: {
