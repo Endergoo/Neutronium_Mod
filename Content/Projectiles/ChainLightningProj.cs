@@ -8,7 +8,7 @@ namespace Neutronium.Content.Projectiles
 {
     public class ChainLightningProj : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_0";
+       public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.CultistBossLightningOrbArc;
 
         // ai[0] = how many times it has chained
         // ai[1] = last NPC it hit (to avoid chaining back)
@@ -61,8 +61,8 @@ namespace Neutronium.Content.Projectiles
             }
 
             // Slight zigzag motion
-            if (Main.rand.NextBool(3))
-                Projectile.velocity += Main.rand.NextVector2Circular(0.5f, 0.5f);
+            if (Main.rand.NextBool(2))
+                Projectile.velocity += Main.rand.NextVector2Circular(1.5f, 1.5f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -129,27 +129,7 @@ namespace Neutronium.Content.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("Neutronium/Content/Particles/SmoothCircle").Value;
-            Vector2 origin = texture.Size() / 2f;
-            Color drawColor = new Color(150, 200, 255) with { A = 0 };
-
-            // Draw trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                float progress = 1f - i / (float)Projectile.oldPos.Length;
-                Vector2 pos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Color trailColor = drawColor * progress * 0.6f;
-                float scale = progress * 0.15f;
-
-                Main.spriteBatch.Draw(texture, pos, null, trailColor, Projectile.rotation, origin,
-                    new Vector2(0.5f, 1.5f) * scale, SpriteEffects.None, 0f);
-            }
-
-            // Main bolt draw
-            Main.spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, drawColor,
-                Projectile.rotation, origin, new Vector2(0.5f, 1.5f) * 0.2f, SpriteEffects.None, 0f);
-
-            return false;
+            return true;
         }
     }
 }

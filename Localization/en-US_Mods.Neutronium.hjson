@@ -191,6 +191,7 @@ Projectiles: {
 	CrykalsChoirProj.DisplayName: Crykals Choir Proj
 	StingerProjectile.DisplayName: Stinger Projectile
 	BibbleglogBlasterProjectile.DisplayName: Bibbleglog Blaster Projectile
+	ChainLightningProj.DisplayName: Chain Lightning Proj
 }
 
 DarkFogUnitBuff: {
