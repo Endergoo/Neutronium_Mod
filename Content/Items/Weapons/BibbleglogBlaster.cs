@@ -9,7 +9,7 @@ using Terraria.ModLoader;
 
 namespace Neutronium.Content.Items.Weapons
 {
-    public class BibbleGlogBlaster : ModItem
+    public class BibbleglogBlaster : ModItem
     {
 
         public override void SetDefaults()
