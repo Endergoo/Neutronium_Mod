@@ -167,7 +167,7 @@ namespace Neutronium.Content.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-           target.AddBuff(ModContent.BuffType<AtomicDeconstruction>(), 180);
+           target.AddBuff(ModContent.BuffType<AtomicDeconstruction>(), 60);
         }
 
         public override void OnKill(int timeLeft)

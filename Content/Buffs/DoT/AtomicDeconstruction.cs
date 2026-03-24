@@ -22,9 +22,10 @@ namespace Neutronium.Content.Buffs.DoT
             // DR
             npc.defense = (int)(npc.defense * 0.8f);
 
-            // Damage over time — every 30 ticks (0.5 seconds)
+            // Damage over time
            if (npc.buffTime[buffIndex] % 15 == 0)
             {
+                npc.soundDelay = 1;
                 npc.SimpleStrikeNPC(75, 0, false, 0f, DamageClass.Default, true);
             }
 
