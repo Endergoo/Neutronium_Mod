@@ -27,7 +27,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.noMelee = true;
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Green;
-            Item.UseSound = SoundID.Item11;
+            Item.UseSound = SoundID.Item17;
             Item.shoot = ModContent.ProjectileType<StingerProjectile>();
             Item.useAmmo = ItemID.Stinger;
         }

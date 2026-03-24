@@ -16,7 +16,7 @@ namespace Neutronium.Content.Items.Weapons
         {
             Item.damage = 60;
             Item.DamageType = DamageClass.Magic;
-            Item.width = 30;
+            Item.width = 38;
             Item.height = 30;
             Item.useTime = 25;
             Item.useAnimation = 25;
@@ -34,9 +34,9 @@ namespace Neutronium.Content.Items.Weapons
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient(ItemID.RainbowRod) // Example ingredient
-                .AddIngredient(ItemID.RodofDiscord) // Example ingredient
-                .AddTile(TileID.MythrilAnvil) // Crafting station
+                .AddIngredient(ItemID.RainbowRod)
+                .AddIngredient(ItemID.RodofDiscord)
+                .AddTile(TileID.MythrilAnvil)
                 .Register();
         }
     }
