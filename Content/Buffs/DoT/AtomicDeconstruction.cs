@@ -28,22 +28,37 @@ namespace Neutronium.Content.Buffs.DoT
                 npc.SimpleStrikeNPC(75, 0, false, 0f, DamageClass.Default, true);
             }
 
-            // Purple aura particles
+            // Dripping effect
             if (Main.rand.NextBool(3))
             {
-                Dust dust = Dust.NewDustDirect(
+                Dust drip = Dust.NewDustDirect(
                     npc.position,
                     npc.width,
                     npc.height,
                     DustID.GemAmethyst
                 );
-                dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(0.8f, 1.4f);
-                dust.color = new Color(180, 50, 255) with { A = 0 };
-                dust.velocity = new Vector2(0, -Main.rand.NextFloat(1f, 3f));
-                dust.fadeIn = Main.rand.NextFloat(0.5f, 1f);
+                drip.noGravity = false; // affected by gravity so it drips down
+                drip.scale = Main.rand.NextFloat(0.6f, 1.2f);
+                drip.color = new Color(180, 50, 255) with { A = 0 };
+                drip.velocity = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(1f, 3f)); // falls downward
+                drip.fadeIn = Main.rand.NextFloat(0.3f, 0.6f);
             }
 
+            // Floating upward particles
+            if (Main.rand.NextBool(4))
+            {
+                Dust float1 = Dust.NewDustDirect(
+                    npc.position,
+                    npc.width,
+                    npc.height,
+                    DustID.GemAmethyst
+                );
+                float1.noGravity = true;
+                float1.scale = Main.rand.NextFloat(0.4f, 0.8f);
+                float1.color = new Color(220, 100, 255) with { A = 0 };
+                float1.velocity = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-2f, -4f)); // floats upward
+                float1.fadeIn = Main.rand.NextFloat(0.5f, 1f);
+            }
             // Faint purple light on the enemy
             Lighting.AddLight(npc.Center, new Vector3(0.3f, 0f, 0.5f));
         }
