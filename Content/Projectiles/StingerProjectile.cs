@@ -24,6 +24,7 @@ namespace Neutronium.Content.Projectiles
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
+            Lighting.AddLight(Projectile.Center, 0f, 0.3f, 0f); 
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
