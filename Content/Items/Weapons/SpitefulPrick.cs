@@ -23,7 +23,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.knockBack = 3f;
             Item.autoReuse = false;
             Item.shoot = ProjectileID.Stinger;
-            Item.shootSpeed = 14f;
+            Item.shootSpeed = 25f;
             Item.noMelee = true;
             Item.value = Item.buyPrice(silver: 50);
             Item.rare = ItemRarityID.Green;
