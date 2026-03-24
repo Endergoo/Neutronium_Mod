@@ -1,5 +1,6 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -10,195 +11,157 @@ namespace Neutronium.Content.Projectiles
     {
         public override string Texture => "Terraria/Images/Projectile_0";
 
-        public ref float ChainCount => ref Projectile.ai[0];
-        public ref float LastHitNPC => ref Projectile.ai[1];
-        public ref float Time => ref Projectile.ai[2];
+        private HashSet<NPC> shockedBefore = new HashSet<NPC>();
+        private int prevX = 0;
 
-        private const int MaxChains = 3;
-        private const float ChainRange = 300f;
-        private const float MaxRange = 350f;
-
-        private Vector2 spawnPos;
-
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.TrailCacheLength[Type] = 20;
-            ProjectileID.Sets.TrailingMode[Type] = 0;
-        }
+        public override void SetStaticDefaults() { }
 
         public override void SetDefaults()
         {
-            Projectile.width = 6;
-            Projectile.height = 6;
+            Projectile.width = 8;
+            Projectile.height = 8;
+            Projectile.alpha = 255;
             Projectile.friendly = true;
             Projectile.hostile = false;
-            Projectile.penetrate = 1;
-            Projectile.timeLeft = 25;
             Projectile.tileCollide = true;
+            Projectile.ignoreWater = true;
             Projectile.DamageType = DamageClass.Magic;
+            Projectile.timeLeft = 25;
+            Projectile.penetrate = 4; // hits up to 4 enemies
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 5;
-            Projectile.extraUpdates = 2;
+            Projectile.localNPCHitCooldown = 10;
         }
 
         public override void AI()
         {
-            if (Time == 0)
-                spawnPos = Projectile.Center;
-
-            Projectile.rotation = Projectile.velocity.ToRotation();
-
-            // Blue/white electric glow
-            Lighting.AddLight(Projectile.Center, 0.2f, 0.5f, 1f);
-
-            // Zigzag motion
-            Projectile.velocity += Main.rand.NextVector2Circular(2f, 2f);
-
-            // Cap speed
-            if (Projectile.velocity.Length() > 20f)
-                Projectile.velocity = Projectile.velocity.SafeNormalize(Vector2.Zero) * 20f;
-
-            // Electric spark dust trail
-            if (Main.rand.NextBool(2))
+            // Normalize velocity on first frame
+            if (Projectile.localAI[0] == 0f)
             {
-                Dust dust = Dust.NewDustDirect(
-                    Projectile.position,
-                    Projectile.width,
-                    Projectile.height,
-                    DustID.Electric
-                );
-                dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(0.6f, 1.2f);
-                dust.color = new Color(100, 200, 255) with { A = 0 };
-                dust.velocity *= 0.2f;
+                AdjustMagnitude(ref Projectile.velocity);
+                Projectile.localAI[0] = 1f;
             }
 
-            // Home toward nearest enemy
-            if (ChainCount == 0)
+            Vector2 move = Vector2.Zero;
+            float distance = 200f; // chain range
+            bool target = false;
+            NPC npc = null;
+            bool pastNPC = false;
+
+            // Look for new NPCs to chain to
+            if (Projectile.timeLeft < 23)
             {
-                NPC target = FindClosestNPC(MaxRange);
-                if (target != null)
+                for (int k = 0; k < Main.maxNPCs; k++)
                 {
-                    Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 20f, 0.15f);
+                    NPC n = Main.npc[k];
+                    if (n.active && !n.dontTakeDamage && !n.friendly && n.lifeMax > 5 && !shockedBefore.Contains(n))
+                    {
+                        Vector2 newMove = n.Center - (Projectile.velocity + Projectile.Center);
+                        float distanceTo = newMove.Length();
+                        if (distanceTo < distance)
+                        {
+                            move = newMove;
+                            distance = distanceTo;
+                            target = true;
+                            npc = n;
+                        }
+                    }
                 }
             }
 
-            Time++;
+            // If no new target found, look through already shocked NPCs to bounce away
+            if (!target)
+            {
+                foreach (NPC pastNpc in shockedBefore)
+                {
+                    Vector2 newMove = pastNpc.Center - (Projectile.velocity + Projectile.Center);
+                    float distanceTo = newMove.Length();
+                    if (distanceTo < distance)
+                    {
+                        move = newMove;
+                        distance = distanceTo;
+                        target = true;
+                        npc = pastNpc;
+                        pastNPC = true;
+                    }
+                }
+            }
+
+            // Draw the lightning arc using dust particles
+            Vector2 current = Projectile.Center;
+            if (target)
+            {
+                shockedBefore.Add(npc);
+                move += new Vector2(Main.rand.Next(-10, 11), Main.rand.Next(-10, 11)) * distance / 30;
+                if (pastNPC)
+                {
+                    prevX++;
+                    move += new Vector2(Main.rand.Next(-10, 11), Main.rand.Next(-10, 11)) * prevX;
+                }
+            }
+            else
+            {
+                move = (Projectile.velocity + new Vector2(Main.rand.Next(-5, 6), Main.rand.Next(-5, 6))) * 5;
+            }
+
+            // Place dust particles along the arc to create the lightning visual
+            for (int i = 0; i < 20; i++)
+            {
+                // Outer glow dust
+                Dust glowDust = Dust.NewDustDirect(current, Projectile.width, Projectile.height, DustID.Electric);
+                glowDust.velocity = Vector2.Zero;
+                glowDust.noGravity = true;
+                glowDust.scale = Main.rand.NextFloat(0.8f, 1.4f);
+                glowDust.color = new Color(100, 200, 255) with { A = 0 };
+
+                // Bright white core dust every other particle
+                if (i % 2 == 0)
+                {
+                    Dust coreDust = Dust.NewDustDirect(current, Projectile.width, Projectile.height, DustID.Electric);
+                    coreDust.velocity = Vector2.Zero;
+                    coreDust.noGravity = true;
+                    coreDust.scale = Main.rand.NextFloat(0.4f, 0.8f);
+                    coreDust.color = Color.White with { A = 0 };
+                }
+
+                // Add light along the arc
+                Lighting.AddLight(current, 0.1f, 0.3f, 0.8f);
+
+                current += move / 20f;
+            }
+
+            Projectile.position = current;
+        }
+
+        public override bool OnTileCollide(Vector2 oldVelocity)
+        {
+            Projectile.velocity = oldVelocity;
+            Projectile.timeLeft -= 12;
+            return false;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             // Spark burst on hit
-            for (int i = 0; i < 12; i++)
+            for (int i = 0; i < 15; i++)
             {
                 Dust dust = Dust.NewDustPerfect(
                     target.Center + Main.rand.NextVector2Circular(target.width / 2f, target.height / 2f),
                     DustID.Electric,
-                    Main.rand.NextVector2Circular(5f, 5f)
+                    Main.rand.NextVector2Circular(6f, 6f)
                 );
                 dust.noGravity = true;
                 dust.scale = Main.rand.NextFloat(0.8f, 1.6f);
                 dust.color = new Color(100, 200, 255) with { A = 0 };
             }
-
-            // Chain to next enemy
-            if (ChainCount < MaxChains)
-            {
-                NPC nextTarget = FindNextTarget(target);
-                if (nextTarget != null)
-                {
-                    Vector2 direction = (nextTarget.Center - target.Center).SafeNormalize(Vector2.Zero);
-                    Projectile chain = Projectile.NewProjectileDirect(
-                        Projectile.GetSource_FromThis(),
-                        target.Center,
-                        direction * 18f,
-                        Type,
-                        Projectile.damage,
-                        Projectile.knockBack,
-                        Projectile.owner
-                    );
-                    chain.ai[0] = ChainCount + 1;
-                    chain.ai[1] = target.whoAmI;
-                    chain.timeLeft = 20;
-                }
-            }
         }
 
-        private NPC FindClosestNPC(float maxRange)
+        private void AdjustMagnitude(ref Vector2 vector)
         {
-            NPC closest = null;
-            float closestDist = maxRange * maxRange;
-            foreach (NPC npc in Main.ActiveNPCs)
-            {
-                if (!npc.CanBeChasedBy()) continue;
-                float dist = Vector2.DistanceSquared(Projectile.Center, npc.Center);
-                if (dist < closestDist)
-                {
-                    closestDist = dist;
-                    closest = npc;
-                }
-            }
-            return closest;
+            float magnitude = vector.Length();
+            if (magnitude > 6f)
+                vector *= 6f / magnitude;
         }
 
-        private NPC FindNextTarget(NPC lastHit)
-        {
-            NPC closest = null;
-            float closestDist = ChainRange * ChainRange;
-            foreach (NPC npc in Main.ActiveNPCs)
-            {
-                if (!npc.CanBeChasedBy()) continue;
-                if (npc.whoAmI == lastHit.whoAmI) continue;
-                if (npc.whoAmI == (int)LastHitNPC) continue;
-                float dist = Vector2.DistanceSquared(lastHit.Center, npc.Center);
-                if (dist < closestDist)
-                {
-                    closestDist = dist;
-                    closest = npc;
-                }
-            }
-            return closest;
-        }
-
-        public override bool PreDraw(ref Color lightColor)
-        {
-            Vector2 start = spawnPos - Main.screenPosition;
-            Vector2 end = Projectile.Center - Main.screenPosition;
-            Vector2 dir = end - start;
-            float length = dir.Length();
-
-            if (length == 0)
-                return false;
-
-            dir = Vector2.Normalize(dir);
-
-            Vector2 current = start;
-            float step = 12f;
-            Color drawColor = new Color(100, 220, 255) with { A = 0 };
-            Color coreColor = Color.White with { A = 0 };
-
-            while ((current - start).Length() < length)
-            {
-                Vector2 next = current + dir * step + Main.rand.NextVector2Circular(8f, 8f);
-
-                // Clamp so we don't overshoot
-                if ((next - start).Length() > length)
-                    next = end;
-
-                // Outer glow
-                Utils.DrawLine(Main.spriteBatch, current, next, drawColor * 0.8f, drawColor * 0.4f, 4f);
-                // Bright core
-                Utils.DrawLine(Main.spriteBatch, current, next, coreColor * 0.9f, coreColor * 0.5f, 1.5f);
-
-                current = next;
-            }
-
-            // Glowing tip
-            Texture2D texture = ModContent.Request<Texture2D>("Neutronium/Content/Particles/SmoothCircle").Value;
-            Main.spriteBatch.Draw(texture, end, null, drawColor, 0f, texture.Size() / 2f, 0.15f, SpriteEffects.None, 0f);
-
-            return false;
-        }
+        public override bool PreDraw(ref Color lightColor) => false;
     }
 }
