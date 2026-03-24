@@ -34,7 +34,7 @@ namespace Neutronium.Content.Items.Weapons
 
         public override Vector2? HoldoutOffset()
         {
-            return new Vector2(-10f, 0f);
+            return new Vector2(-5f, 0f);
         }
 
         public override void AddRecipes()
