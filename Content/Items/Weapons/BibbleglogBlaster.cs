@@ -42,7 +42,7 @@ namespace Neutronium.Content.Items.Weapons
             SoundEngine.PlaySound(new SoundStyle("Terraria/Sounds/Thunder") with 
             { 
                 Variants = new int[] { 0, 1, 2, 3, 4, 5, 6 },
-                SoundLimitBehavior = SoundLimitBehavior.ReplaceOldest
+                SoundLimitBehavior = SoundLimitBehavior.ReplaceOldest,
                 Volume = 0.3f
             }, player.Center);
 
