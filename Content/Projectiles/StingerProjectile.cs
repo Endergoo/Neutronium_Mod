@@ -7,7 +7,7 @@ namespace Neutronium.Content.Projectiles
 {
     public class StingerProjectile : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_31"; // vanilla stinger texture
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.HornetStinger;
 
         public override void SetDefaults()
         {

@@ -180,6 +180,7 @@ Projectiles: {
 	CelestialBeam.DisplayName: Celestial Beam
 	CrykalsChoirTrail.DisplayName: Crykals Choir Trail
 	CrykalsChoirProj.DisplayName: Crykals Choir Proj
+	StingerProjectile.DisplayName: Stinger Projectile
 }
 
 DarkFogUnitBuff: {

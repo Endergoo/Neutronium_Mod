@@ -1,14 +1,15 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria;
-using Terraria.ModLoader;
 using Terraria.ID;
+using Terraria.ModLoader;
 
-public class StingerGlobalItem : GlobalItem
+namespace Neutronium.Core.GlobalItems
 {
-    public override void SetDefaults(Item item)
+    public class StingerGlobalItem : GlobalItem
     {
-        if (item.type == ItemID.Stinger)
-            item.ammo = ItemID.Stinger;
+        public override void SetDefaults(Item item)
+        {
+            if (item.type == ItemID.Stinger)
+                item.ammo = ItemID.Stinger;
+        }
     }
 }
