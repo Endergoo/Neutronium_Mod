@@ -37,6 +37,15 @@ namespace Neutronium.Content.Items.Weapons
             return new Vector2(-5f, 0f);
         }
 
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            Vector2 muzzleOffset = Vector2.Normalize(velocity) * 40f;
+            position += muzzleOffset;
+
+            Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<ChainLightningProj>(), damage, knockback, player.whoAmI);
+            return false;
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()
