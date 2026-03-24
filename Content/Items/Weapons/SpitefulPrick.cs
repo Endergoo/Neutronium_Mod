@@ -6,7 +6,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Neutronium.Content.Projectiles;
-using Neutronium.Content.Items.Ammo;
+using Neutronium.Core.GlobalItems;
 
 namespace Neutronium.Content.Items.Weapons
 {
