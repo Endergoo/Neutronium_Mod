@@ -144,6 +144,8 @@ namespace Neutronium.Content.Projectiles
             // Spark burst on hit
             for (int i = 0; i < 15; i++)
             {
+                target.AddBuff(BuffID.Electrified, 180);
+
                 Dust dust = Dust.NewDustPerfect(
                     target.Center + Main.rand.NextVector2Circular(target.width / 2f, target.height / 2f),
                     DustID.Electric,
