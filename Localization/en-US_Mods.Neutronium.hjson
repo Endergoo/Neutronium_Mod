@@ -150,7 +150,7 @@ Items: {
 	}
 
 	BibbleglogBlaster: {
-		Tooltip: "Urethra!"
+		Tooltip: Urethra!
 		DisplayName: Bibbleglog Blaster
 	}
 }

@@ -14,26 +14,31 @@ namespace Neutronium.Content.Players
 {
     public class NeutroniumPlayer : ModPlayer
     {
-        // Tracks the current sword swing
         public bool swinging;
-        public int swingTime;            // counts ticks for the swing
-        public float swingCompletion;    // 0 -> 1
-        public Vector2 bladeTip;         // tip position for hitbox / trail
-        public bool trailSpawned;        // whether trail was spawned this swing
+        public int swingTime;            
+        public float swingCompletion;    
+        public Vector2 bladeTip;         
+        public bool trailSpawned;        
 
-        // Optional: customize swing arc and length
         public float swingArc = MathHelper.ToRadians(180f);
         public float bladeLength = 60f;
 
+
+        public bool shimmeringStone = false;
+
         public override void ResetEffects()
         {
-            // Reset any temporary flags each tick
-            // (You can add more later if needed)
+            shimmeringStone = false;
         }
 
-        /// <summary>
-        /// Call this every tick for a sword item.
-        /// </summary>
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (shimmeringStone && proj.DamageType == DamageClass.Magic)
+            {
+                target.AddBuff(BuffID.Frostburn, 180);
+            }
+        }
+        
         public void UpdateSwordSwing(Player player, int useAnimation)
         {
             if (!swinging)
@@ -92,5 +97,6 @@ namespace Neutronium.Content.Players
             swingCompletion = 0f;
             trailSpawned = false;
         }
+
     }
 }
