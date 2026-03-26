@@ -38,7 +38,7 @@ namespace Neutronium.Content.Items.Accessories
             CreateRecipe()
                 .AddIngredient(ItemID.Emerald, 3)
                 .AddIngredient(ItemID.StoneBlock, 15)
-                .AddIngredient(ItemID.IceBlock, 10)
+                .AddIngredient(ItemID.JungleSpores, 5)
                 .AddTile(TileID.TinkerersWorkbench)
                 .Register();
         }

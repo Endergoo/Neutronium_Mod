@@ -156,7 +156,16 @@ Items: {
 
 	ShimmeringSapphire: {
 		DisplayName: Shimmering Sapphire
-		Tooltip: "Increases mana regen and imbues attacks with frostburn. \n'Feels cold to the touch'"
+		Tooltip:
+			'''
+			Increases mana regen and imbues attacks with frostburn. 
+			'Feels cold to the touch'
+			'''
+	}
+
+	ShimmeringEmerald: {
+		Tooltip: ""
+		DisplayName: Shimmering Emerald
 	}
 }
 
