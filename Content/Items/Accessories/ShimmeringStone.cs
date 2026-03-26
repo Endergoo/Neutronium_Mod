@@ -12,7 +12,7 @@ namespace Neutronium.Content.Items.Accessories
     {
         public override void SetStaticDefaults()
         {
-            Main.RegisterItemAnimation(Item.type, new DrawAnimationVertical(5, 10));
+            Main.RegisterItemAnimation(Item.type, new DrawAnimationVertical(7, 10));
             ItemID.Sets.AnimatesAsSoul[Type] = true;
         }
 
