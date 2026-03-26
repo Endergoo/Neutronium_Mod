@@ -7,6 +7,12 @@ namespace Neutronium.Content.Items.Accessories
 {
     public class ShimmeringStone : ModItem
     {
+        public override void SetStaticDefaults()
+        {
+            Main.RegisterItemAnimation(Item.type, new DrawAnimationVertical(5, 17));
+            ItemID.Sets.AnimatesAsSoul[Type] = true;
+        }
+        
         public override void SetDefaults()
         {
             Item.width = 20;
@@ -22,7 +28,6 @@ namespace Neutronium.Content.Items.Accessories
             player.manaRegenBonus += 5;
             player.manaRegenDelayBonus += 30;
 
-            // Enable frostburn on magic hits
             player.GetModPlayer<NeutroniumPlayer>().shimmeringStone = true;
         }
 

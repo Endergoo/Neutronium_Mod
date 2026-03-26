@@ -153,6 +153,11 @@ Items: {
 		Tooltip: Urethra!
 		DisplayName: Bibbleglog Blaster
 	}
+
+	ShimmeringStone: {
+		Tooltip: ""
+		DisplayName: Shimmering Stone
+	}
 }
 
 Projectiles: {
