@@ -27,8 +27,7 @@ namespace Neutronium.Content.Items.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            // Increase mana regen
-            player.GetDamage(DamageClass.Melee) += 0.10f;
+            player.statDefense += 5;
 
             player.GetModPlayer<NeutroniumPlayer>().shimmeringEmerald = true;
         }
