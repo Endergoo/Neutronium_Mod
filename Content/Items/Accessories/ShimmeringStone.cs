@@ -19,9 +19,9 @@ namespace Neutronium.Content.Items.Accessories
         public override void SetDefaults()
         {
             Item.width = 20;
-            Item.height = 26;
+            Item.height = 28;
             Item.accessory = true;
-            Item.value = Item.buyPrice(silver: 30);
+            Item.value = Item.buyPrice(gold: 1);
             Item.rare = ItemRarityID.Blue;
         }
 
