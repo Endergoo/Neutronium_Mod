@@ -8,7 +8,7 @@ using Neutronium.Content.Players;
 
 namespace Neutronium.Content.Items.Accessories
 {
-    public class ShimmeringSapphire : ModItem
+    public class ShimmeringRuby : ModItem
     {
         public override void SetStaticDefaults()
         {
@@ -27,17 +27,17 @@ namespace Neutronium.Content.Items.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            player.manaRegenBonus += 5;
+            pplayer.lifeRegen += 6;
 
-            player.GetModPlayer<NeutroniumPlayer>().shimmeringSapphire = true;
+            player.GetModPlayer<NeutroniumPlayer>().shimmeringRuby = true;
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient(ItemID.Sapphire, 3)
+                .AddIngredient(ItemID.Ruby, 3)
                 .AddIngredient(ItemID.StoneBlock, 15)
-                .AddIngredient(ItemID.IceBlock, 10)
+                .AddIngredient(ItemID.CrimtaneOre, 10)
                 .AddTile(TileID.TinkerersWorkbench)
                 .Register();
         }

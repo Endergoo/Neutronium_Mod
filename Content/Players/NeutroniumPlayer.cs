@@ -26,11 +26,14 @@ namespace Neutronium.Content.Players
 
         public bool shimmeringSapphire = false;
         public bool shimmeringEmerald = false;
+        public bool shimmeringRuby = false;
+
 
         public override void ResetEffects()
         {
             shimmeringSapphire = false;
             shimmeringEmerald = false;
+            shimmeringRuby = false;
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
@@ -43,6 +46,11 @@ namespace Neutronium.Content.Players
             if (shimmeringEmerald)
             {
                 target.AddBuff(BuffID.Poisoned, 180);
+            }
+
+            if (shimmeringRuby)
+            {
+                target.AddBuff(BuffID.Onfire, 180);
             }
         }
 
