@@ -154,9 +154,9 @@ Items: {
 		DisplayName: Bibbleglog Blaster
 	}
 
-	ShimmeringStone: {
-		Tooltip: Increases mana regen and adds frostburn to magic attacks.
-		DisplayName: Shimmering Stone
+	ShimmeringSapphire: {
+		DisplayName: Shimmering Sapphire
+		Tooltip: "Increases mana regen and imbues attacks with frostburn. \n'Feels cold to the touch'"
 	}
 }
 
