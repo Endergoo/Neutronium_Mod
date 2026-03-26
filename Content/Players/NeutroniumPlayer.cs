@@ -24,21 +24,21 @@ namespace Neutronium.Content.Players
         public float bladeLength = 60f;
 
 
-        public bool shimmeringStone = false;
+        public bool shimmeringSapphire = false;
 
         public override void ResetEffects()
         {
-            shimmeringStone = false;
+            shimmeringSapphire = false;
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (shimmeringStone && proj.DamageType == DamageClass.Magic)
+            if (shimmeringSapphire && proj.DamageType == DamageClass.Magic)
             {
                 target.AddBuff(BuffID.Frostburn, 180);
             }
         }
-        
+
         public void UpdateSwordSwing(Player player, int useAnimation)
         {
             if (!swinging)

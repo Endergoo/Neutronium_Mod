@@ -8,7 +8,7 @@ using Neutronium.Content.Players;
 
 namespace Neutronium.Content.Items.Accessories
 {
-    public class ShimmeringStone : ModItem
+    public class ShimmeringSapphire : ModItem
     {
         public override void SetStaticDefaults()
         {
@@ -31,7 +31,7 @@ namespace Neutronium.Content.Items.Accessories
             player.manaRegenBonus += 5;
             player.manaRegenDelayBonus += 30;
 
-            player.GetModPlayer<NeutroniumPlayer>().shimmeringStone = true;
+            player.GetModPlayer<NeutroniumPlayer>().shimmeringSapphire = true;
         }
 
         public override void AddRecipes()
