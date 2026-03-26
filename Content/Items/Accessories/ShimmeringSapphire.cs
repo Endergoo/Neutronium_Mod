@@ -29,7 +29,6 @@ namespace Neutronium.Content.Items.Accessories
         {
             // Increase mana regen
             player.manaRegenBonus += 5;
-            player.manaRegenDelayBonus += 30;
 
             player.GetModPlayer<NeutroniumPlayer>().shimmeringSapphire = true;
         }

@@ -165,7 +165,12 @@ Items: {
 	}
 
 	ShimmeringEmerald: {
-		Tooltip: "5 defense \nImbues attacks with poison.\n'Kind of smells'"
+		Tooltip:
+			'''
+			5 defense 
+			Imbues attacks with poison.
+			'Kinda smells'
+			'''
 		DisplayName: Shimmering Emerald
 	}
 }
