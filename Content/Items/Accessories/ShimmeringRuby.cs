@@ -27,7 +27,7 @@ namespace Neutronium.Content.Items.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            pplayer.lifeRegen += 6;
+            player.lifeRegen += 6;
 
             player.GetModPlayer<NeutroniumPlayer>().shimmeringRuby = true;
         }
