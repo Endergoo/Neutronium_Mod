@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Neutronium.Content.Players;
 
@@ -12,7 +15,7 @@ namespace Neutronium.Content.Items.Accessories
             Main.RegisterItemAnimation(Item.type, new DrawAnimationVertical(5, 17));
             ItemID.Sets.AnimatesAsSoul[Type] = true;
         }
-        
+
         public override void SetDefaults()
         {
             Item.width = 20;
