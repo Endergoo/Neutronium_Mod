@@ -155,7 +155,7 @@ Items: {
 	}
 
 	ShimmeringStone: {
-		Tooltip: ""
+		Tooltip: Increases mana regen and adds frostburn to magic attacks.
 		DisplayName: Shimmering Stone
 	}
 }
