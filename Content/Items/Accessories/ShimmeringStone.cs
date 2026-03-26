@@ -39,6 +39,7 @@ namespace Neutronium.Content.Items.Accessories
             CreateRecipe()
                 .AddIngredient(ItemID.Sapphire, 3)
                 .AddIngredient(ItemID.StoneBlock, 15)
+                .AddIngredient(ItemID.IceBlock, 10)
                 .AddTile(TileID.TinkerersWorkbench)
                 .Register();
         }
