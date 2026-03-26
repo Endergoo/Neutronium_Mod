@@ -42,7 +42,7 @@ namespace Neutronium.Content.Players
 
             if (shimmeringEmerald)
             {
-                target.AddBuff(BuffID.Poison, 180);
+                target.AddBuff(BuffID.Poisoned, 180);
             }
         }
 
