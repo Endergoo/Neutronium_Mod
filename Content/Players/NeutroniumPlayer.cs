@@ -33,7 +33,7 @@ namespace Neutronium.Content.Players
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (shimmeringSapphire && proj.DamageType == DamageClass.Magic)
+            if (shimmeringSapphire)
             {
                 target.AddBuff(BuffID.Frostburn, 180);
             }
