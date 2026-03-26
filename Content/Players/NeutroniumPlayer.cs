@@ -50,7 +50,7 @@ namespace Neutronium.Content.Players
 
             if (shimmeringRuby)
             {
-                target.AddBuff(BuffID.Onfire, 180);
+                target.AddBuff(BuffID.OnFire, 180);
             }
         }
 
