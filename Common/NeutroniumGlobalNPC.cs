@@ -42,7 +42,7 @@ public class NeutroniumGlobalNPC : GlobalNPC
         {
             if (npc.type == NPCID.Corruptor)
             {
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<CorruptorMass>(), 30)); // 1 in 30
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<CorruptorChunk>(), 30)); // 1 in 30
             }
         }
 }
