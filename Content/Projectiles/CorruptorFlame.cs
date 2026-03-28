@@ -17,6 +17,8 @@ namespace Neutronium.Content.Projectiles
             Projectile.hostile = false;
             Projectile.penetrate = 1;
             Projectile.timeLeft = 120;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = -1;
             Projectile.tileCollide = false;
             Projectile.DamageType = DamageClass.Generic;
             Projectile.scale = 0.5f; // smaller than vanilla
