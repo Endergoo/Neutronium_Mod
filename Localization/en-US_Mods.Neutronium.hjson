@@ -158,8 +158,8 @@ Items: {
 		DisplayName: Shimmering Sapphire
 		Tooltip:
 			'''
-			Increases mana regen.
-			Imbues attacks with frostburn. 
+			Increases mana regen
+			Imbues attacks with frostburn
 			'Feels cold to the touch'
 			'''
 	}
@@ -168,7 +168,7 @@ Items: {
 		Tooltip:
 			'''
 			5 defense 
-			Imbues attacks with poison.
+			Imbues attacks with poison
 			'Kinda smells'
 			'''
 		DisplayName: Shimmering Emerald
@@ -178,20 +178,21 @@ Items: {
 		DisplayName: Shimmering Ruby
 		Tooltip:
 			'''
-			Increases health regen.
-			Imbues attacks with fire.
+			Increases health regen
+			Imbues attacks with fire
 			'It burns'
 			'''
 	}
 
-	CorruptorMass: {
-		Tooltip: ""
-		DisplayName: Corruptor Mass
-	}
-
 	CorruptorChunk: {
 		DisplayName: Corruptor Chunk
-		Tooltip: ""
+		Tooltip:
+			'''
+			Attacks inflict cursed inferno
+			5% increased damage
+			Reduced life regen
+			'The paraste leeches off of you'
+			'''
 	}
 }
 
