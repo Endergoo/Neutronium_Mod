@@ -9,26 +9,23 @@ using Terraria.Graphics.CameraModifiers;
 using Terraria.DataStructures;
 using Neutronium.Content.Projectiles;
 
-
 namespace Neutronium.Content.Players
 {
     public class NeutroniumPlayer : ModPlayer
     {
         public bool swinging;
-        public int swingTime;            
-        public float swingCompletion;    
-        public Vector2 bladeTip;         
-        public bool trailSpawned;        
+        public int swingTime;
+        public float swingCompletion;
+        public Vector2 bladeTip;
+        public bool trailSpawned;
 
         public float swingArc = MathHelper.ToRadians(180f);
         public float bladeLength = 60f;
-
 
         public bool shimmeringSapphire = false;
         public bool shimmeringEmerald = false;
         public bool shimmeringRuby = false;
         public bool corruptorMass = false;
-
 
         public override void ResetEffects()
         {
@@ -41,32 +38,23 @@ namespace Neutronium.Content.Players
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
             if (shimmeringSapphire)
-            {
                 target.AddBuff(BuffID.Frostburn, 180);
-            }
 
             if (shimmeringEmerald)
-            {
                 target.AddBuff(BuffID.Poisoned, 180);
-            }
 
             if (shimmeringRuby)
-            {
                 target.AddBuff(BuffID.OnFire, 180);
-            }
 
             if (corruptorMass && Main.rand.NextFloat() < 0.20f)
             {
-                // Apply Cursed Inferno
                 target.AddBuff(BuffID.CursedInferno, 180);
 
-                // Burst of 3-4 cursed projectiles
                 int projCount = Main.rand.Next(3, 5);
                 for (int i = 0; i < projCount; i++)
                 {
-                    Vector2 velocity = Main.rand.NextVector2Circular(8f, 8f);
                     Projectile.NewProjectile(
-                        Player.GetSource_Accessory(Player.armor[1]),
+                        Player.GetSource_Misc(0),
                         target.Center,
                         Main.rand.NextVector2Circular(8f, 8f),
                         ModContent.ProjectileType<CorruptorFlame>(),
@@ -136,6 +124,5 @@ namespace Neutronium.Content.Players
             swingCompletion = 0f;
             trailSpawned = false;
         }
-
     }
 }
