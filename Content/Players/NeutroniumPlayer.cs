@@ -68,8 +68,8 @@ namespace Neutronium.Content.Players
                     Projectile.NewProjectile(
                         Player.GetSource_Accessory(Player.armor[1]),
                         target.Center,
-                        velocity,
-                        ProjectileID.CursedFlameHostile,
+                        Main.rand.NextVector2Circular(8f, 8f),
+                        ModContent.ProjectileType<CorruptorFlame>(),
                         (int)(damageDone * 0.3f),
                         3f,
                         Player.whoAmI
