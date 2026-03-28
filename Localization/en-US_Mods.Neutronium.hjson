@@ -173,6 +173,11 @@ Items: {
 			'''
 		DisplayName: Shimmering Emerald
 	}
+
+	ShimmeringRuby: {
+		DisplayName: Shimmering Ruby
+		Tooltip: "Increases health regen.\nImbues attacks with fire.\n'It burns'"
+	}
 }
 
 Projectiles: {

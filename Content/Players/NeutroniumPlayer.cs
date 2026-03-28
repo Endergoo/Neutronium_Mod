@@ -27,6 +27,7 @@ namespace Neutronium.Content.Players
         public bool shimmeringSapphire = false;
         public bool shimmeringEmerald = false;
         public bool shimmeringRuby = false;
+        public bool corruptorMass = false;
 
 
         public override void ResetEffects()
@@ -34,6 +35,7 @@ namespace Neutronium.Content.Players
             shimmeringSapphire = false;
             shimmeringEmerald = false;
             shimmeringRuby = false;
+            corruptorMass = false;
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
@@ -51,6 +53,28 @@ namespace Neutronium.Content.Players
             if (shimmeringRuby)
             {
                 target.AddBuff(BuffID.OnFire, 180);
+            }
+
+            if (corruptorMass && Main.rand.NextFloat() < 0.20f)
+            {
+                // Apply Cursed Inferno
+                target.AddBuff(BuffID.CursedInferno, 180);
+
+                // Burst of 3-4 cursed projectiles
+                int projCount = Main.rand.Next(3, 5);
+                for (int i = 0; i < projCount; i++)
+                {
+                    Vector2 velocity = Main.rand.NextVector2Circular(8f, 8f);
+                    Projectile.NewProjectile(
+                        Player.GetSource_Accessory(Player.armor[1]),
+                        target.Center,
+                        velocity,
+                        ProjectileID.CursedFlameHostile,
+                        (int)(damageDone * 0.3f),
+                        3f,
+                        Player.whoAmI
+                    );
+                }
             }
         }
 
