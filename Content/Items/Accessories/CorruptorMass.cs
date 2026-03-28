@@ -10,16 +10,10 @@ namespace Neutronium.Content.Items.Accessories
 {
     public class CorruptorMass : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            Main.RegisterItemAnimation(Item.type, new DrawAnimationVertical(7, 5));
-            ItemID.Sets.AnimatesAsSoul[Type] = true;
-        }
-
         public override void SetDefaults()
         {
-            Item.width = 22;
-            Item.height = 40;
+            Item.width = 33;
+            Item.height = 60;
             Item.accessory = true;
             Item.value = Item.buyPrice(gold: 1);
             Item.rare = ItemRarityID.LightRed;
