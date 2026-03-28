@@ -4,6 +4,8 @@ using Terraria;
 using Terraria.ModLoader;
 using Neutronium.Content.Buffs;
 using Neutronium.Content.Buffs.DoT;
+using Terraria.GameContent.ItemDropRules;
+using Neutronium.Content.Items.Accessories;
 
 
 public class NeutroniumGlobalNPC : GlobalNPC
