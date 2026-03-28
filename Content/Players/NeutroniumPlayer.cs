@@ -54,14 +54,14 @@ namespace Neutronium.Content.Players
                 for (int i = 0; i < projCount; i++)
                 {
                     Projectile.NewProjectile(
-                        Player.GetSource_Misc("CorruptorMass"),
-                        target.Center,
-                        Main.rand.NextVector2Circular(8f, 8f),
-                        ModContent.ProjectileType<CorruptorFlame>(),
-                        (int)(damageDone * 0.3f),
-                        3f,
-                        Player.whoAmI
-                    );
+                    Player.GetSource_Misc("CorruptorMass"),
+                target.Center + Main.rand.NextVector2Circular(30f, 30f), 
+                    Main.rand.NextVector2Circular(8f, 8f),
+                    ModContent.ProjectileType<CorruptorFlame>(),
+                    (int)(damageDone * 0.3f),
+                    3f,
+                    Player.whoAmI
+                );
                 }
             }
         }
