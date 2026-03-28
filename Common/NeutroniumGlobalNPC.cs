@@ -41,4 +41,5 @@ public class NeutroniumGlobalNPC : GlobalNPC
             {
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<CorruptorMass>(), 30)); // 1 in 30
             }
+        }
 }
