@@ -188,6 +188,11 @@ Items: {
 		Tooltip: ""
 		DisplayName: Corruptor Mass
 	}
+
+	CorruptorChunk: {
+		DisplayName: Corruptor Chunk
+		Tooltip: ""
+	}
 }
 
 Projectiles: {

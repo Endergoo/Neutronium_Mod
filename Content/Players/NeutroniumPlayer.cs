@@ -46,7 +46,7 @@ namespace Neutronium.Content.Players
             if (shimmeringRuby)
                 target.AddBuff(BuffID.OnFire, 180);
 
-            if (corruptorChunk && Main.rand.NextFloat() < 0.20f)
+            if (corruptorChunk)
             {
                 target.AddBuff(BuffID.CursedInferno, 180);
             }

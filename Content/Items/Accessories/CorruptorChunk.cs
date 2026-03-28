@@ -21,6 +21,10 @@ namespace Neutronium.Content.Items.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
+            player.statDamage += 0.05f
+            player.lifeRegen -= 2;
+            player.lifeRegenTime -= 30;
+            
             player.GetModPlayer<NeutroniumPlayer>().corruptorChunk = true;
         }
     }
