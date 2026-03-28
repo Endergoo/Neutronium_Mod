@@ -8,12 +8,12 @@ using Neutronium.Content.Players;
 
 namespace Neutronium.Content.Items.Accessories
 {
-    public class CorruptorMass : ModItem
+    public class CorruptorChunk : ModItem
     {
         public override void SetDefaults()
         {
-            Item.width = 33;
-            Item.height = 60;
+            Item.width = 26;
+            Item.height = 44;
             Item.accessory = true;
             Item.value = Item.buyPrice(gold: 1);
             Item.rare = ItemRarityID.LightRed;
@@ -21,7 +21,7 @@ namespace Neutronium.Content.Items.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            player.GetModPlayer<NeutroniumPlayer>().corruptorMass = true;
+            player.GetModPlayer<NeutroniumPlayer>().corruptorChunk = true;
         }
     }
 }

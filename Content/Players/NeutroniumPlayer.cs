@@ -25,14 +25,14 @@ namespace Neutronium.Content.Players
         public bool shimmeringSapphire = false;
         public bool shimmeringEmerald = false;
         public bool shimmeringRuby = false;
-        public bool corruptorMass = false;
+        public bool corruptorChunk = false;
 
         public override void ResetEffects()
         {
             shimmeringSapphire = false;
             shimmeringEmerald = false;
             shimmeringRuby = false;
-            corruptorMass = false;
+            corruptorChunk = false;
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
@@ -46,7 +46,7 @@ namespace Neutronium.Content.Players
             if (shimmeringRuby)
                 target.AddBuff(BuffID.OnFire, 180);
 
-            if (corruptorMass && Main.rand.NextFloat() < 0.20f)
+            if (corruptorChunk && Main.rand.NextFloat() < 0.20f)
             {
                 target.AddBuff(BuffID.CursedInferno, 180);
             }
