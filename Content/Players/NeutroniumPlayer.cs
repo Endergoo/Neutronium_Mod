@@ -49,20 +49,6 @@ namespace Neutronium.Content.Players
             if (corruptorMass && Main.rand.NextFloat() < 0.20f)
             {
                 target.AddBuff(BuffID.CursedInferno, 180);
-
-                int projCount = Main.rand.Next(3, 5);
-                for (int i = 0; i < projCount; i++)
-                {
-                    Projectile.NewProjectile(
-                    Player.GetSource_Misc("CorruptorMass"),
-                    target.Center + Main.rand.NextVector2Circular(30f, 30f), 
-                    Main.rand.NextVector2Circular(8f, 8f),
-                    ModContent.ProjectileType<CorruptorFlame>(),
-                    (int)(damageDone * 0.3f),
-                    3f,
-                    Player.whoAmI
-                );
-                }
             }
         }
 
