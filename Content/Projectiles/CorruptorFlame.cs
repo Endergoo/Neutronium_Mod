@@ -15,10 +15,10 @@ namespace Neutronium.Content.Projectiles
             Projectile.height = 8;
             Projectile.friendly = true;
             Projectile.hostile = false;
-            Projectile.penetrate = 1;
             Projectile.timeLeft = 120;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = -1;
+            Projectile.localNPCHitCooldown = 10;
+            Projectile.penetrate = -1; // infinite penetrate but local immunity limits hits
             Projectile.tileCollide = false;
             Projectile.DamageType = DamageClass.Generic;
             Projectile.scale = 0.5f; // smaller than vanilla
