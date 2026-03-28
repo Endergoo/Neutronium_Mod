@@ -8,7 +8,7 @@ namespace Neutronium.Content.Projectiles
     public class CorruptorFlame : ModProjectile
     {
         public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.CursedFlameHostile;
-        
+
         public override void SetDefaults()
         {
             Projectile.width = 8;
@@ -24,18 +24,23 @@ namespace Neutronium.Content.Projectiles
 
         public override void AI()
         {
+            Projectile.ai[0]++;
+
             // Green cursed flame light
             Lighting.AddLight(Projectile.Center, 0f, 0.4f, 0f);
 
             // Rotate sprite
             Projectile.rotation += 0.3f;
 
-            // Home toward nearest enemy
-            NPC target = FindClosestNPC(400f);
-            if (target != null)
+            // Only start homing after 20 ticks
+            if (Projectile.ai[0] > 20f)
             {
-                Vector2 desired = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 10f;
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desired, 0.08f);
+                NPC target = FindClosestNPC(400f);
+                if (target != null)
+                {
+                    Vector2 desired = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 10f;
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desired, 0.08f);
+                }
             }
 
             // Cursed flame dust trail

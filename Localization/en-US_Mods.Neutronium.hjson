@@ -227,6 +227,7 @@ Projectiles: {
 	StingerProjectile.DisplayName: Stinger Projectile
 	BibbleglogBlasterProjectile.DisplayName: Bibbleglog Blaster Projectile
 	ChainLightningProj.DisplayName: Chain Lightning Proj
+	CorruptorFlame.DisplayName: Corruptor Flame
 }
 
 DarkFogUnitBuff: {
