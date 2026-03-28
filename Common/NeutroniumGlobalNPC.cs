@@ -20,4 +20,25 @@ public class NeutroniumGlobalNPC : GlobalNPC
             spriteBatch.Draw(icon, drawPos, null, Color.White, 0f, Vector2.Zero, DebuffIconScale, SpriteEffects.None, 0f);
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //Loot
+     public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
+        {
+            if (npc.type == NPCID.Corruptor)
+            {
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<CorruptorMass>(), 30)); // 1 in 30
+            }
 }
