@@ -7,8 +7,8 @@ namespace Neutronium.Content.Projectiles
 {
     public class CorruptorFlame : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.CursedFlame;
-
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.CursedFlameHostile;
+        
         public override void SetDefaults()
         {
             Projectile.width = 8;
