@@ -62,8 +62,8 @@ namespace Neutronium.Content.Items.Weapons
             }
 
             // Spawn the beam projectile
-            Vector2 muzzlePos = position + dir * 20f + new Vector2(-10f, 0f);
-
+            Vector2 muzzlePos = position + new Vector2(20f * player.direction, -8f);
+            
             Projectile beam = Projectile.NewProjectileDirect(
                 source,
                 muzzlePos,
