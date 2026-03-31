@@ -42,14 +42,6 @@ namespace Neutronium.Content.Projectiles
             FadeTimer++;
             Projectile.velocity = Vector2.Zero;
 
-            // Spawn explosion on first frame
-            if (FadeTimer == 1f && !exploded)
-            {
-                exploded = true;
-                Vector2 dir = Projectile.rotation.ToRotationVector2();
-                SpawnExplosion(Projectile.Center + dir * BeamLength);
-            }
-
             // Red light along beam
             float fadeProgress = 1f - FadeTimer / FadeDuration;
             Vector2 beamDir = Projectile.rotation.ToRotationVector2();
@@ -77,10 +69,6 @@ namespace Neutronium.Content.Projectiles
 
         private void SpawnExplosion(Vector2 position)
         {
-            // Screen shake
-            PunchCameraModifier punch = new PunchCameraModifier(
-                position, Main.rand.NextVector2Unit(), 8f, 10f, 20, 1000f);
-            Main.instance.CameraModifiers.Add(punch);
 
             // Explosion dust burst
             for (int i = 0; i < 30; i++)
