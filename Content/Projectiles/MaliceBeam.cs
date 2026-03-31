@@ -89,7 +89,7 @@ namespace Neutronium.Content.Projectiles
                 null,
                 beamColor * 0.35f * fadeProgress,
                 Projectile.rotation + MathHelper.PiOver2,
-                new Vector2(texture.Width / 2f, 0f),
+                new Vector2(texture.Width / 2f, texture.Height),
                 new Vector2(0.08f, BeamLength / texture.Height) * 1f,
                 SpriteEffects.None,
                 0);
@@ -101,7 +101,7 @@ namespace Neutronium.Content.Projectiles
                 null,
                 coreColor * fadeProgress,
                 Projectile.rotation + MathHelper.PiOver2,
-                new Vector2(texture.Width / 2f, 0f),
+                new Vector2(texture.Width / 2f, texture.Height),
                 new Vector2(0.03f, BeamLength / texture.Height) * 1f,
                 SpriteEffects.None,
                 0);
