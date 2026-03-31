@@ -19,7 +19,6 @@ namespace Neutronium.Content.Items.Weapons
             Item.useAnimation = Item.useTime = 40;
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 8f;
-            Item.scale = 0.75f;
             Item.autoReuse = false;
             Item.noMelee = true;
             Item.shoot = ModContent.ProjectileType<MaliceBeam>();
@@ -63,7 +62,7 @@ namespace Neutronium.Content.Items.Weapons
             }
 
             // Spawn the beam projectile
-            Vector2 muzzlePos = position + dir * 20f + new Vector2(-8f, 0f);
+            Vector2 muzzlePos = position + dir * 20f + new Vector2(-10f, 0f);
 
             Projectile beam = Projectile.NewProjectileDirect(
                 source,
