@@ -194,6 +194,11 @@ Items: {
 			'The paraste leeches off of you'
 			'''
 	}
+
+	MaliceCannon: {
+		Tooltip: ""
+		DisplayName: Malice Cannon
+	}
 }
 
 Projectiles: {
@@ -234,6 +239,7 @@ Projectiles: {
 	BibbleglogBlasterProjectile.DisplayName: Bibbleglog Blaster Projectile
 	ChainLightningProj.DisplayName: Chain Lightning Proj
 	CorruptorFlame.DisplayName: Corruptor Flame
+	MaliceBeam.DisplayName: Malice Beam
 }
 
 DarkFogUnitBuff: {

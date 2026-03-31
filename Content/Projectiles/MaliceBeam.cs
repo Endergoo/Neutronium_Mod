@@ -76,31 +76,33 @@ namespace Neutronium.Content.Projectiles
             Texture2D texture = ModContent.Request<Texture2D>("Neutronium/Content/Particles/SmoothCircle").Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 dir = Projectile.rotation.ToRotationVector2();
-
             float fadeProgress = 1f - FadeTimer / FadeDuration;
+
             Color beamColor = new Color(255, 30, 30) with { A = 0 };
             Color coreColor = new Color(255, 200, 200) with { A = 0 };
 
-            // Draw outer glow
-            Utils.DrawLine(Main.spriteBatch,
-                Projectile.Center - Main.screenPosition,
-                Projectile.Center + dir * BeamLength - Main.screenPosition,
-                beamColor * fadeProgress * 0.8f,
-                beamColor * fadeProgress * 0.3f,
-                12f);
+            // Draw beam as stretched circles along the length
+            float step = 8f;
+            for (float i = 0; i < BeamLength; i += step)
+            {
+                Vector2 pos = Projectile.Center + dir * i - Main.screenPosition;
+                float progress = fadeProgress * (1f - i / BeamLength * 0.3f);
 
-            // Draw bright core
-            Utils.DrawLine(Main.spriteBatch,
-                Projectile.Center - Main.screenPosition,
-                Projectile.Center + dir * BeamLength - Main.screenPosition,
-                coreColor * fadeProgress,
-                coreColor * fadeProgress * 0.5f,
-                4f);
+                // Outer glow
+                Main.spriteBatch.Draw(texture, pos, null,
+                    beamColor * progress * 0.6f, Projectile.rotation,
+                    origin, new Vector2(0.3f, 1.5f) * 0.25f, SpriteEffects.None, 0f);
 
-            // Bright impact point
+                // Bright core
+                Main.spriteBatch.Draw(texture, pos, null,
+                    coreColor * progress * 0.9f, Projectile.rotation,
+                    origin, new Vector2(0.1f, 0.8f) * 0.25f, SpriteEffects.None, 0f);
+            }
+
+            // Bright impact point at end
             Main.spriteBatch.Draw(texture,
                 Projectile.Center + dir * BeamLength - Main.screenPosition,
-                null, beamColor * fadeProgress, 0f, origin, 0.4f, SpriteEffects.None, 0f);
+                null, beamColor * fadeProgress, 0f, origin, 0.5f, SpriteEffects.None, 0f);
 
             return false;
         }
