@@ -38,7 +38,9 @@ namespace Neutronium.Content.Items.Weapons
             Vector2 dir = velocity.SafeNormalize(Vector2.Zero);
             float rotation = dir.ToRotation();
 
-            // Raycast to find beam length — stop at first tile or enemy
+            // Declare muzzlePos first
+            Vector2 muzzlePos = position + dir * 40f;
+
             float beamLength = 2400f;
 
             // Check tile collision
@@ -53,22 +55,6 @@ namespace Neutronium.Content.Items.Weapons
                 if (!npc.CanBeChasedBy()) continue;
                 float _ = float.NaN;
                 if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(),
-                    position, position + dir * beamLength, 8f, ref _))
-                {
-                    float dist = Vector2.Distance(position, npc.Center);
-                    if (dist < beamLength)
-                        beamLength = dist;
-                }
-            }
-
-            // Spawn the beam projectile
-            Vector2 muzzlePos = position + dir * 40f + new Vector2(0f, 0f);
-
-            foreach (NPC npc in Main.ActiveNPCs)
-            {
-                if (!npc.CanBeChasedBy()) continue;
-                float _ = float.NaN;
-                if (Collision.CheckAABBvLineCollision(npc.Hitbox.TopLeft(), npc.Hitbox.Size(),
                     muzzlePos, muzzlePos + dir * beamLength, 8f, ref _))
                 {
                     float dist = Vector2.Distance(muzzlePos, npc.Center);
@@ -77,6 +63,7 @@ namespace Neutronium.Content.Items.Weapons
                 }
             }
 
+            // Spawn beam
             Projectile beam = Projectile.NewProjectileDirect(
                 source,
                 muzzlePos,
