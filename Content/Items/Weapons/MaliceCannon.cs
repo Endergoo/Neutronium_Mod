@@ -75,16 +75,6 @@ namespace Neutronium.Content.Items.Weapons
             beam.rotation = rotation;
             beam.ai[0] = beamLength;
 
-            // Muzzle flash
-            for (int i = 0; i < 20; i++)
-            {
-                Dust dust = Dust.NewDustDirect(position, 1, 1, DustID.RedTorch);
-                dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(1f, 2f);
-                dust.velocity = dir.RotatedByRandom(0.5f) * Main.rand.NextFloat(4f, 12f);
-                dust.color = new Color(255, 50, 50) with { A = 0 };
-            }
-
             return false;
         }
 
