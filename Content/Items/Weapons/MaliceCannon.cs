@@ -19,7 +19,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.useAnimation = Item.useTime = 40;
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 8f;
-            Item.scale = 0.5f
+            Item.scale = 0.5f;
             Item.autoReuse = false;
             Item.noMelee = true;
             Item.shoot = ModContent.ProjectileType<MaliceBeam>();
