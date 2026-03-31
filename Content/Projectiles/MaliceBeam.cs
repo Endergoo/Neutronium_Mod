@@ -131,7 +131,7 @@ namespace Neutronium.Content.Projectiles
                 coreColor * fadeProgress,
                 Projectile.rotation + MathHelper.PiOver2,
                 new Vector2(texture.Width / 2f, texture.Height),
-                new Vector2(0.02f, BeamLength / texture.Height),
+                new Vector2(0.01f, BeamLength / texture.Height),
                 SpriteEffects.None,
                 0);
 
