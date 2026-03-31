@@ -232,7 +232,7 @@ namespace Neutronium.Content.Items.Weapons
             if (beamFX <= 0f)
                 return false;
 
-            Texture2D beam = ModContent.Request<Texture2D>("CalamityMod/Particles/BloomLineThick").Value;
+            Texture2D beam = ModContent.Request<Texture2D>("Neutronium/Content/Particles/BloomLineThick").Value;
 
             float opacity = (doneAttack ? 0.9f : 0.5f) * (float)Math.Pow(Math.Min(beamFX, 1f), 2);
             Color beamColor = drawColor with { A = 0 };

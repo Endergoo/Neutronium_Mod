@@ -73,36 +73,38 @@ namespace Neutronium.Content.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("Neutronium/Content/Particles/SmoothCircle").Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 dir = Projectile.rotation.ToRotationVector2();
+            Texture2D texture = ModContent.Request<Texture2D>("Neutronium/Content/Particles/BloomLineThick").Value;
             float fadeProgress = 1f - FadeTimer / FadeDuration;
+            Vector2 dir = Projectile.rotation.ToRotationVector2();
 
             Color beamColor = new Color(255, 30, 30) with { A = 0 };
             Color coreColor = new Color(255, 200, 200) with { A = 0 };
 
-            // Draw beam as stretched circles along the length
-            float step = 8f;
-            for (float i = 0; i < BeamLength; i += step)
-            {
-                Vector2 pos = Projectile.Center + dir * i - Main.screenPosition;
-                float progress = fadeProgress * (1f - i / BeamLength * 0.3f);
+            Vector2 beamStart = Projectile.Center - Main.screenPosition;
 
-                // Outer glow
-                Main.spriteBatch.Draw(texture, pos, null,
-                    beamColor * progress * 0.6f, Projectile.rotation,
-                    origin, new Vector2(0.3f, 1.5f) * 0.25f, SpriteEffects.None, 0f);
+            // Outer glow — wide and soft
+            Main.EntitySpriteDraw(
+                texture,
+                beamStart,
+                null,
+                beamColor * 0.35f * fadeProgress,
+                Projectile.rotation + MathHelper.PiOver2,
+                new Vector2(texture.Width / 2f, 0f),
+                new Vector2(0.08f, BeamLength / texture.Height) * 1f,
+                SpriteEffects.None,
+                0);
 
-                // Bright core
-                Main.spriteBatch.Draw(texture, pos, null,
-                    coreColor * progress * 0.9f, Projectile.rotation,
-                    origin, new Vector2(0.1f, 0.8f) * 0.25f, SpriteEffects.None, 0f);
-            }
-
-            // Bright impact point at end
-            Main.spriteBatch.Draw(texture,
-                Projectile.Center + dir * BeamLength - Main.screenPosition,
-                null, beamColor * fadeProgress, 0f, origin, 0.5f, SpriteEffects.None, 0f);
+            // Bright core — slim
+            Main.EntitySpriteDraw(
+                texture,
+                beamStart,
+                null,
+                coreColor * fadeProgress,
+                Projectile.rotation + MathHelper.PiOver2,
+                new Vector2(texture.Width / 2f, 0f),
+                new Vector2(0.03f, BeamLength / texture.Height) * 1f,
+                SpriteEffects.None,
+                0);
 
             return false;
         }
