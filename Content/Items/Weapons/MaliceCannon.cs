@@ -63,9 +63,11 @@ namespace Neutronium.Content.Items.Weapons
             }
 
             // Spawn the beam projectile
+            Vector2 muzzlePos = position + dir * 20f + new Vector2(0f, -8f);
+
             Projectile beam = Projectile.NewProjectileDirect(
                 source,
-                position,
+                muzzlePos,
                 Vector2.Zero,
                 ModContent.ProjectileType<MaliceBeam>(),
                 damage,
