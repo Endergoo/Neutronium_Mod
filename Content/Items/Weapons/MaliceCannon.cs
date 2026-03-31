@@ -30,7 +30,7 @@ namespace Neutronium.Content.Items.Weapons
 
         public override Vector2? HoldoutOffset()
         {
-            return new Vector2(-25f, 0f);
+            return new Vector2(-30f, 0f);
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
