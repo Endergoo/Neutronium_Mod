@@ -94,6 +94,7 @@ namespace Neutronium.Content.Projectiles
             for (int i = 0; i < rayCount; i++)
             {
                 float individualAlpha = rayAlpha * (0.7f + 0.3f * (float)Math.Sin(i * 1.3f));
+                float angle = i / (float)rayCount * MathHelper.TwoPi;
 
                 // Outer ray
                 Main.EntitySpriteDraw(line, center, null,
