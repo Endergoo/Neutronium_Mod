@@ -28,7 +28,6 @@ namespace Neutronium.Content.Items.Weapons
             Item.rare = ItemRarityID.Pink;
             Item.UseSound = new SoundStyle("Neutronium/Content/Sounds/Items/Mcannon") with
             {
-                Pitch = Main.rand.NextFloat(-0.15f, 0.15f),
                 Volume = 0.75f
             };
         }
@@ -40,6 +39,12 @@ namespace Neutronium.Content.Items.Weapons
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            SoundEngine.PlaySound(new SoundStyle("Neutronium/Content/Sounds/Items/Mcannon") with
+            {
+                Pitch = Main.rand.NextFloat(-0.15f, 0.15f),
+                Volume = 0.5f
+            }, player.Center);
+            
             Vector2 dir = velocity.SafeNormalize(Vector2.Zero);
             float rotation = dir.ToRotation();
 
