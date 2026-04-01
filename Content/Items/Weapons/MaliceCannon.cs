@@ -28,7 +28,7 @@ namespace Neutronium.Content.Items.Weapons
             Item.rare = ItemRarityID.Pink;
             Item.UseSound = new SoundStyle("Neutronium/Content/Sounds/Items/Mcannon") with
             {
-                Volume = 0.65f
+                Volume = 0.55f
             };
         }
 
@@ -42,6 +42,7 @@ namespace Neutronium.Content.Items.Weapons
             SoundEngine.PlaySound(new SoundStyle("Neutronium/Content/Sounds/Items/Mcannon") with
             {
                 Pitch = Main.rand.NextFloat(-0.15f, 0.15f),
+                Volume = 0.55f
             }, player.Center);
 
             Vector2 dir = velocity.SafeNormalize(Vector2.Zero);
