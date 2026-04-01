@@ -79,6 +79,17 @@ namespace Neutronium.Content.Projectiles
         private void SpawnExplosion(Vector2 position)
         {
 
+            // Damage nearby enemies in explosion radius
+            float explosionRadius = 150f;
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                if (!npc.CanBeChasedBy()) continue;
+                if (Vector2.Distance(position, npc.Center) <= explosionRadius)
+                {
+                    npc.SimpleStrikeNPC(Projectile.damage, 0, false, 0f, DamageClass.Ranged, false);
+                }
+            }
+
             // Screen shake
             PunchCameraModifier punch = new PunchCameraModifier(
                 position, Main.rand.NextVector2Unit(), 8f, 10f, 20, 1000f);
