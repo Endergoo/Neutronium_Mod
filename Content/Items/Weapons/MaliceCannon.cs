@@ -5,6 +5,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Neutronium.Content.Projectiles;
+using Terraria.Graphics.CameraModifiers;
 
 namespace Neutronium.Content.Items.Weapons
 {
@@ -30,7 +31,7 @@ namespace Neutronium.Content.Items.Weapons
         {
             Pitch = Main.rand.NextFloat(-0.15f, 0.15f),
             Volume = 0.75f
-        }, position);
+        });
         }
 
         public override Vector2? HoldoutOffset()
