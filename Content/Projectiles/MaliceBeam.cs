@@ -78,7 +78,7 @@ namespace Neutronium.Content.Projectiles
 
         private void SpawnExplosion(Vector2 position)
         {
-             SoundEngine.PlaySound(new SoundStyle("Neutronium/Content/Sounds/MCannon") with
+             SoundEngine.PlaySound(new SoundStyle("Neutronium/Content/Sounds/Items/MCannon") with
             {
                 Pitch = Main.rand.NextFloat(-0.15f, 0.15f),
                 Volume = 0.5f
