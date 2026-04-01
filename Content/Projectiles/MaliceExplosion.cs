@@ -88,16 +88,17 @@ namespace Neutronium.Content.Projectiles
                 0f, origin, innerScale, SpriteEffects.None, 0f);
 
             // --- Expanding shockwave ring ---
-            float ringRadius = MathHelper.Lerp(20f, 200f, eased);
-            float ringAlpha = (float)Math.Sin(progress * Math.PI) * 0.8f;
-            int ringSegments = 32;
+            float ringRadius = MathHelper.Lerp(10f, 180f, eased);
+            float ringThickness = MathHelper.Lerp(0.3f, 0.05f, eased); // gets thinner as it expands
+            float ringAlpha = (float)Math.Sin(progress * Math.PI) * 1f;
+            int ringSegments = 64; // more segments = smoother ring
             for (int i = 0; i < ringSegments; i++)
             {
                 float angle = i / (float)ringSegments * MathHelper.TwoPi;
                 Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * ringRadius;
                 Main.spriteBatch.Draw(circle, center + offset, null,
-                    new Color(255, 100, 0) with { A = 0 } * ringAlpha * 0.6f,
-                    angle, origin, 0.15f,
+                    new Color(255, 80, 0) with { A = 0 } * ringAlpha,
+                    angle, origin, new Vector2(ringThickness, 0.12f),
                     SpriteEffects.None, 0f);
             }
 
