@@ -79,7 +79,8 @@ namespace Neutronium.Content.Projectiles
         {
              SoundEngine.PlaySound(new SoundStyle("Neutronium/Content/Sounds/MCannon") with
             {
-                Pitch = Main.rand.NextFloat(-0.15f, 0.15f)
+                Pitch = Main.rand.NextFloat(-0.15f, 0.15f),
+                Volume = 0.5f
             }, position);
             // Screen shake
             PunchCameraModifier punch = new PunchCameraModifier(
