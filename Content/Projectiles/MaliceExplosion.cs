@@ -104,13 +104,6 @@ namespace Neutronium.Content.Projectiles
                     new Vector2(0.04f, rayLength),
                     SpriteEffects.None, 0);
 
-                // Bright core ray
-                Main.EntitySpriteDraw(line, center, null,
-                    Color.White with { A = 0 } * individualAlpha * 0.4f,
-                    angle + MathHelper.PiOver2,
-                    lineOrigin,
-                    new Vector2(0.015f, rayLength * 0.7f),
-                    SpriteEffects.None, 0);
             }
 
             // --- Expanding shockwave ring using SmoothCircle ---
