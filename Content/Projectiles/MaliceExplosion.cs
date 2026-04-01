@@ -12,7 +12,7 @@ namespace Neutronium.Content.Projectiles
         public override string Texture => "Terraria/Images/Projectile_0";
 
         public ref float Timer => ref Projectile.ai[0];
-        private const int Duration = 25;
+        private const int Duration = 75;
 
         public override void SetStaticDefaults()
         {
@@ -93,7 +93,6 @@ namespace Neutronium.Content.Projectiles
             int rayCount = 8;
             for (int i = 0; i < rayCount; i++)
             {
-                float angle = i / (float)rayCount * MathHelper.TwoPi + progress * 0.5f;
                 float individualAlpha = rayAlpha * (0.7f + 0.3f * (float)Math.Sin(i * 1.3f));
 
                 // Outer ray
