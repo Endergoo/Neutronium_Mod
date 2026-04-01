@@ -77,6 +77,10 @@ namespace Neutronium.Content.Projectiles
 
         private void SpawnExplosion(Vector2 position)
         {
+             SoundEngine.PlaySound(new SoundStyle("Neutronium/Content/Sounds/MCannon") with
+            {
+                Pitch = Main.rand.NextFloat(-0.15f, 0.15f)
+            }, position);
             // Screen shake
             PunchCameraModifier punch = new PunchCameraModifier(
                 position, Main.rand.NextVector2Unit(), 8f, 10f, 20, 1000f);

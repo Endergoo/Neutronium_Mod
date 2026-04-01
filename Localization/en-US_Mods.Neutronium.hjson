@@ -240,6 +240,7 @@ Projectiles: {
 	ChainLightningProj.DisplayName: Chain Lightning Proj
 	CorruptorFlame.DisplayName: Corruptor Flame
 	MaliceBeam.DisplayName: Malice Beam
+	MaliceExplosion.DisplayName: Malice Explosion
 }
 
 DarkFogUnitBuff: {
