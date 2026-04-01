@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Graphics.CameraModifiers;
-using Neutronium.Content.Sounds.Items;
 using Terraria.Audio;
 
 namespace Neutronium.Content.Projectiles
