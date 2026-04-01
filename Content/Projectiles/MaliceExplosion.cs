@@ -12,7 +12,7 @@ namespace Neutronium.Content.Projectiles
         public override string Texture => "Terraria/Images/Projectile_0";
 
         public ref float Timer => ref Projectile.ai[0];
-        private const int Duration = 40;
+        private const int Duration = 25;
 
         public override void SetStaticDefaults()
         {
@@ -43,14 +43,12 @@ namespace Neutronium.Content.Projectiles
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    // Orange/red debris
                     Dust debris = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.RedTorch);
                     debris.noGravity = false;
                     debris.scale = Main.rand.NextFloat(1.2f, 2.5f);
                     debris.velocity = Main.rand.NextVector2Circular(14f, 14f);
                     debris.color = new Color(255, Main.rand.Next(50, 150), 0) with { A = 0 };
 
-                    // White hot core debris
                     Dust core = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.RedTorch);
                     core.noGravity = false;
                     core.scale = Main.rand.NextFloat(0.6f, 1.2f);
@@ -59,7 +57,6 @@ namespace Neutronium.Content.Projectiles
                 }
             }
 
-            // Red/orange light that fades
             float lightFade = 1f - progress;
             Lighting.AddLight(Projectile.Center, lightFade * 2f, lightFade * 0.4f, 0f);
         }
@@ -67,47 +64,66 @@ namespace Neutronium.Content.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D circle = ModContent.Request<Texture2D>("Neutronium/Content/Particles/SmoothCircle").Value;
+            Texture2D line = ModContent.Request<Texture2D>("Neutronium/Content/Particles/BloomLineThick").Value;
+
             Vector2 center = Projectile.Center - Main.screenPosition;
-            Vector2 origin = circle.Size() / 2f;
+            Vector2 circleOrigin = circle.Size() / 2f;
+            Vector2 lineOrigin = new Vector2(line.Width / 2f, line.Height);
 
             float progress = Timer / Duration;
-            float eased = (float)Math.Pow(progress, 0.4f); // fast expand then slow
+            float eased = (float)Math.Pow(progress, 0.4f);
 
-            // --- White core flash (fades quickly) ---
-            float coreScale = MathHelper.Lerp(0.5f, 1.5f, eased);
-            float coreAlpha = Math.Max(0f, 1f - progress * 3f); // fades by 1/3 duration
+            // --- White core flash ---
+            float coreScale = MathHelper.Lerp(0.3f, 1.2f, eased);
+            float coreAlpha = Math.Max(0f, 1f - progress * 3f);
             Main.spriteBatch.Draw(circle, center, null,
                 Color.White with { A = 0 } * coreAlpha,
-                0f, origin, coreScale, SpriteEffects.None, 0f);
+                0f, circleOrigin, coreScale, SpriteEffects.None, 0f);
 
-            // --- Orange/yellow inner glow ---
-            float innerScale = MathHelper.Lerp(0.3f, 2.5f, eased);
+            // --- Orange inner glow ---
+            float innerScale = MathHelper.Lerp(0.2f, 2f, eased);
             float innerAlpha = Math.Max(0f, 1f - progress * 2f);
             Main.spriteBatch.Draw(circle, center, null,
                 new Color(255, 150, 0) with { A = 0 } * innerAlpha * 0.8f,
-                0f, origin, innerScale, SpriteEffects.None, 0f);
+                0f, circleOrigin, innerScale, SpriteEffects.None, 0f);
 
-            // --- Expanding shockwave ring ---
-            float ringRadius = MathHelper.Lerp(10f, 180f, eased);
-            float ringThickness = MathHelper.Lerp(0.3f, 0.05f, eased); // gets thinner as it expands
-            float ringAlpha = (float)Math.Sin(progress * Math.PI) * 1f;
-            int ringSegments = 64; // more segments = smoother ring
-            for (int i = 0; i < ringSegments; i++)
+            // --- Rays radiating outward using BloomLineThick ---
+            float rayAlpha = Math.Max(0f, 1f - progress * 2.5f);
+            float rayLength = MathHelper.Lerp(0.02f, 0.12f, eased);
+            int rayCount = 8;
+            for (int i = 0; i < rayCount; i++)
             {
-                float angle = i / (float)ringSegments * MathHelper.TwoPi;
-                Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * ringRadius;
-                Main.spriteBatch.Draw(circle, center + offset, null,
-                    new Color(255, 80, 0) with { A = 0 } * ringAlpha,
-                    angle, origin, new Vector2(ringThickness, 0.12f),
-                    SpriteEffects.None, 0f);
+                float angle = i / (float)rayCount * MathHelper.TwoPi + progress * 0.5f;
+                float individualAlpha = rayAlpha * (0.7f + 0.3f * (float)Math.Sin(i * 1.3f));
+
+                // Outer ray
+                Main.EntitySpriteDraw(line, center, null,
+                    new Color(255, 80, 0) with { A = 0 } * individualAlpha * 0.6f,
+                    angle + MathHelper.PiOver2,
+                    lineOrigin,
+                    new Vector2(0.04f, rayLength),
+                    SpriteEffects.None, 0);
+
+                // Bright core ray
+                Main.EntitySpriteDraw(line, center, null,
+                    Color.White with { A = 0 } * individualAlpha * 0.4f,
+                    angle + MathHelper.PiOver2,
+                    lineOrigin,
+                    new Vector2(0.015f, rayLength * 0.7f),
+                    SpriteEffects.None, 0);
             }
 
-            // --- Dark outer shockwave ---
-            float outerScale = MathHelper.Lerp(1f, 6f, eased);
-            float outerAlpha = (float)Math.Sin(progress * Math.PI) * 0.4f;
+            // --- Expanding shockwave ring using SmoothCircle ---
+            float ringScale = MathHelper.Lerp(0.5f, 5f, eased);
+            float ringAlpha = (float)Math.Sin(progress * Math.PI) * 0.5f;
+            // Draw as a thin ring by drawing two circles — outer minus inner
             Main.spriteBatch.Draw(circle, center, null,
-                new Color(80, 20, 0) with { A = 0 } * outerAlpha,
-                0f, origin, outerScale, SpriteEffects.None, 0f);
+                new Color(255, 60, 0) with { A = 0 } * ringAlpha,
+                0f, circleOrigin, ringScale, SpriteEffects.None, 0f);
+            // Subtract inner to make it look like a ring
+            Main.spriteBatch.Draw(circle, center, null,
+                new Color(0, 0, 0) with { A = 200 } * ringAlpha * 1.5f,
+                0f, circleOrigin, ringScale * 0.75f, SpriteEffects.None, 0f);
 
             return false;
         }
