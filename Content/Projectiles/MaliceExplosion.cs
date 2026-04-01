@@ -120,10 +120,6 @@ namespace Neutronium.Content.Projectiles
             Main.spriteBatch.Draw(circle, center, null,
                 new Color(255, 60, 0) with { A = 0 } * ringAlpha,
                 0f, circleOrigin, ringScale, SpriteEffects.None, 0f);
-            // Subtract inner to make it look like a ring
-            Main.spriteBatch.Draw(circle, center, null,
-                new Color(0, 0, 0) with { A = 200 } * ringAlpha * 1.5f,
-                0f, circleOrigin, ringScale * 0.75f, SpriteEffects.None, 0f);
 
             return false;
         }
