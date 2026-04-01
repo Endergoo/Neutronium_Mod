@@ -12,7 +12,7 @@ namespace Neutronium.Content.Projectiles
         public override string Texture => "Terraria/Images/Projectile_0";
 
         public ref float Timer => ref Projectile.ai[0];
-        private const int Duration = 25;
+        private const int Duration = 40;
 
         public override void SetStaticDefaults()
         {
