@@ -98,7 +98,7 @@ namespace Neutronium.Content.Projectiles
 
                 // Outer ray
                 Main.EntitySpriteDraw(line, center, null,
-                    new Color(255, 80, 0) with { A = 0 } * individualAlpha * 0.6f,
+                    new Color(163, 158, 158) with { A = 0 } * individualAlpha * 0.6f,
                     angle + MathHelper.PiOver2,
                     lineOrigin,
                     new Vector2(0.04f, rayLength),
