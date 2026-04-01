@@ -107,7 +107,7 @@ namespace Neutronium.Content.Projectiles
             }
 
             // --- Expanding shockwave ring using SmoothCircle ---
-            float ringScale = MathHelper.Lerp(0.5f, 5f, eased);
+            float ringScale = MathHelper.Lerp(0.5f, 3.75f, eased);
             float ringAlpha = (float)Math.Sin(progress * Math.PI) * 0.5f;
             // Draw as a thin ring by drawing two circles — outer minus inner
             Main.spriteBatch.Draw(circle, center, null,
