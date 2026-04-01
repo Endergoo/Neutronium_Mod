@@ -84,8 +84,9 @@ namespace Neutronium.Content.Projectiles
             foreach (NPC npc in Main.ActiveNPCs)
             {
                 if (!npc.CanBeChasedBy()) continue;
-                if (npc.whoAmI == skipNPCIndex) continue; // skip the directly hit enemy
-                if (Vector2.Distance(position, npc.Center) <= explosionRadius)
+                float distFromBeamEnd = Vector2.Distance(position, npc.Center);
+                if (distFromBeamEnd < 20f) continue; // skip enemy right at beam end
+                if (distFromBeamEnd <= explosionRadius)
                 {
                     npc.SimpleStrikeNPC(Projectile.damage, 0, false, 0f, DamageClass.Ranged, false);
                 }
