@@ -76,7 +76,7 @@ namespace Neutronium.Content.Projectiles
             );
         }
 
-        private void SpawnExplosion(Vector2 position)
+        private void SpawnExplosion(Vector2 position, int skipNPCIndex = -1)
         {
 
             // Damage nearby enemies in explosion radius
@@ -84,6 +84,7 @@ namespace Neutronium.Content.Projectiles
             foreach (NPC npc in Main.ActiveNPCs)
             {
                 if (!npc.CanBeChasedBy()) continue;
+                if (npc.whoAmI == skipNPCIndex) continue; // skip the directly hit enemy
                 if (Vector2.Distance(position, npc.Center) <= explosionRadius)
                 {
                     npc.SimpleStrikeNPC(Projectile.damage, 0, false, 0f, DamageClass.Ranged, false);
