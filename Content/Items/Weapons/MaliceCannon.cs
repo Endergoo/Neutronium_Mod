@@ -41,7 +41,7 @@ namespace Neutronium.Content.Items.Weapons
         {
             SoundEngine.PlaySound(new SoundStyle("Neutronium/Content/Sounds/Items/Mcannon") with
             {
-                Pitch = Main.rand.NextFloat(-0.3f, -0.6f),
+                Pitch = Main.rand.NextFloat(-0.1f, -0.4f),
                 Volume = 0.55f
             }, player.Center);
 
