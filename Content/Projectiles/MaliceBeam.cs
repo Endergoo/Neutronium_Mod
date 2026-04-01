@@ -77,28 +77,21 @@ namespace Neutronium.Content.Projectiles
 
         private void SpawnExplosion(Vector2 position)
         {
+            // Screen shake
+            PunchCameraModifier punch = new PunchCameraModifier(
+                position, Main.rand.NextVector2Unit(), 8f, 10f, 20, 1000f);
+            Main.instance.CameraModifiers.Add(punch);
 
-            // Explosion dust burst
-            for (int i = 0; i < 30; i++)
-            {
-                Dust dust = Dust.NewDustDirect(position, 1, 1, DustID.RedTorch);
-                dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(1f, 2.5f);
-                dust.velocity = Main.rand.NextVector2Circular(12f, 12f);
-                dust.color = new Color(255, 50, 50) with { A = 0 };
-            }
-
-            // White flash
-            for (int i = 0; i < 15; i++)
-            {
-                Dust dust = Dust.NewDustDirect(position, 1, 1, DustID.RedTorch);
-                dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(0.5f, 1.5f);
-                dust.velocity = Main.rand.NextVector2Circular(6f, 6f);
-                dust.color = Color.White with { A = 0 };
-            }
-
-            Lighting.AddLight(position, 3f, 0.5f, 0.5f);
+            // Spawn explosion visual projectile
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(),
+                position,
+                Vector2.Zero,
+                ModContent.ProjectileType<MaliceExplosion>(),
+                0,
+                0f,
+                Projectile.owner
+            );
         }
 
         public override bool PreDraw(ref Color lightColor)
